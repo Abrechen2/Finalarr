@@ -12,7 +12,7 @@ import fcntl
 import logging
 import threading
 from collections.abc import Callable
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import IO, Any, Protocol
 
@@ -28,6 +28,7 @@ log = logging.getLogger(__name__)
 
 DRAIN_SECONDS = 5
 JOB_TIMEOUT_GRACE = 60
+EXTRA_JOB_DELAY_SECONDS = 20
 
 
 class _Reconciler(Protocol):
@@ -41,7 +42,7 @@ class SchedulerService:
         reconciler: _Reconciler,
         lock_path: Path,
         retry_seconds: float = 10.0,
-        extra_jobs: list[tuple[str, Callable[[], None], float]] | None = None,
+        extra_jobs: list[tuple[str, Callable[[], object], float]] | None = None,
     ) -> None:
         self._db = db
         self._reconciler = reconciler
@@ -86,8 +87,16 @@ class SchedulerService:
             id="full_sync",
             replace_existing=True,
         )
+        first_run = datetime.now(UTC) + timedelta(seconds=EXTRA_JOB_DELAY_SECONDS)
         for job_id, func, seconds in self._extra_jobs:
-            scheduler.add_job(func, "interval", seconds=seconds, id=job_id, replace_existing=True)
+            scheduler.add_job(
+                func,
+                "interval",
+                seconds=seconds,
+                id=job_id,
+                replace_existing=True,
+                next_run_time=first_run,
+            )
         scheduler.start()
         self._scheduler = scheduler
         self.queue_full_syncs()

@@ -31,7 +31,7 @@ def upgrade() -> None:
         sa.Column("source", sa.String(length=10), nullable=False),
         sa.Column("fetched_at", sa.DateTime(timezone=True), nullable=False),
         sa.CheckConstraint("source IN ('fribb', 'manual')", name="ck_anilist_mappings_source"),
-        sa.PrimaryKeyConstraint("tvdb_id", "tvdb_season", "anilist_id"),
+        sa.PrimaryKeyConstraint("tvdb_id", "tvdb_season", "anilist_id", "source"),
     )
     op.create_table(
         "channels",

@@ -40,7 +40,7 @@ def episodes(sid, season, count, first_air, interval_days, files, finale=None, s
 
 SERIES = [
     series(1, "That Time I Got Reincarnated as a Slime", 2018, "anime", [1, 2, 3]),
-    series(2, "Mushoku Tensei", 2021, "anime", [1, 2]),
+    series(2, "Mushoku Tensei", 2021, "anime", [1, 2]) | {"tvdbId": 371310},
     series(3, "Severance", 2022, "standard", [1, 2]),
     series(4, "Andor", 2022, "standard", [1, 2]),
     series(5, "Frieren", 2023, "anime", [1, 2]),

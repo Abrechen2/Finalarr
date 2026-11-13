@@ -9,7 +9,7 @@ from werkzeug.exceptions import NotFound
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import safe_join
 
-from finalarr.api import events, instances, rules, series, webhook
+from finalarr.api import anilist, events, instances, rules, series, webhook
 from finalarr.api.common import register_error_handler
 from finalarr.auth import init_auth
 from finalarr.config import Settings, load_settings
@@ -18,12 +18,19 @@ from finalarr.db.session import Database
 from finalarr.logging_setup import configure_logging
 from finalarr.ratelimit import RateLimiter
 from finalarr.scheduler import SchedulerService
+from finalarr.services.anilist_cache import CachedAnilist
+from finalarr.services.enricher import AnimeEnricher
+from finalarr.services.fribb import refresh_if_stale
+from finalarr.services.reconcile_queue import enqueue
 from finalarr.services.reconciler import Reconciler
+from finalarr.sources.anilist import AnilistClient
 from finalarr.version import get_version
 
 _DEFAULT_STATIC_DIR = Path("/app/static")
 _API_PREFIXES = ("api/", "webhook/")
 MAX_REQUEST_BYTES = 1024 * 1024
+ANILIST_EVERY_SECONDS = 30 * 60
+FRIBB_CHECK_SECONDS = 6 * 60 * 60
 
 
 def create_app(settings: Settings | None = None, static_dir: Path | None = None) -> Flask:
@@ -45,7 +52,25 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
     app.extensions["finalarr.webhook_limiter"] = RateLimiter(webhook.TRIGGERS_PER_MINUTE, 60)
     register_error_handler(app)
     reconciler = Reconciler(database, app.extensions["finalarr.secrets"])
-    scheduler = SchedulerService(database, reconciler, lock_path=settings.data / "scheduler.lock")
+    cached_anilist = CachedAnilist(database, AnilistClient())
+
+    def queue_series(instance_id: int, sonarr_id: int) -> None:
+        with database.session() as s:
+            enqueue(s, instance_id, sonarr_id)
+            s.commit()
+
+    enricher = AnimeEnricher(database, cached_anilist, on_change=queue_series)
+    scheduler = SchedulerService(
+        database,
+        reconciler,
+        lock_path=settings.data / "scheduler.lock",
+        extra_jobs=[
+            ("anilist", enricher.run, ANILIST_EVERY_SECONDS),
+            ("fribb", lambda: refresh_if_stale(database), FRIBB_CHECK_SECONDS),
+        ],
+    )
+    app.extensions["finalarr.anilist"] = cached_anilist
+    app.extensions["finalarr.enricher"] = enricher
     app.extensions["finalarr.reconciler"] = reconciler
     app.extensions["finalarr.scheduler"] = scheduler
     app.extensions["finalarr.nudge"] = scheduler.nudge
@@ -54,6 +79,7 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
     app.register_blueprint(series.bp)
     app.register_blueprint(events.bp)
     app.register_blueprint(rules.bp)
+    app.register_blueprint(anilist.bp)
     spa_dir = static_dir or Path(os.environ.get("FINALARR_STATIC_DIR", _DEFAULT_STATIC_DIR))
 
     @app.get("/health")

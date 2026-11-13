@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any, Literal
 
 State = Literal["unknown", "scheduled", "airing", "aired", "complete"]
@@ -33,6 +33,8 @@ class SeasonInput:
     anilist_count: int | None = None
     include_specials: bool = False
     respect_monitoring: bool = True
+    # AniList start date, used for announcements before Sonarr lists episodes.
+    anilist_start: date | None = None
 
 
 @dataclass(frozen=True)

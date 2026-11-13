@@ -70,6 +70,7 @@ def build_input(case: dict[str, Any], run: dict[str, Any]) -> SeasonInput:
         expected_override=season.get("expected_override"),
         anilist_count=run.get("anilist_count", season.get("anilist_count")),
         include_specials=season.get("include_specials", False),
+        anilist_start=season.get("anilist_start"),
         respect_monitoring=season.get("respect_monitoring", True),
     )
 

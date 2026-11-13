@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
 
 from finalarr.core.fingerprint import fingerprint
@@ -181,9 +181,15 @@ def _announcement(season: SeasonInput, snap: _Snapshot) -> Event:
     payload: dict[str, Any] = {
         "season": season.season_number,
         "expected": snap.expected,
-        "first_air": min(dates).date().isoformat() if dates else None,
+        "first_air": _first_air(dates, season.anilist_start),
     }
     return _event("season_announced", season, "", payload)
+
+
+def _first_air(dates: list[datetime], anilist_start: date | None) -> str | None:
+    if dates:
+        return min(dates).date().isoformat()
+    return anilist_start.isoformat() if anilist_start else None
 
 
 def _payload(snap: _Snapshot, new_ids: frozenset[int]) -> dict[str, Any]:

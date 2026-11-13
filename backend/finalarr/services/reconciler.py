@@ -229,6 +229,7 @@ def season_input(series: m.Series, season: m.Season) -> SeasonInput:
         anilist_count=season.anilist_count,
         include_specials=series.include_specials,
         respect_monitoring=series.respect_monitoring,
+        anilist_start=season.anilist_start,
     )
 
 

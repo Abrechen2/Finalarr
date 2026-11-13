@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 
 from sqlalchemy import (
     Boolean,
     CheckConstraint,
+    Date,
     DateTime,
     ForeignKey,
     Index,
@@ -121,6 +122,7 @@ class Season(Base):
     expected_source: Mapped[str | None] = mapped_column(String(20))
     expected_override: Mapped[int | None] = mapped_column(Integer)
     anilist_count: Mapped[int | None] = mapped_column(Integer)
+    anilist_start: Mapped[date | None] = mapped_column(Date)
     disputed: Mapped[bool] = mapped_column(Boolean, default=False)
     parts_mode: Mapped[str] = mapped_column(String(10), default="season")
     state: Mapped[str] = mapped_column(String(20), default="unknown")
@@ -280,7 +282,7 @@ class AnilistMapping(Base):
     tvdb_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     tvdb_season: Mapped[int] = mapped_column(Integer, primary_key=True)
     anilist_id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    source: Mapped[str] = mapped_column(String(10), default="fribb")
+    source: Mapped[str] = mapped_column(String(10), primary_key=True, default="fribb")
     fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
