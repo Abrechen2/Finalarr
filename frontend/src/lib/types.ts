@@ -43,6 +43,9 @@ export interface SeasonDetail extends SeasonSummary {
   expected_override: number | null
   anilist_count: number | null
   parts_mode: 'season' | 'parts'
+  anilist_ids: number[]
+  anilist_pinned: boolean
+  anilist_start: string | null
   monitored: boolean
   state_since: string | null
   episodes: EpisodeDetail[]

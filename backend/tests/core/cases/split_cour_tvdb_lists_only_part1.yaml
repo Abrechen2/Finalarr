@@ -1,0 +1,6 @@
+# TVDB lists only the first cour (13), AniList knows 25: dispute, but part 1 still completes.
+season: {number: 2, anilist_count: 25, parts: [[1, 146065, 1, 13], [2, 166873, 14, 25]]}
+episodes: {count: 13, first_air: 2023-07-03, interval_days: 7}
+runs:
+  - {now: 2023-06-01, files: "", expect: {state: scheduled, disputed: true, events: []}}
+  - {now: 2023-10-01, files: "1-13", expect: {state: airing, disputed: true, events: [{type: part_complete, part: 1, episodes: "1-13"}]}}

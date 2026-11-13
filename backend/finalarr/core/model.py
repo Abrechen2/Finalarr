@@ -7,7 +7,13 @@ from datetime import date, datetime
 from typing import Any, Literal
 
 State = Literal["unknown", "scheduled", "airing", "aired", "complete"]
-EventType = Literal["season_announced", "episodes_available", "finale_available", "season_complete"]
+EventType = Literal[
+    "season_announced",
+    "episodes_available",
+    "finale_available",
+    "part_complete",
+    "season_complete",
+]
 
 # Sonarr `finaleType` values that mark the end of a season; `midseason` does not.
 SEASON_FINALE_TYPES = frozenset({"season", "series"})
@@ -24,6 +30,16 @@ class Episode:
 
 
 @dataclass(frozen=True)
+class Part:
+    """One AniList cour inside a TVDB season, as an episode-number range."""
+
+    index: int
+    anilist_id: int
+    first: int
+    last: int
+
+
+@dataclass(frozen=True)
 class SeasonInput:
     instance_id: int
     series_id: int
@@ -35,6 +51,7 @@ class SeasonInput:
     respect_monitoring: bool = True
     # AniList start date, used for announcements before Sonarr lists episodes.
     anilist_start: date | None = None
+    parts: tuple[Part, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -59,6 +76,8 @@ class SeasonMemory:
     season_announced: bool
     # Policy-approved file losses so far; keeps repeat notifications distinct.
     file_losses: int = 0
+    # AniList ids of split-cour parts already reported complete.
+    parts_done: frozenset[int] = frozenset()
 
     @classmethod
     def initial(cls) -> SeasonMemory:

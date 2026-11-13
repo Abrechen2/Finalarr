@@ -130,7 +130,8 @@
     "finale": "Finale: {{title}} S{{s}}E{{e}} verfügbar ({{have}}/{{expected}})",
     "complete": "{{title}} Staffel {{s}} komplett ({{have}}/{{expected}})",
     "partComplete": "{{title}} Staffel {{s}} Teil {{part}} komplett",
-    "fingerprint": "Fingerprint: {{value}}"
+    "fingerprint": "Fingerprint: {{value}}",
+    "partCompleteAsSeason": "{{part}} komplett"
   },
   "delivery": {
     "pending": "wartet",
@@ -165,5 +166,30 @@
     "respectMonitoringDefault": "Nicht überwachte Folgen bei neuen Serien ignorieren",
     "stableRuns": "Abgleiche mit gleicher Folgenzahl vor „komplett“",
     "interval": "Abgleich mit Sonarr alle … Minuten"
+  },
+  "anilist": {
+    "badge": "AniList",
+    "missing": "AniList fehlt",
+    "missingHint": "Keine AniList-Zuordnung gefunden – Folgenzahlen kommen nur aus Sonarr.",
+    "entries": "AniList: {{ids}} ({{source}})",
+    "auto": "automatisch",
+    "manual": "manuell",
+    "none": "Keine AniList-Zuordnung.",
+    "assign": "AniList zuordnen",
+    "remove": "Manuelle Zuordnung entfernen",
+    "search": "Auf AniList suchen",
+    "searchButton": "Suchen",
+    "save": "Zuordnung speichern",
+    "pick": "Bis zu vier Einträge wählen (Split-Cours: alle Teile).",
+    "unavailable": "AniList ist gerade nicht erreichbar. Versuch es in einer Minute noch einmal.",
+    "savedLater": "Gespeichert. AniList wird beim nächsten Lauf abgefragt.",
+    "episodesShort": "{{n}} Folgen",
+    "startsOn": "Start laut AniList: {{date}}"
+  },
+  "parts": {
+    "title": "Teile (Split-Cour)",
+    "range": "Teil {{index}}: Folgen {{from}}–{{to}}",
+    "asSeasons": "Teile als eigene Staffeln melden",
+    "asSeasonsHint": "Sinnvoll, wenn zwischen den Cours Monate liegen."
   }
 }

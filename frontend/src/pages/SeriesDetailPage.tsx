@@ -2,7 +2,9 @@ import { ArrowLeft, ExternalLink } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { PageTitle } from '../components/EmptyState'
+import { AnilistPicker } from '../components/AnilistPicker'
 import { SeasonCheck } from '../components/SeasonCheck'
+import { SeasonParts } from '../components/SeasonParts'
 import { SeasonOverride } from '../components/SeasonOverride'
 import { Toggle } from '../components/Toggle'
 import { EpisodeGrid } from '../components/EpisodeGrid'
@@ -14,7 +16,7 @@ import { useSeriesDetail, useSeriesPatch } from '../lib/series'
 import type { SeasonDetail, SeriesDetail } from '../lib/types'
 
 function SeasonSection({ series, season }: { series: SeriesDetail; season: SeasonDetail }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const title = season.number === 0 ? t('season.specials') : t('season.title', { n: season.number })
   return (
     <section className="rounded-card border border-line bg-surface p-4">
@@ -39,10 +41,22 @@ function SeasonSection({ series, season }: { series: SeriesDetail; season: Seaso
         </p>
       )}
       {season.state === 'unknown' && season.episodes.length === 0 && (
-        <p className="mb-3 text-sm text-muted">{t('season.tvdbMissing')}</p>
+        <p className="mb-3 text-sm text-muted">
+          {t('season.tvdbMissing')}
+          {season.anilist_start &&
+            ` ${t('anilist.startsOn', { date: new Date(season.anilist_start).toLocaleDateString(i18n.language === 'en' ? 'en-GB' : 'de-DE') })}`}
+        </p>
       )}
       {season.episodes.length > 0 && (
-        <EpisodeGrid season={season.number} episodes={season.episodes} />
+        <EpisodeGrid
+          season={season.number}
+          episodes={season.episodes}
+          partStarts={season.parts.slice(1).map((p) => p.from)}
+        />
+      )}
+      <SeasonParts seriesId={series.id} season={season} />
+      {series.followed && series.series_type === 'anime' && season.number > 0 && (
+        <AnilistPicker seriesId={series.id} seriesTitle={series.title} season={season} />
       )}
       {series.followed && season.number > 0 && (
         <SeasonOverride seriesId={series.id} season={season} />

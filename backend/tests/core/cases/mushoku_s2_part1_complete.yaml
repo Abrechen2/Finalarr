@@ -1,0 +1,9 @@
+# Mushoku Tensei S2: one TVDB season, two AniList cours (13 + 12). Part 1 done → part_complete.
+season: {number: 2, anilist_count: 25, parts: [[1, 146065, 1, 13], [2, 166873, 14, 25]]}
+episodes: {count: 25, first_air: 2023-07-03, interval_days: 7}
+runs:
+  - {now: 2023-06-01, files: "", expect: {state: scheduled, events: []}}
+  - {now: 2023-09-30, files: "1-12", expect: {state: airing, events: [{type: episodes_available, episodes: "1-12"}]}}
+  - {now: 2023-10-01, files: "1-13", expect: {state: airing, events: [{type: part_complete, part: 1, episodes: "13"}]}}
+  - {now: 2023-10-02, files: "1-13", expect: {state: airing, events: []}}
+  - {now: 2024-07-01, files: "1-25", expect: {state: complete, events: [{type: season_complete, have: 25, expected: 25}]}}

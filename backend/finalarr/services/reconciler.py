@@ -21,7 +21,7 @@ from sqlalchemy.orm import Session
 from finalarr.core.codec import dump_memory, load_memory
 from finalarr.core.evaluator import evaluate
 from finalarr.core.model import Episode as CoreEpisode
-from finalarr.core.model import Evaluation, Policy, SeasonInput, SeasonMemory
+from finalarr.core.model import Evaluation, Part, Policy, SeasonInput, SeasonMemory
 from finalarr.crypto import SecretBox
 from finalarr.db import models as m
 from finalarr.db.session import Database
@@ -230,6 +230,9 @@ def season_input(series: m.Series, season: m.Season) -> SeasonInput:
         include_specials=series.include_specials,
         respect_monitoring=series.respect_monitoring,
         anilist_start=season.anilist_start,
+        parts=tuple(
+            Part(p.part_index, p.anilist_id, p.episode_from, p.episode_to) for p in season.parts
+        ),
     )
 
 
@@ -278,6 +281,9 @@ def record_events(
     created = []
     for event in result.events:
         payload = {**event.payload, "title": series.title, "series_type": series.series_type}
+        if event.type == "part_complete":
+            part = next(p for p in season.parts if p.part_index == event.payload["part"])
+            payload |= {"part_title": part.title, "parts_mode": season.parts_mode}
         inserted = s.execute(
             insert(m.Event)
             .values(

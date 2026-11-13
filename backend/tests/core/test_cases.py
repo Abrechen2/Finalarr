@@ -23,7 +23,7 @@ def _event_view(event: Event, expected: dict[str, Any]) -> dict[str, Any]:
     payload = event.payload
     if "episodes" in expected:
         view["episodes"] = payload["episode_ids"]
-    for key in ("have", "expected", "finale", "first_air"):
+    for key in ("have", "expected", "finale", "first_air", "part"):
         if key in expected:
             view[key] = payload.get(key)
     return view

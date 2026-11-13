@@ -10,10 +10,10 @@ from flask import Blueprint, current_app, request
 from flask.typing import ResponseReturnValue
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import Select, and_, or_, select, update
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, object_session, selectinload
 
 from finalarr.api.common import ApiProblem, database, not_found, parse_body
-from finalarr.db.models import Episode, Season, Series, SonarrInstance
+from finalarr.db.models import AnilistMapping, Episode, Season, Series, SonarrInstance
 from finalarr.services.reconcile_queue import enqueue
 
 bp = Blueprint("series", __name__, url_prefix="/api/v1/series")
@@ -83,8 +83,26 @@ def episode_detail(episode: Episode) -> dict[str, Any]:
     }
 
 
+def _anilist_by_season(series: Series) -> dict[int, tuple[list[int], bool]]:
+    session = object_session(series)
+    if session is None or series.tvdb_id is None or series.series_type != "anime":
+        return {}
+    rows = session.scalars(
+        select(AnilistMapping).where(AnilistMapping.tvdb_id == series.tvdb_id)
+    ).all()
+    manual = {r.tvdb_season for r in rows if r.source == "manual"}
+    result: dict[int, tuple[list[int], bool]] = {}
+    for row in sorted(rows, key=lambda r: r.anilist_id):
+        if row.tvdb_season in manual and row.source != "manual":
+            continue
+        ids, _ = result.setdefault(row.tvdb_season, ([], row.tvdb_season in manual))
+        ids.append(row.anilist_id)
+    return result
+
+
 def series_detail(series: Series) -> dict[str, Any]:
     body = series_summary(series)
+    anilist = _anilist_by_season(series)
     body["sonarr_url"] = f"{series.instance.url}/series/{series.title_slug}"
     body["seasons"] = [
         {
@@ -93,6 +111,9 @@ def series_detail(series: Series) -> dict[str, Any]:
             "expected_override": season.expected_override,
             "anilist_count": season.anilist_count,
             "parts_mode": season.parts_mode,
+            "anilist_ids": anilist.get(season.number, ([], False))[0],
+            "anilist_pinned": anilist.get(season.number, ([], False))[1],
+            "anilist_start": season.anilist_start.isoformat() if season.anilist_start else None,
             "monitored": season.monitored,
             "state_since": season.state_since.isoformat() if season.state_since else None,
             "episodes": [episode_detail(e) for e in season.episodes],
@@ -175,10 +196,12 @@ def _load(s: Session, series_id: int) -> Series:
     return series
 
 
-def _nudge() -> None:
-    nudge = current_app.extensions.get("finalarr.nudge")
-    if nudge:
-        nudge()
+def _nudge(anilist: bool = False) -> None:
+    keys = ["finalarr.nudge", "finalarr.nudge_anilist"] if anilist else ["finalarr.nudge"]
+    for key in keys:
+        nudge = current_app.extensions.get(key)
+        if nudge:
+            nudge()
 
 
 @bp.get("/<int:series_id>")
@@ -203,7 +226,7 @@ def patch_series(series_id: int) -> ResponseReturnValue:
             enqueue(s, series.instance_id, series.sonarr_id)
         s.commit()
         result = series_detail(series)
-    _nudge()
+    _nudge(anilist=newly_followed)
     return result
 
 
@@ -221,5 +244,5 @@ def follow_monitored() -> ResponseReturnValue:
         for instance_id in s.scalars(instances):
             enqueue(s, instance_id)
         s.commit()
-    _nudge()
+    _nudge(anilist=True)
     return {"followed": changed}

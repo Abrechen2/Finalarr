@@ -92,3 +92,13 @@ def test_pin_needs_a_tvdb_id(api, app, fake, season_id):
         api.put(f"/api/v1/seasons/{season_id}/anilist", json={"anilist_ids": [1]}).status_code
         == 409
     )
+
+
+def test_detail_shows_the_mapping_per_season(api, app, fake, season_id):
+    api.put(f"/api/v1/seasons/{season_id}/anilist", json={"anilist_ids": [146065, 166873]})
+    with app.extensions["finalarr.db"].session() as s:
+        series_id = s.scalar(select(m.Series.id))
+    season = api.get(f"/api/v1/series/{series_id}").get_json()["seasons"][0]
+    assert season["anilist_ids"] == [146065, 166873]
+    assert season["anilist_pinned"] is True
+    assert [(p["from"], p["to"]) for p in season["parts"]] == [(1, 13), (14, 25)]

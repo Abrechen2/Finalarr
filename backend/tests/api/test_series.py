@@ -150,3 +150,13 @@ def test_follow_all_monitored(api, app, library, instance):
     assert titles(api.get("/api/v1/series?followed=true")) == ["Andor", "Slime"]
     with app.extensions["finalarr.db"].session() as s:
         assert take_all(s) == [(instance["id"], 0)]
+
+
+def test_following_nudges_the_anilist_job(api, app, library):
+    nudged = []
+    app.extensions["finalarr.nudge_anilist"] = lambda: nudged.append(1)
+    with app.extensions["finalarr.db"].session() as s:
+        andor = s.scalar(select(m.Series).where(m.Series.title == "Andor"))
+    api.patch(f"/api/v1/series/{andor.id}", json={"followed": True})
+    api.post("/api/v1/series/follow-monitored", json={})
+    assert nudged == [1, 1]

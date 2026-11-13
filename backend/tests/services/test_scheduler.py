@@ -124,3 +124,16 @@ def test_retry_takes_over_once_the_lock_frees(env):
         threading.Event().wait(0.05)
     assert other.running
     other.shutdown()
+
+
+def test_run_soon_triggers_an_extra_job(env):
+    db, reconciler, _, tmp_path = env
+    ran = threading.Event()
+    service = SchedulerService(
+        db, reconciler, lock_path=tmp_path / "other.lock", extra_jobs=[("anilist", ran.set, 3600)]
+    )
+    service.run_soon("anilist")  # not running: no-op
+    assert service.start(retry=False)
+    service.run_soon("anilist")
+    assert ran.wait(5)
+    service.shutdown()

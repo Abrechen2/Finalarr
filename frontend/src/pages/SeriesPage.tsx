@@ -50,6 +50,19 @@ function SeriesRow({ series }: { series: SeriesSummary }) {
               ]
                 .filter(Boolean)
                 .join(' · ')}
+              {series.followed && series.anilist_resolution === 'unresolved' && (
+                <span
+                  title={t('anilist.missingHint')}
+                  className="ml-2 rounded-card border border-warn px-1.5 text-warn"
+                >
+                  {t('anilist.missing')}
+                </span>
+              )}
+              {(series.anilist_resolution === 'auto' || series.anilist_resolution === 'manual') && (
+                <span className="ml-2 rounded-card border border-line px-1.5">
+                  {t('anilist.badge')}
+                </span>
+              )}
             </p>
           </div>
           <FollowToggle

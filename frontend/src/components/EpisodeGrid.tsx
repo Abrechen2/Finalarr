@@ -13,10 +13,13 @@ const CELL = {
 export function EpisodeGrid({
   season,
   episodes,
+  partStarts = [],
   now = new Date(),
 }: {
   season: number
   episodes: EpisodeDetail[]
+  /** First episode number of every split-cour part after the first. */
+  partStarts?: number[]
   now?: Date
 }) {
   const { t } = useTranslation()
@@ -37,7 +40,7 @@ export function EpisodeGrid({
             key={episode.id}
             title={`${code} ${episode.title}`.trim()}
             aria-label={`${code}: ${status}`}
-            className={`flex h-8 w-8 items-center justify-center rounded border font-mono text-[11px] ${CELL[cell]}${accent}${episode.monitored ? '' : ' opacity-40'}`}
+            className={`flex h-8 w-8 items-center justify-center rounded border font-mono text-[11px] ${CELL[cell]}${accent}${episode.monitored ? '' : ' opacity-40'}${partStarts.includes(episode.number) ? ' ml-3' : ''}`}
           >
             {episode.number}
           </li>

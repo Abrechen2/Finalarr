@@ -230,3 +230,40 @@ def test_newly_followed_series_still_starts_silently(env):
     follow(db, 1)
     reconciler.reconcile(1)
     assert events(db) == []
+
+
+def test_parts_flow_into_the_evaluator_and_the_payload(env):
+    db, sonarr, reconciler, clock = env
+    sonarr.add(
+        make_series(1, "Mushoku", seasons=(2,), series_type="anime"), make_episodes(1, 2, 4, {1})
+    )
+    reconciler.reconcile(1)
+    follow(db, 1)
+    with db.session() as s:
+        season = s.scalar(select(m.Season))
+        season.anilist_count = 4
+        season.parts_mode = "parts"
+        season.parts += [
+            m.AnimePart(
+                part_index=1, anilist_id=146065, episode_from=1, episode_to=2, title="Mushoku II"
+            ),
+            m.AnimePart(
+                part_index=2,
+                anilist_id=166873,
+                episode_from=3,
+                episode_to=4,
+                title="Mushoku II Part 2",
+            ),
+        ]
+        s.commit()
+    reconciler.reconcile(1)
+    sonarr.episodes_by_series[1] = make_episodes(1, 2, 4, {1, 2})
+    clock["now"] += timedelta(minutes=30)
+    reconciler.reconcile(1)
+    [(kind, payload)] = events(db)
+    assert kind == "part_complete"
+    assert (payload["part"], payload["part_title"], payload["parts_mode"]) == (
+        1,
+        "Mushoku II",
+        "parts",
+    )

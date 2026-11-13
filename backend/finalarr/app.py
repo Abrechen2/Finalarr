@@ -30,7 +30,6 @@ _DEFAULT_STATIC_DIR = Path("/app/static")
 _API_PREFIXES = ("api/", "webhook/")
 MAX_REQUEST_BYTES = 1024 * 1024
 ANILIST_EVERY_SECONDS = 30 * 60
-FRIBB_CHECK_SECONDS = 6 * 60 * 60
 
 
 def create_app(settings: Settings | None = None, static_dir: Path | None = None) -> Flask:
@@ -60,20 +59,24 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
             s.commit()
 
     enricher = AnimeEnricher(database, cached_anilist, on_change=queue_series)
+
+    def anilist_cycle() -> None:
+        # The mapping must exist before the first enrichment can resolve anything.
+        refresh_if_stale(database)
+        enricher.run()
+
     scheduler = SchedulerService(
         database,
         reconciler,
         lock_path=settings.data / "scheduler.lock",
-        extra_jobs=[
-            ("anilist", enricher.run, ANILIST_EVERY_SECONDS),
-            ("fribb", lambda: refresh_if_stale(database), FRIBB_CHECK_SECONDS),
-        ],
+        extra_jobs=[("anilist", anilist_cycle, ANILIST_EVERY_SECONDS)],
     )
     app.extensions["finalarr.anilist"] = cached_anilist
     app.extensions["finalarr.enricher"] = enricher
     app.extensions["finalarr.reconciler"] = reconciler
     app.extensions["finalarr.scheduler"] = scheduler
     app.extensions["finalarr.nudge"] = scheduler.nudge
+    app.extensions["finalarr.nudge_anilist"] = lambda: scheduler.run_soon("anilist")
     app.register_blueprint(instances.bp)
     app.register_blueprint(webhook.bp)
     app.register_blueprint(series.bp)

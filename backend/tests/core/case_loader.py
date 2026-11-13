@@ -15,7 +15,7 @@ from typing import Any
 
 import yaml
 
-from finalarr.core.model import Episode, Policy, SeasonInput
+from finalarr.core.model import Episode, Part, Policy, SeasonInput
 
 CASES_DIR = Path(__file__).parent / "cases"
 
@@ -71,6 +71,7 @@ def build_input(case: dict[str, Any], run: dict[str, Any]) -> SeasonInput:
         anilist_count=run.get("anilist_count", season.get("anilist_count")),
         include_specials=season.get("include_specials", False),
         anilist_start=season.get("anilist_start"),
+        parts=tuple(Part(i, a, lo, hi) for i, a, lo, hi in season.get("parts", [])),
         respect_monitoring=season.get("respect_monitoring", True),
     )
 

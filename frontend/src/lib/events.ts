@@ -22,6 +22,8 @@ export interface EventPayload {
   finale_number?: number
   first_air?: string | null
   part?: number
+  part_title?: string
+  parts_mode?: 'season' | 'parts'
 }
 
 export interface DeliveryView {
@@ -87,6 +89,9 @@ export function formatEvent(
     case 'season_complete':
       return t('event.complete', { ...base, s: payload.season })
     case 'part_complete':
+      if (payload.parts_mode === 'parts' && payload.part_title) {
+        return t('event.partCompleteAsSeason', { part: payload.part_title })
+      }
       return t('event.partComplete', { ...base, s: payload.season, part: payload.part })
   }
 }

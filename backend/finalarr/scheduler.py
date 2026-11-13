@@ -109,6 +109,11 @@ class SchedulerService:
         if self.running and self._scheduler is not None:
             self._scheduler.modify_job("drain", next_run_time=datetime.now(UTC))
 
+    def run_soon(self, job_id: str) -> None:
+        """Run a job now instead of waiting for its interval (no-op when stopped)."""
+        if self.running and self._scheduler is not None:
+            self._scheduler.modify_job(job_id, next_run_time=datetime.now(UTC))
+
     def shutdown(self) -> None:
         self._stopped = True
         if self._retry is not None:

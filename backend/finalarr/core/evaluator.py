@@ -5,7 +5,8 @@ No I/O and no clock: everything comes in as arguments (PLAN.md 4.3). Rules:
 - The first evaluation of a season is a silent baseline, so an existing library
   never floods the channel. Specials (season 0) stay silent unless included.
 - One run emits at most one library event, the most significant one:
-  ``season_complete`` > ``finale_available`` > ``episodes_available``. The lower
+  ``season_complete`` > ``finale_available`` > ``part_complete`` >
+  ``episodes_available``. The lower
   milestones are still recorded, so they never fire later for the same files.
 - ``season_complete`` needs an expected count that did not change for
   ``policy.stable_runs`` evaluations and no open dispute with AniList.
@@ -14,7 +15,7 @@ No I/O and no clock: everything comes in as arguments (PLAN.md 4.3). Rules:
 from __future__ import annotations
 
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date, datetime
 from typing import Any
 
@@ -52,6 +53,7 @@ def evaluate(
     snap = _snapshot(season, memory, now, policy)
     new_ids = snap.with_file - memory.announced_ids
     new_finales = (_finale_ids(season, snap) & new_ids) - memory.finale_ids
+    new_parts = _completed_parts(season, snap) - memory.parts_done
     fires_complete = snap.state == "complete" and _complete_is_due(memory, snap, policy)
     silent = not memory.initialized or (
         season.season_number == SPECIALS_SEASON and not season.include_specials
@@ -59,11 +61,16 @@ def evaluate(
 
     events: tuple[Event, ...] = ()
     if not silent:
-        events = _library_event(season, snap, new_ids, new_finales, fires_complete, memory)
+        events = _library_event(
+            season, snap, new_ids, new_finales, new_parts, fires_complete, memory
+        )
         if _announce_is_due(memory, snap, season):
             events = (_announcement(season, snap), *events)
 
-    next_memory = _remember(memory, snap, season, new_finales, policy)
+    next_memory = replace(
+        _remember(memory, snap, season, new_finales, policy),
+        parts_done=memory.parts_done | new_parts,
+    )
     return Evaluation(next_memory, events, snap.expected, snap.disputed)
 
 
@@ -155,6 +162,7 @@ def _library_event(
     snap: _Snapshot,
     new_ids: frozenset[int],
     new_finales: frozenset[int],
+    new_parts: frozenset[int],
     fires_complete: bool,
     memory: SeasonMemory,
 ) -> tuple[Event, ...]:
@@ -170,10 +178,29 @@ def _library_event(
         return (_event("season_complete", season, str(snap.expected), payload),)
     if new_finales:
         return (_event("finale_available", season, f"{payload['finale']}{occurrence}", payload),)
+    if new_parts:
+        part = min((p for p in season.parts if p.anilist_id in new_parts), key=lambda p: p.index)
+        payload["part"] = part.index
+        key = f"{part.anilist_id}{occurrence}"
+        return (_event("part_complete", season, key, payload),)
     if new_ids:
         key = ",".join(str(i) for i in sorted(new_ids)) + occurrence
         return (_event("episodes_available", season, key, payload),)
     return ()
+
+
+def _completed_parts(season: SeasonInput, snap: _Snapshot) -> frozenset[int]:
+    """Split-cour parts whose every episode is listed and on disk. The last part
+    is left out: its completion is the season's own ``season_complete``."""
+    done = set()
+    for part in season.parts[:-1]:
+        wanted = set(range(part.first, part.last + 1))
+        on_disk = {
+            e.number for e in snap.counted if e.number in wanted and e.sonarr_id in snap.with_file
+        }
+        if on_disk == wanted:
+            done.add(part.anilist_id)
+    return frozenset(done)
 
 
 def _announcement(season: SeasonInput, snap: _Snapshot) -> Event:

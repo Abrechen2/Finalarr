@@ -130,7 +130,8 @@
     "finale": "Finale: {{title}} S{{s}}E{{e}} available ({{have}}/{{expected}})",
     "complete": "{{title}} season {{s}} complete ({{have}}/{{expected}})",
     "partComplete": "{{title}} season {{s}} part {{part}} complete",
-    "fingerprint": "Fingerprint: {{value}}"
+    "fingerprint": "Fingerprint: {{value}}",
+    "partCompleteAsSeason": "{{part}} complete"
   },
   "delivery": {
     "pending": "pending",
@@ -165,5 +166,30 @@
     "respectMonitoringDefault": "Ignore unmonitored episodes for new series",
     "stableRuns": "Syncs with an unchanged count before \"complete\"",
     "interval": "Sync with Sonarr every … minutes"
+  },
+  "anilist": {
+    "badge": "AniList",
+    "missing": "AniList missing",
+    "missingHint": "No AniList mapping found – episode counts come from Sonarr only.",
+    "entries": "AniList: {{ids}} ({{source}})",
+    "auto": "automatic",
+    "manual": "manual",
+    "none": "No AniList mapping.",
+    "assign": "Assign AniList",
+    "remove": "Remove manual mapping",
+    "search": "Search AniList",
+    "searchButton": "Search",
+    "save": "Save mapping",
+    "pick": "Pick up to four entries (split cours: all parts).",
+    "unavailable": "AniList cannot be reached right now. Try again in a minute.",
+    "savedLater": "Saved. AniList will be asked on the next run.",
+    "episodesShort": "{{n}} episodes",
+    "startsOn": "Starts according to AniList: {{date}}"
+  },
+  "parts": {
+    "title": "Parts (split cour)",
+    "range": "Part {{index}}: episodes {{from}}–{{to}}",
+    "asSeasons": "Report parts as seasons of their own",
+    "asSeasonsHint": "Useful when months pass between the cours."
   }
 }

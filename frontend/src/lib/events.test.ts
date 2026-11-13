@@ -56,3 +56,14 @@ test('English uses the English date format', async () => {
   ).toBe('F: season 2 announced (starts 05/04/2027, 12 episodes)')
   await i18n.changeLanguage('de')
 })
+
+test('part complete in parts mode reads like a season of its own', () => {
+  expect(
+    formatEvent(t, 'part_complete', {
+      ...payload,
+      part: 2,
+      part_title: 'Mushoku II Part 2',
+      parts_mode: 'parts',
+    }),
+  ).toBe('Mushoku II Part 2 komplett')
+})
