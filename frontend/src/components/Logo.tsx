@@ -1,5 +1,5 @@
 // Finalarr mark (PLAN.md 16.2): a ring of 12 segments, the last one in the
-// accent colour with a square end mark — the finale. Built from geometry.
+// accent colour — the finale. Built from geometry.
 const SEGMENTS = 12
 const CENTER = 32
 const RADIUS = 25
@@ -29,7 +29,6 @@ export function Logo({ size = 32, withLetter = true }: { size?: number; withLett
           className={i === SEGMENTS - 1 ? 'stroke-accent' : 'stroke-ink'}
         />
       ))}
-      <rect x={29} y={3} width={6} height={6} className="fill-accent" />
       {withLetter && (
         <text
           x={32}

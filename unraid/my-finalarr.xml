@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>finalarr</Name>
+  <Repository>ghcr.io/abrechen2/finalarr:latest</Repository>
+  <Registry>https://github.com/Abrechen2/Finalarr/pkgs/container/finalarr</Registry>
+  <Network>bridge</Network>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/Abrechen2/Finalarr/issues</Support>
+  <Project>https://github.com/Abrechen2/Finalarr</Project>
+  <Overview>Season-finale and season-complete notifier for Sonarr. Tells you once when new episodes are on disk, when the season finale has landed and when a season is complete (AniList cross-check for anime, split cours included). Telegram, Discord, Pushover, webhooks or any Apprise URL. Web UI in German and English. A project by abrechen2 (https://www.abrechen2.de/en/).</Overview>
+  <Category>MediaApp:Video Tools: Status:Beta</Category>
+  <WebUI>http://[IP]:[PORT:5790]/</WebUI>
+  <Icon>https://raw.githubusercontent.com/Abrechen2/Finalarr/master/assets/icon-512.png</Icon>
+  <ExtraParams>--stop-timeout 90</ExtraParams>
+  <DonateText/>
+  <DonateLink/>
+  <Config Name="WebUI port" Target="5790" Default="5790" Mode="tcp" Description="Web UI, API and Sonarr webhook" Type="Port" Display="always" Required="true" Mask="false">5790</Config>
+  <Config Name="Config" Target="/config" Default="/mnt/user/appdata/finalarr" Mode="rw" Description="Database, log and scheduler lock" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/finalarr</Config>
+  <Config Name="API key" Target="FINALARR_API_KEY" Default="" Mode="" Description="Required, at least 20 characters (e.g. openssl rand -hex 32). Also your login." Type="Variable" Display="always" Required="true" Mask="true"/>
+  <Config Name="Secret key" Target="FINALARR_SECRET_KEY" Default="" Mode="" Description="Required Fernet key that encrypts stored Sonarr keys and channel URLs. See docs/DEPLOY.md to generate one; keep it, changing it makes stored secrets unreadable." Type="Variable" Display="always" Required="true" Mask="true"/>
+  <Config Name="Public URL" Target="FINALARR_PUBLIC_URL" Default="" Mode="" Description="Optional address you open Finalarr at; adds links to messages." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="PUID" Target="PUID" Default="99" Mode="" Description="User id for files in /config" Type="Variable" Display="advanced" Required="false" Mask="false">99</Config>
+  <Config Name="PGID" Target="PGID" Default="100" Mode="" Description="Group id for files in /config" Type="Variable" Display="advanced" Required="false" Mask="false">100</Config>
+  <Config Name="TZ" Target="TZ" Default="Europe/Berlin" Mode="" Description="Time zone for quiet hours" Type="Variable" Display="advanced" Required="false" Mask="false">Europe/Berlin</Config>
+</Container>
