@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Literal, get_args
+from typing import Any, Literal
 
 from flask import Blueprint, current_app
 from flask.typing import ResponseReturnValue
@@ -12,9 +12,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from finalarr.api.common import ApiProblem, database, not_found, parse_body, secrets
-from finalarr.db.models import EVENT_TYPES, Channel, Event
+from finalarr.db.models import Channel, Event
 from finalarr.notify.messages import channel_test_text
-from finalarr.notify.presets import KINDS, PresetError, build_url, describe
+from finalarr.notify.presets import PresetError, build_url, describe
 from finalarr.notify.sender import SendError
 from finalarr.services.delivery import DeliveryWorker, resend
 
@@ -25,7 +25,6 @@ Language = Literal["de", "en"]
 EventName = Literal[
     "season_announced", "episodes_available", "finale_available", "part_complete", "season_complete"
 ]
-assert set(KINDS) == set(get_args(Kind)) and set(EVENT_TYPES) == set(get_args(EventName))  # noqa: S101
 
 
 class ChannelTest(BaseModel):

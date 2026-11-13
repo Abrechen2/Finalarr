@@ -137,3 +137,14 @@ def test_new_events_get_deliveries_through_the_reconciler_hook(app, channel):
 def test_unsaved_test_accepts_the_full_form_body(api, sender):
     body = {**TELEGRAM, "language": "de", "event_filter": ["season_complete"], "enabled": True}
     assert api.post("/api/v1/channels/test", json=body).status_code == 200
+
+
+def test_api_literals_match_the_model_and_presets():
+    from typing import get_args
+
+    from finalarr.api.channels import EventName, Kind
+    from finalarr.db.models import EVENT_TYPES
+    from finalarr.notify.presets import KINDS
+
+    assert set(get_args(Kind)) == set(KINDS)
+    assert set(get_args(EventName)) == set(EVENT_TYPES)
