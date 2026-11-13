@@ -11,7 +11,7 @@
   <Overview>Season-finale and season-complete notifier for Sonarr. Tells you once when new episodes are on disk, when the season finale has landed and when a season is complete (AniList cross-check for anime, split cours included). Telegram, Discord, Pushover, webhooks or any Apprise URL. Web UI in German and English. A project by abrechen2 (https://www.abrechen2.de/en/).</Overview>
   <Category>MediaApp:Video Tools: Status:Beta</Category>
   <WebUI>http://[IP]:[PORT:5790]/</WebUI>
-  <Icon>https://raw.githubusercontent.com/Abrechen2/Finalarr/master/assets/icon-512.png</Icon>
+  <Icon>https://raw.githubusercontent.com/Abrechen2/Finalarr/main/assets/icon-512.png</Icon>
   <ExtraParams>--stop-timeout 90</ExtraParams>
   <DonateText/>
   <DonateLink/>
