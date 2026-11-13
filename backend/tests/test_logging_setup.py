@@ -36,3 +36,17 @@ def test_configure_logging_writes_a_rotating_file(tmp_path):
     assert "secret" not in content
     configure_logging("INFO", tmp_path)
     assert sum(1 for h in logging.getLogger().handlers if getattr(h, "finalarr", False)) == 2
+
+
+def test_tracebacks_are_redacted_too(tmp_path):
+    configure_logging("INFO", tmp_path)
+    try:
+        raise RuntimeError("failed with apikey=tracesecret on tgram://123:ABC/9")
+    except RuntimeError:
+        logging.getLogger("finalarr.test").exception("boom")
+    for handler in logging.getLogger().handlers:
+        handler.flush()
+    content = (tmp_path / "finalarr.log").read_text()
+    assert "Traceback" in content
+    assert "tracesecret" not in content
+    assert "ABC" not in content

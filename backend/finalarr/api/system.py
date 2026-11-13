@@ -10,6 +10,7 @@ from sqlalchemy import select
 
 from finalarr.api.common import ApiProblem, database
 from finalarr.db.models import SonarrInstance
+from finalarr.logging_setup import redact
 from finalarr.scheduler import SchedulerService, describe_jobs
 from finalarr.version import get_version
 
@@ -50,5 +51,5 @@ def logs() -> ResponseReturnValue:
         return {"lines": []}
     with path.open(encoding="utf-8", errors="replace") as handle:
         lines = deque(handle, maxlen=int(raw))
-    # The file handler already redacts; lines are returned as written.
-    return {"lines": [line.rstrip("\n") for line in lines]}
+    # Written redacted already; redacting again covers lines from older versions.
+    return {"lines": [redact(line.rstrip("\n")) for line in lines]}

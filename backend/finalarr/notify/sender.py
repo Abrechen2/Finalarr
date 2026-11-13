@@ -7,7 +7,7 @@ from typing import Protocol
 
 import apprise
 
-from finalarr.logging_setup import RedactingFilter
+from finalarr.logging_setup import redact
 
 TITLE = "Finalarr"
 
@@ -20,12 +20,6 @@ class Sender(Protocol):
     def send(self, url: str, body: str) -> None: ...
 
 
-def _redact(text: str) -> str:
-    record = logging.LogRecord("apprise", logging.ERROR, __file__, 0, text, None, None)
-    RedactingFilter().filter(record)
-    return record.getMessage()
-
-
 class AppriseSender:
     def send(self, url: str, body: str) -> None:
         client = apprise.Apprise()
@@ -35,4 +29,4 @@ class AppriseSender:
             ok = client.notify(title=TITLE, body=body, body_format=apprise.NotifyFormat.HTML)
             detail = captured.getvalue().strip().splitlines()
         if not ok:
-            raise SendError(_redact(detail[-1] if detail else "Sending failed"))
+            raise SendError(redact(detail[-1] if detail else "Sending failed"))

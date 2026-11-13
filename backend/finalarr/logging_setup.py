@@ -17,13 +17,23 @@ _PATTERNS = [
 ]
 
 
+def redact(text: str) -> str:
+    for pattern, replacement in _PATTERNS:
+        text = pattern.sub(replacement, text)
+    return text
+
+
 class RedactingFilter(logging.Filter):
     def filter(self, record: logging.LogRecord) -> bool:
-        message = record.getMessage()
-        for pattern, replacement in _PATTERNS:
-            message = pattern.sub(replacement, message)
-        record.msg, record.args = message, None
+        record.msg, record.args = redact(record.getMessage()), None
         return True
+
+
+class RedactingFormatter(logging.Formatter):
+    """Redacts the whole formatted record, tracebacks included."""
+
+    def format(self, record: logging.LogRecord) -> str:
+        return redact(super().format(record))
 
 
 def configure_logging(level: str, data_dir: Path) -> None:
@@ -33,7 +43,7 @@ def configure_logging(level: str, data_dir: Path) -> None:
         root.removeHandler(handler)
         handler.close()
     data_dir.mkdir(parents=True, exist_ok=True)
-    formatter = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
+    formatter = RedactingFormatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
     handlers: list[logging.Handler] = [
         logging.StreamHandler(),
         RotatingFileHandler(data_dir / "finalarr.log", maxBytes=LOG_BYTES, backupCount=LOG_BACKUPS),
