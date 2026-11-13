@@ -147,3 +147,12 @@ def test_ping_reports_a_broken_connection(db, monkeypatch):
 
     monkeypatch.setattr(db.engine, "connect", broken)
     assert not db.ping()
+
+
+def test_sequel_announced_is_an_allowed_event_type(db):
+    with db.session() as s:
+        s.add(m.Event(type="sequel_announced", fingerprint="seq", payload_json="{}"))
+        s.flush()
+        s.add(m.Event(type="nonsense", fingerprint="bad", payload_json="{}"))
+        with pytest.raises(IntegrityError):
+            s.flush()

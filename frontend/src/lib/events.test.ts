@@ -67,3 +67,16 @@ test('part complete in parts mode reads like a season of its own', () => {
     }),
   ).toBe('Mushoku II Part 2 komplett')
 })
+
+test('sequel announcements show the year when only the year is known', () => {
+  const base = { title: 'Mushoku Tensei', sequel_title: 'Mushoku Tensei III Part 2' }
+  expect(formatEvent(t, 'sequel_announced', { ...base, first_air: '2027-01-01' })).toBe(
+    'Mushoku Tensei: Fortsetzung angekündigt – Mushoku Tensei III Part 2 (Start 2027)',
+  )
+  expect(formatEvent(t, 'sequel_announced', { ...base, first_air: '2027-07-04' })).toBe(
+    'Mushoku Tensei: Fortsetzung angekündigt – Mushoku Tensei III Part 2 (Start 4.7.2027)',
+  )
+  expect(formatEvent(t, 'sequel_announced', base)).toBe(
+    'Mushoku Tensei: Fortsetzung angekündigt – Mushoku Tensei III Part 2',
+  )
+})

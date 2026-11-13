@@ -23,7 +23,12 @@ bp = Blueprint("channels", __name__, url_prefix="/api/v1")
 Kind = Literal["telegram", "discord", "pushover", "webhook", "apprise"]
 Language = Literal["de", "en"]
 EventName = Literal[
-    "season_announced", "episodes_available", "finale_available", "part_complete", "season_complete"
+    "season_announced",
+    "episodes_available",
+    "finale_available",
+    "part_complete",
+    "season_complete",
+    "sequel_announced",
 ]
 
 

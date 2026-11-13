@@ -18,7 +18,9 @@ _TEXT = {
         "part_complete": "🧩 <b>{title}</b> Staffel {s} Teil {part} komplett",
         "part_as_season": "✅ <b>{part_title}</b> komplett",
         "season_announced": "📅 <b>{title}</b>: Staffel {s} angekündigt",
+        "sequel_announced": "📅 <b>{title}</b>: Fortsetzung angekündigt – {sequel_title}",
         "announced_detail": " (Start {date}, {expected} Folgen)",
+        "sequel_detail": " (Start {date})",
         "date": "%d.%m.%Y",
         "test": "✅ Finalarr: Testnachricht – dieser Kanal funktioniert.",
     },
@@ -31,7 +33,9 @@ _TEXT = {
         "part_complete": "🧩 <b>{title}</b> season {s} part {part} complete",
         "part_as_season": "✅ <b>{part_title}</b> complete",
         "season_announced": "📅 <b>{title}</b>: season {s} announced",
+        "sequel_announced": "📅 <b>{title}</b>: sequel announced – {sequel_title}",
         "announced_detail": " (starts {date}, {expected} episodes)",
+        "sequel_detail": " (starts {date})",
         "date": "%d/%m/%Y",
         "test": "✅ Finalarr: test message – this channel works.",
     },
@@ -73,6 +77,7 @@ def render(
         "e": int(payload.get("finale_number") or 0),
         "part": payload.get("part", "?"),
         "part_title": escape(str(payload.get("part_title", ""))),
+        "sequel_title": escape(str(payload.get("sequel_title", ""))),
     }
     key = event_type
     if (
@@ -82,10 +87,17 @@ def render(
     ):
         key = "part_as_season"
     text = texts[key].format(**values)
-    if event_type == "season_announced" and payload.get("first_air"):
-        day = date.fromisoformat(str(payload["first_air"])[:10]).strftime(texts["date"])
-        text += texts["announced_detail"].format(date=day, expected=values["expected"])
+    if event_type in ("season_announced", "sequel_announced") and payload.get("first_air"):
+        day = _when(str(payload["first_air"]), texts["date"])
+        detail = "announced_detail" if event_type == "season_announced" else "sequel_detail"
+        text += texts[detail].format(date=day, expected=values["expected"])
     return text + _links(finalarr_url, payload.get("sonarr_url"))
+
+
+def _when(first_air: str, day_format: str) -> str:
+    """AniList often knows only the year (stored as 1 January): show just the year then."""
+    day = date.fromisoformat(first_air[:10])
+    return str(day.year) if (day.month, day.day) == (1, 1) else day.strftime(day_format)
 
 
 def _links(finalarr_url: str | None, sonarr_url: Any) -> str:

@@ -10,6 +10,7 @@ export const EVENT_TYPES = [
   'finale_available',
   'season_complete',
   'part_complete',
+  'sequel_announced',
 ] as const
 export type EventType = (typeof EVENT_TYPES)[number]
 
@@ -23,6 +24,7 @@ export interface EventPayload {
   first_air?: string | null
   part?: number
   part_title?: string
+  sequel_title?: string
   parts_mode?: 'season' | 'parts'
 }
 
@@ -88,6 +90,19 @@ export function formatEvent(
       return t('event.finale', { ...base, e: pad(payload.finale_number ?? 0) })
     case 'season_complete':
       return t('event.complete', { ...base, s: payload.season })
+    case 'sequel_announced': {
+      const text = t('event.sequelAnnounced', {
+        title: base.title,
+        sequel: payload.sequel_title ?? '?',
+      })
+      if (!payload.first_air) return text
+      const day = new Date(payload.first_air)
+      const date =
+        day.getUTCMonth() === 0 && day.getUTCDate() === 1
+          ? String(day.getUTCFullYear())
+          : day.toLocaleDateString(language === 'en' ? 'en-GB' : 'de-DE')
+      return `${text} (${t('event.sequelDetail', { date })})`
+    }
     case 'part_complete':
       if (payload.parts_mode === 'parts' && payload.part_title) {
         return t('event.partCompleteAsSeason', { part: payload.part_title })

@@ -26,6 +26,10 @@ landed and when a season is complete.
   retried twice and then shown with the reason; resend from the event log.
 - **UI** (German, English switchable): overview, series, events, settings, setup wizard,
   dark and light theme.
+- **Sequels announced early**: when AniList lists a sequel of a season you follow that has
+  not started yet (e.g. a 2027 continuation), Finalarr reports it once as "Fortsetzung
+  angekündigt", before TheTVDB or Sonarr know the season. Anime typed "Standard" in Sonarr
+  now get AniList data too.
 - `FINALARR_AUTH=local`: no login from your home network; the API key is still needed from
   anywhere else.
 - Runs as one Docker container (non-root, PUID/PGID, healthcheck, data in `/config`);

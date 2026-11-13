@@ -1,3 +1,4 @@
+import json
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
@@ -316,8 +317,10 @@ def test_series_deleted_during_the_request_is_skipped(db, mushoku):
     class Deleting(FakeAnilist):
         def media_batch(self, ids):
             with db.session() as s:
-                s.delete(s.get(m.Series, mushoku))
-                s.commit()
+                series = s.get(m.Series, mushoku)
+                if series is not None:
+                    s.delete(series)
+                    s.commit()
             return super().media_batch(ids)
 
     assert run(db, Deleting()) == []
@@ -339,5 +342,71 @@ def test_one_run_batches_all_series_into_one_request(db, mushoku):
         s.commit()
     fake = FakeAnilist()
     run(db, fake)
-    assert len(fake.batches) == 1
+    # one request for every mapped entry, one for all their sequels
+    assert len(fake.batches) == 2
     assert set(fake.batches[0]) >= {108465, 166873, 99263, 173780}
+    assert set(fake.batches[1]) == {217434, 199185}
+
+
+SEQUELS = Path(__file__).parents[1] / "fixtures" / "anilist" / "sequels_2027.json"
+
+
+def with_2027_sequels():
+    fake = FakeAnilist()
+    for raw in json.loads(SEQUELS.read_text())["data"]["Page"]["media"]:
+        fake.media[raw["id"]] = AnilistMedia.model_validate(raw)
+    return fake
+
+
+def run_with_events(db, fake, now=NOW):
+    created = []
+    enricher = AnimeEnricher(
+        db,
+        CachedAnilist(db, fake, clock=lambda: now),
+        on_change=lambda *_: None,
+        on_events=lambda s, events: created.extend(e.type for e in events),
+        clock=lambda: now,
+    )
+    enricher.run()
+    return created
+
+
+def test_standard_typed_series_with_a_fribb_mapping_is_enriched(db, mushoku):
+    with db.session() as s:
+        s.get(m.Series, mushoku).series_type = "standard"
+        s.commit()
+    run(db, FakeAnilist())
+    assert seasons(db, mushoku)[2].anilist_count == 25
+    with db.session() as s:
+        assert s.get(m.Series, mushoku).anilist_resolution == "auto"
+
+
+def test_unmapped_upcoming_sequel_is_announced_once(db, mushoku):
+    created = run_with_events(db, with_2027_sequels())
+    assert created == ["sequel_announced"]
+    with db.session() as s:
+        event = s.scalar(select(m.Event))
+        payload = json.loads(event.payload_json)
+    assert (event.series_id, event.season_id) == (mushoku, None)
+    assert payload["anilist_id"] == 217434
+    assert payload["sequel_title"].startswith("Mushoku Tensei III")
+    assert payload["first_air"] == "2027-01-01"
+    assert payload["title"] == "Mushoku Tensei"
+    assert run_with_events(db, with_2027_sequels()) == []
+
+
+def test_finished_or_mapped_sequels_are_not_announced(db, mushoku):
+    fake = with_2027_sequels()
+    fake.media[217434] = fake.media[217434].model_copy(update={"status": "FINISHED"})
+    assert run_with_events(db, fake) == []
+    with db.session() as s:
+        s.add(
+            m.AnilistMapping(tvdb_id=MUSHOKU_TVDB, tvdb_season=3, anilist_id=217434, source="fribb")
+        )
+        s.commit()
+    assert run_with_events(db, with_2027_sequels()) == []
+
+
+def test_old_sequel_start_is_not_news(db, mushoku):
+    later = datetime(2028, 6, 1, tzinfo=UTC)
+    assert run_with_events(db, with_2027_sequels(), now=later) == []

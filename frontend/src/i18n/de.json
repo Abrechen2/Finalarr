@@ -138,7 +138,8 @@
       "episodes_available": "Verfügbar",
       "finale_available": "Finale",
       "season_complete": "Komplett",
-      "part_complete": "Teil komplett"
+      "part_complete": "Teil komplett",
+      "sequel_announced": "Fortsetzung"
     },
     "announced": "{{title}}: Staffel {{s}} angekündigt",
     "announcedDetail": "Start {{date}}, {{expected}} Folgen",
@@ -147,7 +148,9 @@
     "complete": "{{title}} Staffel {{s}} komplett ({{have}}/{{expected}})",
     "partComplete": "{{title}} Staffel {{s}} Teil {{part}} komplett",
     "fingerprint": "Fingerprint: {{value}}",
-    "partCompleteAsSeason": "{{part}} komplett"
+    "partCompleteAsSeason": "{{part}} komplett",
+    "sequelAnnounced": "{{title}}: Fortsetzung angekündigt – {{sequel}}",
+    "sequelDetail": "Start {{date}}"
   },
   "delivery": {
     "pending": "wartet",

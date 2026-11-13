@@ -85,7 +85,12 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
             enqueue(s, instance_id, sonarr_id)
             s.commit()
 
-    enricher = AnimeEnricher(database, cached_anilist, on_change=queue_series)
+    enricher = AnimeEnricher(
+        database,
+        cached_anilist,
+        on_change=queue_series,
+        on_events=lambda s, events: create_deliveries(s, events),
+    )
 
     def anilist_cycle() -> None:
         # The mapping must exist before the first enrichment can resolve anything.

@@ -57,3 +57,20 @@ def test_announcement_without_date_and_links():
 
 def test_unknown_language_falls_back_to_german():
     assert "verfügbar" in render("episodes_available", {**PAYLOAD, "episodes": [1]}, "fr", None)
+
+
+def test_sequel_announced_with_year_only_and_full_date():
+    payload = {
+        "title": "Mushoku Tensei",
+        "sequel_title": "Mushoku Tensei III Part 2",
+        "first_air": "2027-01-01",
+    }
+    assert (
+        "Mushoku Tensei</b>: Fortsetzung angekündigt – Mushoku Tensei III Part 2 (Start 2027)"
+        in render("sequel_announced", payload, "de", None)
+    )
+    assert "sequel announced – Mushoku Tensei III Part 2 (starts 2027)" in render(
+        "sequel_announced", payload, "en", None
+    )
+    dated = render("sequel_announced", {**payload, "first_air": "2027-07-04"}, "de", None)
+    assert "(Start 04.07.2027)" in dated
