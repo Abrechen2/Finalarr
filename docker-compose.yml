@@ -1,6 +1,6 @@
 services:
   finalarr:
-    image: finalarr:latest
+    image: ${FINALARR_IMAGE:-finalarr:latest}
     build: .
     container_name: finalarr
     restart: unless-stopped

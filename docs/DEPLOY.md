@@ -1,0 +1,49 @@
+# Deploying Finalarr
+
+## Requirements
+
+- Docker with Compose, amd64 (arm64 images come with final releases).
+- Sonarr v4 reachable from the container.
+- Two secrets in the environment (Finalarr refuses to start without them):
+  - `FINALARR_API_KEY` — at least 20 characters, e.g. `openssl rand -hex 32`. It is also
+    the UI login.
+  - `FINALARR_SECRET_KEY` — a Fernet key:
+    `python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())'`.
+    It encrypts stored Sonarr keys and channel URLs; changing it makes them unreadable.
+
+Optional: `FINALARR_PUBLIC_URL` (adds "Finalarr" links to messages),
+`FINALARR_TRUSTED_PROXIES` (number of reverse proxies in front),
+`FINALARR_WEBHOOK_ALLOW` (IPs/CIDRs allowed to call the webhook), `PUID`/`PGID`, `TZ`.
+See `.env.example`.
+
+## Docker Compose
+
+```sh
+cp .env.example .env   # fill in the two keys
+docker compose up -d --build
+```
+
+Data lives in `/config` (SQLite database, log, scheduler lock). Back it up like any
+other appdata folder.
+
+## Unraid
+
+Use `docker-compose.unraid.yml` as an overlay (`PUID=99`, `PGID=100`, appdata path,
+env file) or create a container from the image with the same settings. To ship an image
+built elsewhere: `DEPLOY_HOST=root@unraid scripts/deploy.sh [--rc N]` builds amd64,
+loads it over SSH, restarts the container and waits for `/health`. It asks before
+restarting.
+
+## Connect Sonarr
+
+1. Open Finalarr, sign in with the API key, follow the setup.
+2. Copy the webhook URL from *Einstellungen → Sonarr* into Sonarr under
+   *Settings → Connect → Webhook* (method POST; events On Import, On Upgrade,
+   On Series Add, On Episode File Delete). Basic auth is optional and supported.
+3. The webhook only speeds things up; Finalarr also syncs every 30 minutes.
+
+## Notifications
+
+Add a channel under *Einstellungen → Kanäle* (Telegram, Discord, Pushover, webhook or
+any Apprise URL) and send a test message. Channel URLs are stored encrypted and never
+shown again.
