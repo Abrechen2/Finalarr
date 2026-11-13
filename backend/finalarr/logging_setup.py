@@ -1,0 +1,47 @@
+"""Logging to stdout and /config/finalarr.log, with secrets stripped (PLAN.md section 9)."""
+
+from __future__ import annotations
+
+import logging
+import re
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
+
+LOG_BYTES = 2 * 1024 * 1024
+LOG_BACKUPS = 3
+_PATTERNS = [
+    (re.compile(r"[0-9a-f]{64}"), "***"),
+    (re.compile(r"(?i)(api[_-]?key[\"']?\s*[=:]\s*[\"']?)[^\s&\"',]+"), r"\1***"),
+    # Apprise URLs carry their credentials inline.
+    (re.compile(r"\b(tgram|discord|pover|json|jsons|apprise)://[^\s\"']+"), r"\1://***"),
+]
+
+
+class RedactingFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        message = record.getMessage()
+        for pattern, replacement in _PATTERNS:
+            message = pattern.sub(replacement, message)
+        record.msg, record.args = message, None
+        return True
+
+
+def configure_logging(level: str, data_dir: Path) -> None:
+    root = logging.getLogger()
+    root.setLevel(level)
+    for handler in [h for h in root.handlers if getattr(h, "finalarr", False)]:
+        root.removeHandler(handler)
+        handler.close()
+    data_dir.mkdir(parents=True, exist_ok=True)
+    formatter = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
+    handlers: list[logging.Handler] = [
+        logging.StreamHandler(),
+        RotatingFileHandler(data_dir / "finalarr.log", maxBytes=LOG_BYTES, backupCount=LOG_BACKUPS),
+    ]
+    for handler in handlers:
+        handler.setFormatter(formatter)
+        handler.addFilter(RedactingFilter())
+        handler.finalarr = True  # type: ignore[attr-defined]
+        root.addHandler(handler)
+    # The drain job runs every few seconds; its per-run INFO lines are noise.
+    logging.getLogger("apscheduler").setLevel(logging.WARNING)

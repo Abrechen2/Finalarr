@@ -27,7 +27,7 @@ RUN apt-get update \
     && useradd -u 1000 -g finalarr -d /app -s /usr/sbin/nologin finalarr
 
 WORKDIR /app
-COPY backend/pyproject.toml backend/VERSION ./
+COPY backend/pyproject.toml backend/VERSION backend/gunicorn.conf.py ./
 COPY backend/finalarr ./finalarr
 RUN pip install --no-cache-dir . && rm -rf build *.egg-info
 COPY --from=frontend /build/dist /app/static
@@ -41,4 +41,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
 
 ENTRYPOINT ["/entrypoint.sh"]
 # One worker on purpose: the scheduler must exist exactly once (PLAN.md 4.5).
-CMD ["sh", "-c", "exec gunicorn --workers 1 --worker-class gthread --threads 8 --bind 0.0.0.0:${FINALARR_PORT} --graceful-timeout 60 --access-logfile - 'finalarr.app:create_app()'"]
+CMD ["gunicorn", "-c", "/app/gunicorn.conf.py", "finalarr.app:create_app()"]

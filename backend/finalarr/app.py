@@ -15,7 +15,10 @@ from finalarr.auth import init_auth
 from finalarr.config import Settings, load_settings
 from finalarr.crypto import SecretBox
 from finalarr.db.session import Database
+from finalarr.logging_setup import configure_logging
 from finalarr.ratelimit import RateLimiter
+from finalarr.scheduler import SchedulerService
+from finalarr.services.reconciler import Reconciler
 from finalarr.version import get_version
 
 _DEFAULT_STATIC_DIR = Path("/app/static")
@@ -26,6 +29,7 @@ MAX_REQUEST_BYTES = 1024 * 1024
 def create_app(settings: Settings | None = None, static_dir: Path | None = None) -> Flask:
     """Build the app; without ``settings`` they come from the environment (fail closed)."""
     settings = settings or load_settings()
+    configure_logging(settings.log_level, settings.data)
     app = Flask(__name__, static_folder=None)
     app.config["MAX_CONTENT_LENGTH"] = MAX_REQUEST_BYTES
     app.extensions["finalarr.settings"] = settings
@@ -40,6 +44,11 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
     app.extensions["finalarr.webhook_allow"] = webhook.parse_allowlist(settings.webhook_allow)
     app.extensions["finalarr.webhook_limiter"] = RateLimiter(webhook.TRIGGERS_PER_MINUTE, 60)
     register_error_handler(app)
+    reconciler = Reconciler(database, app.extensions["finalarr.secrets"])
+    scheduler = SchedulerService(database, reconciler, lock_path=settings.data / "scheduler.lock")
+    app.extensions["finalarr.reconciler"] = reconciler
+    app.extensions["finalarr.scheduler"] = scheduler
+    app.extensions["finalarr.nudge"] = scheduler.nudge
     app.register_blueprint(instances.bp)
     app.register_blueprint(webhook.bp)
     spa_dir = static_dir or Path(os.environ.get("FINALARR_STATIC_DIR", _DEFAULT_STATIC_DIR))

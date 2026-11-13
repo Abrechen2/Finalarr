@@ -108,6 +108,9 @@ class SonarrClient:
     def series_list(self) -> list[SonarrSeries]:
         return self._get("/api/v3/series", list[SonarrSeries])
 
+    def series(self, series_id: int) -> SonarrSeries:
+        return self._get(f"/api/v3/series/{series_id}", SonarrSeries)
+
     def episodes(self, series_id: int) -> list[SonarrEpisode]:
         return self._get("/api/v3/episode", list[SonarrEpisode], {"seriesId": series_id})
 

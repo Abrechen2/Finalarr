@@ -5,6 +5,7 @@ from finalarr.app import create_app
 from finalarr.config import Settings
 
 API_KEY = "test-api-key-0123456789abcdef"
+AUTH = {"X-Api-Key": API_KEY}
 
 
 @pytest.fixture
@@ -20,3 +21,28 @@ def app(settings, tmp_path):
 @pytest.fixture
 def client(app):
     return app.test_client()
+
+
+@pytest.fixture
+def api(client):
+    """Test client that sends the API key on every call."""
+
+    class Api:
+        def __getattr__(self, method):
+            def call(path, **kwargs):
+                headers = {**AUTH, **kwargs.pop("headers", {})}
+                return getattr(client, method)(path, headers=headers, **kwargs)
+
+            return call
+
+    return Api()
+
+
+@pytest.fixture
+def instance(api):
+    response = api.post(
+        "/api/v1/instances",
+        json={"name": "Unraid", "url": "http://sonarr:8989", "api_key": "sonarr-secret-key"},
+    )
+    assert response.status_code == 201, response.get_json()
+    return response.get_json()

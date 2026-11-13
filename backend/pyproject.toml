@@ -16,6 +16,7 @@ dependencies = [
     "sqlalchemy>=2.0.36,<3",
     "alembic>=1.14,<2",
     "requests>=2.32,<3",
+    "apscheduler>=3.10,<4",
 ]
 
 [project.optional-dependencies]
@@ -72,3 +73,7 @@ warn_unused_ignores = true
 [[tool.mypy.overrides]]
 module = "finalarr.core.*"
 strict = true
+
+[[tool.mypy.overrides]]
+module = "apscheduler.*"
+ignore_missing_imports = true

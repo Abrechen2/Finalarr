@@ -134,3 +134,9 @@ def test_invalid_base_urls(url):
 def test_client_rejects_invalid_base_url():
     with pytest.raises(ValueError):
         SonarrClient("file:///etc/passwd", "k")
+
+
+@responses.activate
+def test_single_series(client):
+    responses.get(f"{BASE}/api/v3/series/101", json=fixture("series.json")[0])
+    assert client.series(101).title.startswith("That Time")
