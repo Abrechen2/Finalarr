@@ -5,7 +5,8 @@ def test_health_is_unauthenticated_and_reports_version(client):
     response = client.get("/health")
 
     assert response.status_code == 200
-    assert response.get_json() == {"status": "ok", "version": get_version()}
+    body = response.get_json()
+    assert (body["status"], body["version"]) == ("ok", get_version())
 
 
 def test_version_matches_version_file():
@@ -39,3 +40,16 @@ def test_version_unknown_when_not_installed(monkeypatch, tmp_path):
     monkeypatch.setattr(version_module, "_VERSION_FILE", tmp_path / "missing")
     monkeypatch.setattr(version_module, "version", not_found)
     assert get_version() == "0.0.0+unknown"
+
+
+def test_health_reports_database(client):
+    assert client.get("/health").get_json()["db"] == "ok"
+
+
+def test_database_file_lives_in_the_data_dir(app, settings):
+    assert (settings.data / "finalarr.db").is_file()
+
+
+def test_health_is_503_when_the_database_is_gone(app, client):
+    app.extensions["finalarr.db"].ping = lambda: False
+    assert client.get("/health").status_code == 503

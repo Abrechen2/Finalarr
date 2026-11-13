@@ -11,6 +11,7 @@ from werkzeug.security import safe_join
 
 from finalarr.auth import init_auth
 from finalarr.config import Settings, load_settings
+from finalarr.db.session import Database
 from finalarr.version import get_version
 
 _DEFAULT_STATIC_DIR = Path("/app/static")
@@ -26,11 +27,19 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
         hops = settings.trusted_proxies
         app.wsgi_app = ProxyFix(app.wsgi_app, x_for=hops, x_proto=hops)  # type: ignore[method-assign]
     init_auth(app, settings)
+    database = Database(settings.data / "finalarr.db")
+    database.migrate()
+    app.extensions["finalarr.db"] = database
     spa_dir = static_dir or Path(os.environ.get("FINALARR_STATIC_DIR", _DEFAULT_STATIC_DIR))
 
     @app.get("/health")
     def health() -> ResponseReturnValue:
-        return jsonify(status="ok", version=get_version())
+        db_ok = database.ping()
+        return jsonify(
+            status="ok" if db_ok else "degraded",
+            version=get_version(),
+            db="ok" if db_ok else "error",
+        ), (200 if db_ok else 503)
 
     @app.get("/", defaults={"path": ""})
     @app.get("/<path:path>")

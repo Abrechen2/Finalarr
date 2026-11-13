@@ -13,6 +13,8 @@ dependencies = [
     "gunicorn>=23,<24",
     "pydantic-settings>=2.6,<3",
     "cryptography>=44",
+    "sqlalchemy>=2.0.36,<3",
+    "alembic>=1.14,<2",
 ]
 
 [project.optional-dependencies]
@@ -29,6 +31,9 @@ dev = [
 
 [tool.setuptools.packages.find]
 include = ["finalarr*"]
+
+[tool.setuptools.package-data]
+finalarr = ["db/migrations/*.py", "db/migrations/*.mako", "db/migrations/versions/*.py"]
 
 [tool.setuptools.dynamic]
 version = { file = "VERSION" }
@@ -54,6 +59,7 @@ select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "RUF"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "S105", "S106"]
+"finalarr/db/migrations/versions/**" = ["E501"]
 
 [tool.mypy]
 python_version = "3.12"
