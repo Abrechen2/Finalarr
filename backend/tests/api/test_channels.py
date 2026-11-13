@@ -132,3 +132,8 @@ def test_new_events_get_deliveries_through_the_reconciler_hook(app, channel):
         hook(s, [event])
         s.commit()
         assert len(s.scalars(select(m.Delivery)).all()) == 1
+
+
+def test_unsaved_test_accepts_the_full_form_body(api, sender):
+    body = {**TELEGRAM, "language": "de", "event_filter": ["season_complete"], "enabled": True}
+    assert api.post("/api/v1/channels/test", json=body).status_code == 200

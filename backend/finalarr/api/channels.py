@@ -29,18 +29,20 @@ assert set(KINDS) == set(get_args(Kind)) and set(EVENT_TYPES) == set(get_args(Ev
 
 
 class ChannelTest(BaseModel):
+    """The add-channel form; testing it before saving sends the same body."""
+
     model_config = ConfigDict(extra="forbid")
 
     kind: Kind
     fields: dict[str, str]
     language: Language = "de"
     name: str | None = None
+    event_filter: list[EventName] = []
+    enabled: bool = True
 
 
 class ChannelIn(ChannelTest):
     name: str = Field(min_length=1, max_length=100)
-    event_filter: list[EventName] = []
-    enabled: bool = True
 
 
 class ChannelPatch(BaseModel):
