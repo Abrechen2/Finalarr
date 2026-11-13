@@ -15,7 +15,7 @@ import requests
 from sqlalchemy import delete
 from sqlalchemy.orm import Session
 
-from finalarr.db.models import AnilistCache, AnilistMapping
+from finalarr.db.models import AnilistCache, AnilistMapping, FribbId
 from finalarr.db.session import Database
 
 log = logging.getLogger(__name__)
@@ -38,14 +38,32 @@ def parse_fribb(raw: bytes) -> list[Mapping]:
     return sorted(rows)
 
 
+def parse_fribb_ids(raw: bytes) -> list[tuple[int, int]]:
+    """(anilist_id, mal_id) pairs, including entries Fribb has not mapped to TVDB yet."""
+    pairs: dict[int, int] = {}
+    for entry in json.loads(raw):
+        anilist, mal = entry.get("anilist_id"), entry.get("mal_id")
+        if isinstance(anilist, int) and isinstance(mal, int):
+            pairs[anilist] = mal
+    return sorted(pairs.items())
+
+
 def download_fribb() -> bytes:
     response = requests.get(FRIBB_URL, timeout=DOWNLOAD_TIMEOUT, allow_redirects=False)
     response.raise_for_status()
     return response.content
 
 
-def store_fribb(session: Session, rows: list[Mapping], now: datetime) -> None:
+def store_fribb(
+    session: Session,
+    rows: list[Mapping],
+    now: datetime,
+    ids: list[tuple[int, int]] | None = None,
+) -> None:
     session.execute(delete(AnilistMapping).where(AnilistMapping.source == "fribb"))
+    if ids is not None:
+        session.execute(delete(FribbId))
+        session.add_all(FribbId(anilist_id=a, mal_id=mal) for a, mal in ids)
     session.add_all(
         AnilistMapping(tvdb_id=t, tvdb_season=s, anilist_id=a, source="fribb", fetched_at=now)
         for t, s, a in rows
@@ -74,12 +92,13 @@ def refresh_if_stale(
         if not fribb_is_stale(s, moment):
             return False
     try:
-        rows = parse_fribb(download())
+        raw = download()
+        rows, ids = parse_fribb(raw), parse_fribb_ids(raw)
     except (requests.RequestException, ValueError) as error:
         log.warning("Fribb anime-lists refresh failed: %s", error)
         return False
     with db.session() as s:
-        store_fribb(s, rows, moment)
+        store_fribb(s, rows, moment, ids=ids)
         s.commit()
     log.info("Fribb anime-lists refreshed: %d TVDB season mappings", len(rows))
     return True

@@ -289,6 +289,15 @@ class AnilistMapping(Base):
     fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
+class FribbId(Base):
+    """AniList ↔ MyAnimeList id pairs from Fribb's list (also for entries without TVDB)."""
+
+    __tablename__ = "fribb_ids"
+
+    anilist_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    mal_id: Mapped[int] = mapped_column(Integer, index=True)
+
+
 class AnilistCache(Base):
     __tablename__ = "anilist_cache"
 

@@ -6,7 +6,8 @@
    "tvdb": 1,
    "tmdb": 1
   },
-  "type": "TV"
+  "type": "TV",
+  "mal_id": 35790
  },
  {
   "anilist_id": 108465,
@@ -15,7 +16,8 @@
    "tvdb": 1,
    "tmdb": 1
   },
-  "type": "TV"
+  "type": "TV",
+  "mal_id": 39535
  },
  {
   "anilist_id": 111321,
@@ -24,7 +26,8 @@
    "tvdb": 2,
    "tmdb": 2
   },
-  "type": "TV"
+  "type": "TV",
+  "mal_id": 40356
  },
  {
   "anilist_id": 111322,
@@ -33,7 +36,8 @@
    "tvdb": 3,
    "tmdb": 3
   },
-  "type": "TV"
+  "type": "TV",
+  "mal_id": 40357
  },
  {
   "anilist_id": 127720,
@@ -42,7 +46,8 @@
    "tvdb": 1,
    "tmdb": 1
   },
-  "type": "TV"
+  "type": "TV",
+  "mal_id": 45576
  },
  {
   "anilist_id": 146065,
@@ -51,7 +56,8 @@
    "tvdb": 2,
    "tmdb": 2
   },
-  "type": "TV"
+  "type": "TV",
+  "mal_id": 51179
  },
  {
   "anilist_id": 166873,
@@ -60,7 +66,8 @@
    "tvdb": 2,
    "tmdb": 2
   },
-  "type": "TV"
+  "type": "TV",
+  "mal_id": 55888
  },
  {
   "anilist_id": 173780,
@@ -69,7 +76,8 @@
    "tvdb": 4,
    "tmdb": 4
   },
-  "type": "TV"
+  "type": "TV",
+  "mal_id": 57000
  },
  {
   "anilist_id": 178789,
@@ -78,12 +86,20 @@
    "tvdb": 3,
    "tmdb": 3
   },
-  "type": "TV"
+  "type": "TV",
+  "mal_id": 58789
  },
  {
   "anilist_id": 1,
   "tvdb_id": null,
   "season": null,
   "type": "TV"
+ },
+ {
+  "anilist_id": 217434,
+  "tvdb_id": null,
+  "season": null,
+  "type": "TV",
+  "mal_id": 61234
  }
 ]

@@ -37,9 +37,11 @@ from finalarr.services.delivery import DeliveryWorker, create_deliveries
 from finalarr.services.enricher import AnimeEnricher
 from finalarr.services.fribb import refresh_if_stale
 from finalarr.services.reconcile_queue import enqueue
+from finalarr.services.mal_backup import MalSequelWatcher
 from finalarr.services.reconciler import Reconciler
 from finalarr.services.season_sources import JsonCache, TmdbSource, TraktSource, TvmazeSource
 from finalarr.sources.anilist import AnilistClient
+from finalarr.sources.jikan import JikanClient
 from finalarr.sources.tmdb import TmdbClient
 from finalarr.sources.trakt import TraktClient
 from finalarr.sources.tvmaze import TvmazeClient
@@ -113,18 +115,30 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
         refresh_if_stale(database)
         enricher.run()
 
+    json_cache = JsonCache(database)
     watcher = AnnouncementWatcher(
         database,
-        season_sources(settings, JsonCache(database)),
+        season_sources(settings, json_cache),
         on_events=lambda s, events: create_deliveries(s, events),
     )
+    mal_watcher = MalSequelWatcher(
+        database,
+        JikanClient(),
+        json_cache,
+        on_events=lambda s, events: create_deliveries(s, events),
+    )
+
+    def announcement_cycle() -> None:
+        watcher.run()
+        mal_watcher.run()
+
     scheduler = SchedulerService(
         database,
         reconciler,
         lock_path=settings.data / "scheduler.lock",
         extra_jobs=[
             ("anilist", anilist_cycle, ANILIST_EVERY_SECONDS),
-            ("announcements", watcher.run, ANNOUNCEMENTS_EVERY_SECONDS),
+            ("announcements", announcement_cycle, ANNOUNCEMENTS_EVERY_SECONDS),
             ("deliver", delivery.run, DELIVER_EVERY_SECONDS),
         ],
     )
@@ -134,6 +148,7 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
     app.extensions["finalarr.reconciler"] = reconciler
     app.extensions["finalarr.scheduler"] = scheduler
     app.extensions["finalarr.nudge"] = scheduler.nudge
+
     def nudge_sources() -> None:
         scheduler.run_soon("anilist")
         scheduler.run_soon("announcements")

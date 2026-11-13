@@ -173,17 +173,33 @@ def _is_news(start: date | None, today: date) -> bool:
 
 
 def _record_sequel(s: Session, series: m.Series, sequel: AnilistMedia) -> m.Event | None:
-    """Insert once per (series, AniList entry); an existing fingerprint is a no-op."""
+    return record_sequel(
+        s, series, sequel.id, sequel.title, sequel.start_date, sequel.episodes, ["anilist"]
+    )
+
+
+def record_sequel(
+    s: Session,
+    series: m.Series,
+    anilist_id: int,
+    title: str,
+    start: date | None,
+    episodes: int | None,
+    sources: list[str],
+) -> m.Event | None:
+    """Insert once per (series, AniList entry); any source reporting the same entry
+    uses the same fingerprint, so an existing one is a no-op."""
     payload = {
         "title": series.title,
         "series_type": series.series_type,
-        "anilist_id": sequel.id,
-        "sequel_title": sequel.title,
-        "first_air": sequel.start_date.isoformat() if sequel.start_date else None,
-        "expected": sequel.episodes,
+        "anilist_id": anilist_id,
+        "sequel_title": title,
+        "first_air": start.isoformat() if start else None,
+        "expected": episodes,
+        "sources": sources,
         "sonarr_url": f"{series.instance.url}/series/{series.title_slug}",
     }
-    key = fingerprint("sequel_announced", series.instance_id, series.sonarr_id, 0, str(sequel.id))
+    key = fingerprint("sequel_announced", series.instance_id, series.sonarr_id, 0, str(anilist_id))
     event_id = s.execute(
         insert(m.Event)
         .values(
