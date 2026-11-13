@@ -31,7 +31,20 @@
   "series": {
     "title": "Series",
     "emptyTitle": "No series",
-    "emptyBody": "Once a Sonarr instance is connected, all its series are listed here, ready to follow."
+    "emptyBody": "Once a Sonarr instance is connected, all its series are listed here, ready to follow.",
+    "search": "Search series",
+    "filterFollowed": "Followed",
+    "filterAll": "All",
+    "filterNotFollowed": "Not followed",
+    "typeAll": "All types",
+    "typeAnime": "Anime",
+    "typeStandard": "Series",
+    "followAll": "Follow all monitored",
+    "followAllDone": "Now following {{count}} more series",
+    "loadMore": "Load more",
+    "openInSonarr": "Open in Sonarr",
+    "back": "Back to series",
+    "noMatch": "No series matches this filter."
   },
   "events": {
     "title": "Events",
@@ -67,5 +80,32 @@
     "rate_limited": "Too many attempts. Wait a minute.",
     "network": "Finalarr cannot be reached right now.",
     "generic": "Something went wrong. The log has the details."
+  },
+  "season": {
+    "short": "S{{n}}",
+    "label": "Season {{n}}",
+    "title": "Season {{n}}",
+    "specials": "Specials",
+    "episodes": "Episodes",
+    "expected": "{{n}} episodes expected (source: {{source}})",
+    "expectedUnknown": "Episode count not known yet",
+    "source": {
+      "sonarr": "Sonarr",
+      "anilist": "AniList",
+      "override": "manual"
+    },
+    "tvdbMissing": "Sonarr does not know this season yet.",
+    "disputed": "Sonarr lists {{sonarr}} episodes, AniList says {{anilist}}. \"Complete\" waits for the larger number until you set it under rules.",
+    "notFollowed": "You do not follow this series. Follow it so Finalarr fetches its episodes and sends reports."
+  },
+  "episode": {
+    "file": "on disk",
+    "missing": "aired, file missing",
+    "future": "not aired yet",
+    "finale": "season finale"
+  },
+  "action": {
+    "follow": "Follow",
+    "unfollow": "Unfollow"
   }
 }

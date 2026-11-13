@@ -45,7 +45,12 @@ export function AppShell({ children }: { children: ReactNode }) {
           className="fixed inset-x-0 bottom-0 z-10 flex justify-around border-t border-line bg-bg py-2 min-[900px]:static min-[900px]:flex-col min-[900px]:justify-start min-[900px]:gap-1 min-[900px]:border-0 min-[900px]:bg-transparent min-[900px]:py-0"
         >
           {NAV.map(({ to, key, icon: Icon }) => (
-            <NavLink key={to} to={to} end={to === '/'} className={linkClass}>
+            <NavLink
+              key={to}
+              to={to}
+              end={to === '/' || to === '/settings' || to === '/about'}
+              className={linkClass}
+            >
               <Icon size={18} aria-hidden="true" />
               {t(key)}
             </NavLink>

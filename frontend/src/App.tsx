@@ -3,12 +3,15 @@ import { AppShell } from './components/AppShell'
 import { RequireAuth } from './components/RequireAuth'
 import { AboutPage } from './pages/AboutPage'
 import { LoginPage } from './pages/LoginPage'
-import { DashboardPage, EventsPage, SeriesPage } from './pages/placeholders'
+import { DashboardPage, EventsPage } from './pages/placeholders'
+import { SeriesDetailPage } from './pages/SeriesDetailPage'
+import { SeriesPage } from './pages/SeriesPage'
 import { SettingsPage } from './pages/SettingsPage'
 
 const PAGES = [
   { path: '/', element: <DashboardPage /> },
   { path: '/series', element: <SeriesPage /> },
+  { path: '/series/:id', element: <SeriesDetailPage /> },
   { path: '/events', element: <EventsPage /> },
   { path: '/settings', element: <SettingsPage /> },
   { path: '/about', element: <AboutPage /> },

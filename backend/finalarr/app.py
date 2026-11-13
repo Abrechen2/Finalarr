@@ -9,7 +9,7 @@ from werkzeug.exceptions import NotFound
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import safe_join
 
-from finalarr.api import instances, webhook
+from finalarr.api import instances, series, webhook
 from finalarr.api.common import register_error_handler
 from finalarr.auth import init_auth
 from finalarr.config import Settings, load_settings
@@ -51,6 +51,7 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
     app.extensions["finalarr.nudge"] = scheduler.nudge
     app.register_blueprint(instances.bp)
     app.register_blueprint(webhook.bp)
+    app.register_blueprint(series.bp)
     spa_dir = static_dir or Path(os.environ.get("FINALARR_STATIC_DIR", _DEFAULT_STATIC_DIR))
 
     @app.get("/health")

@@ -31,7 +31,20 @@
   "series": {
     "title": "Serien",
     "emptyTitle": "Keine Serien",
-    "emptyBody": "Sobald eine Sonarr-Instanz verbunden ist, stehen hier alle Serien zum Folgen bereit."
+    "emptyBody": "Sobald eine Sonarr-Instanz verbunden ist, stehen hier alle Serien zum Folgen bereit.",
+    "search": "Serie suchen",
+    "filterFollowed": "Gefolgt",
+    "filterAll": "Alle",
+    "filterNotFollowed": "Nicht gefolgt",
+    "typeAll": "Alle Typen",
+    "typeAnime": "Anime",
+    "typeStandard": "Serie",
+    "followAll": "Alle überwachten folgen",
+    "followAllDone": "{{count}} Serien neu gefolgt",
+    "loadMore": "Mehr laden",
+    "openInSonarr": "In Sonarr öffnen",
+    "back": "Zurück zu Serien",
+    "noMatch": "Keine Serie passt zu diesem Filter."
   },
   "events": {
     "title": "Ereignisse",
@@ -67,5 +80,32 @@
     "rate_limited": "Zu viele Versuche. Warte eine Minute.",
     "network": "Finalarr ist gerade nicht erreichbar.",
     "generic": "Etwas ist schiefgelaufen. Details stehen im Log."
+  },
+  "season": {
+    "short": "S{{n}}",
+    "label": "Staffel {{n}}",
+    "title": "Staffel {{n}}",
+    "specials": "Specials",
+    "episodes": "Folgen",
+    "expected": "{{n}} Folgen erwartet (Quelle: {{source}})",
+    "expectedUnknown": "Folgenzahl noch unbekannt",
+    "source": {
+      "sonarr": "Sonarr",
+      "anilist": "AniList",
+      "override": "manuell"
+    },
+    "tvdbMissing": "Sonarr kennt diese Staffel noch nicht.",
+    "disputed": "Sonarr listet {{sonarr}} Folgen, AniList nennt {{anilist}}. „Komplett“ wartet auf die größere Zahl, bis du sie unter Regeln festlegst.",
+    "notFollowed": "Du folgst dieser Serie nicht. Folge ihr, damit Finalarr ihre Folgen abruft und Meldungen verschickt."
+  },
+  "episode": {
+    "file": "vorhanden",
+    "missing": "ausgestrahlt, Datei fehlt",
+    "future": "noch nicht ausgestrahlt",
+    "finale": "Staffelfinale"
+  },
+  "action": {
+    "follow": "Folgen",
+    "unfollow": "Nicht mehr folgen"
   }
 }

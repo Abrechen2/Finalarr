@@ -11,10 +11,13 @@ test('an anonymous visitor is sent to the login page', async () => {
 })
 
 test('a signed-in user sees the page inside the shell', async () => {
-  mockFetch({ 'GET /api/v1/auth/status': { body: { authenticated: true } } })
+  mockFetch({
+    'GET /api/v1/auth/status': { body: { authenticated: true } },
+    'GET /api/v1/series': { body: { items: [], next_cursor: null } },
+  })
   renderWithProviders(<App />, { route: '/series' })
   expect(await screen.findByRole('heading', { name: 'Serien' })).toBeInTheDocument()
-  expect(screen.getByText('Keine Serien')).toBeInTheDocument()
+  expect(await screen.findByText('Keine Serien')).toBeInTheDocument()
 })
 
 test('the about page shows the running version', async () => {
