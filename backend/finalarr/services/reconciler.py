@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import logging
 from collections.abc import Callable, Iterable
+from dataclasses import replace
 from datetime import UTC, datetime
 from typing import Any
 
@@ -20,7 +21,7 @@ from sqlalchemy.orm import Session
 from finalarr.core.codec import dump_memory, load_memory
 from finalarr.core.evaluator import evaluate
 from finalarr.core.model import Episode as CoreEpisode
-from finalarr.core.model import Evaluation, Policy, SeasonInput
+from finalarr.core.model import Evaluation, Policy, SeasonInput, SeasonMemory
 from finalarr.crypto import SecretBox
 from finalarr.db import models as m
 from finalarr.db.session import Database
@@ -167,23 +168,45 @@ class Reconciler:
             for number in by_season.keys() - seasons.keys():
                 seasons[number] = m.Season(number=number)
                 series.seasons.append(seasons[number])
+            watched = series_watched(series)
             created: list[m.Event] = []
             for number, season in seasons.items():
                 _sync_episodes(season, by_season.get(number, []))
                 s.flush()
-                created += self._evaluate(s, series, season, policy, now)
+                created += self._evaluate(s, series, season, policy, now, watched)
             if created and self._on_events:
                 self._on_events(s, created)
             s.commit()
 
     def _evaluate(
-        self, s: Session, series: m.Series, season: m.Season, policy: Policy, now: datetime
+        self,
+        s: Session,
+        series: m.Series,
+        season: m.Season,
+        policy: Policy,
+        now: datetime,
+        watched: bool,
     ) -> list[m.Event]:
-        result = evaluate(
-            season_input(series, season), load_memory(season.memory_json), now, policy
-        )
+        memory = season_memory(season, watched)
+        result = evaluate(season_input(series, season), memory, now, policy)
         _store_result(season, result, now)
         return record_events(s, series, season, result)
+
+
+def series_watched(series: m.Series) -> bool:
+    """True once any season of the series has been evaluated before this run."""
+    return any(
+        season.memory_json and load_memory(season.memory_json).initialized
+        for season in series.seasons
+    )
+
+
+def season_memory(season: m.Season, watched: bool) -> SeasonMemory:
+    """Stored memory; a season new to an already watched series skips the silent
+    baseline, so its announcement is not swallowed (the baseline is per series)."""
+    if season.memory_json:
+        return load_memory(season.memory_json)
+    return replace(SeasonMemory.initial(), initialized=watched)
 
 
 def season_input(series: m.Series, season: m.Season) -> SeasonInput:

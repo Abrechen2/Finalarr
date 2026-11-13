@@ -201,3 +201,32 @@ def test_policy_comes_from_settings(env):
         clock["now"] += timedelta(minutes=30)
         reconciler.reconcile(1)
     assert [t for t, _ in events(db)] == ["episodes_available", "episodes_available"]
+
+
+def test_a_season_new_to_a_known_series_is_announced(env):
+    """The silent baseline is per series: a later season must not be swallowed."""
+    db, sonarr, reconciler, clock = env
+    sonarr.add(make_series(1, "Slime", seasons=(1,)), make_episodes(1, 1, 2, {1, 2}))
+    reconciler.reconcile(1)
+    follow(db, 1)
+    reconciler.reconcile(1)
+    future = [
+        e.model_copy(update={"air_date_utc": NOW + timedelta(days=60)})
+        for e in make_episodes(1, 2, 12, set())
+    ]
+    sonarr.add(make_series(1, "Slime", seasons=(1, 2)), make_episodes(1, 1, 2, {1, 2}) + future)
+    clock["now"] += timedelta(minutes=30)
+    reconciler.reconcile(1)
+    assert [(t, p["season"], p["expected"]) for t, p in events(db)] == [("season_announced", 2, 12)]
+
+
+def test_newly_followed_series_still_starts_silently(env):
+    db, sonarr, reconciler, _ = env
+    sonarr.add(
+        make_series(1, "Slime", seasons=(1, 2)),
+        make_episodes(1, 1, 2, {1}) + make_episodes(1, 2, 2, set()),
+    )
+    reconciler.reconcile(1)
+    follow(db, 1)
+    reconciler.reconcile(1)
+    assert events(db) == []

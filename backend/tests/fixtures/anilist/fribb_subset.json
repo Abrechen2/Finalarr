@@ -1,0 +1,89 @@
+[
+ {
+  "anilist_id": 99263,
+  "tvdb_id": 353712,
+  "season": {
+   "tvdb": 1,
+   "tmdb": 1
+  },
+  "type": "TV"
+ },
+ {
+  "anilist_id": 108465,
+  "tvdb_id": 371310,
+  "season": {
+   "tvdb": 1,
+   "tmdb": 1
+  },
+  "type": "TV"
+ },
+ {
+  "anilist_id": 111321,
+  "tvdb_id": 353712,
+  "season": {
+   "tvdb": 2,
+   "tmdb": 2
+  },
+  "type": "TV"
+ },
+ {
+  "anilist_id": 111322,
+  "tvdb_id": 353712,
+  "season": {
+   "tvdb": 3,
+   "tmdb": 3
+  },
+  "type": "TV"
+ },
+ {
+  "anilist_id": 127720,
+  "tvdb_id": 371310,
+  "season": {
+   "tvdb": 1,
+   "tmdb": 1
+  },
+  "type": "TV"
+ },
+ {
+  "anilist_id": 146065,
+  "tvdb_id": 371310,
+  "season": {
+   "tvdb": 2,
+   "tmdb": 2
+  },
+  "type": "TV"
+ },
+ {
+  "anilist_id": 166873,
+  "tvdb_id": 371310,
+  "season": {
+   "tvdb": 2,
+   "tmdb": 2
+  },
+  "type": "TV"
+ },
+ {
+  "anilist_id": 173780,
+  "tvdb_id": 353712,
+  "season": {
+   "tvdb": 4,
+   "tmdb": 4
+  },
+  "type": "TV"
+ },
+ {
+  "anilist_id": 178789,
+  "tvdb_id": 371310,
+  "season": {
+   "tvdb": 3,
+   "tmdb": 3
+  },
+  "type": "TV"
+ },
+ {
+  "anilist_id": 1,
+  "tvdb_id": null,
+  "season": null,
+  "type": "TV"
+ }
+]

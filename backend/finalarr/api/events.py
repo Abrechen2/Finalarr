@@ -12,11 +12,10 @@ from sqlalchemy import Select, select
 from sqlalchemy.orm import selectinload
 
 from finalarr.api.common import ApiProblem, database, not_found
-from finalarr.core.codec import load_memory
 from finalarr.core.evaluator import evaluate
 from finalarr.db.models import EVENT_TYPES, Delivery, Event, Season, utcnow
 from finalarr.services.reconcile_queue import enqueue
-from finalarr.services.reconciler import season_input
+from finalarr.services.reconciler import season_input, season_memory, series_watched
 from finalarr.services.settings_store import load_settings, policy_from
 
 bp = Blueprint("events", __name__, url_prefix="/api/v1")
@@ -116,7 +115,7 @@ def evaluate_season(season_id: int) -> ResponseReturnValue:
             return {"queued": True}, 202
         result = evaluate(
             season_input(series, season),
-            load_memory(season.memory_json),
+            season_memory(season, series_watched(series)),
             utcnow(),
             policy_from(load_settings(s)),
         )
