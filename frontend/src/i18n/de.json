@@ -1,0 +1,71 @@
+{
+  "nav": {
+    "label": "Hauptnavigation",
+    "dashboard": "Übersicht",
+    "series": "Serien",
+    "events": "Ereignisse",
+    "settings": "Einstellungen",
+    "about": "Über"
+  },
+  "brand": {
+    "credit": "Ein Projekt von",
+    "tagline": "Selbst gebaut. Selbst gehostet.",
+    "claim": "Meldet Staffelfinale und komplette Staffeln aus Sonarr."
+  },
+  "login": {
+    "title": "Anmelden",
+    "intro": "Gib den API-Schlüssel ein, mit dem Finalarr gestartet wurde (FINALARR_API_KEY).",
+    "apiKey": "API-Schlüssel",
+    "submit": "Anmelden",
+    "busy": "Prüfe …",
+    "logout": "Abmelden"
+  },
+  "dashboard": {
+    "title": "Übersicht",
+    "airing": "Läuft gerade",
+    "upcoming": "Nächste Finals",
+    "recent": "Zuletzt gemeldet",
+    "emptyTitle": "Noch nichts zu sehen",
+    "emptyBody": "Verbinde zuerst Sonarr und wähle die Serien, denen du folgen willst. Danach erscheinen hier laufende Staffeln, anstehende Finals und die letzten Meldungen."
+  },
+  "series": {
+    "title": "Serien",
+    "emptyTitle": "Keine Serien",
+    "emptyBody": "Sobald eine Sonarr-Instanz verbunden ist, stehen hier alle Serien zum Folgen bereit."
+  },
+  "events": {
+    "title": "Ereignisse",
+    "emptyTitle": "Noch keine Ereignisse",
+    "emptyBody": "Hier landet jede Meldung, die Finalarr verschickt hat, mit dem Zustellstatus pro Kanal."
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "appearance": "Darstellung",
+    "theme": "Farbschema",
+    "themeSystem": "Wie das System",
+    "themeDark": "Dunkel",
+    "themeLight": "Hell",
+    "language": "Sprache",
+    "comingSoon": "Sonarr, Kanäle und Regeln folgen in den nächsten Versionen."
+  },
+  "about": {
+    "title": "Über Finalarr",
+    "version": "Version",
+    "licence": "Lizenz",
+    "source": "Quellcode"
+  },
+  "state": {
+    "unknown": "unbekannt",
+    "scheduled": "angekündigt",
+    "airing": "läuft",
+    "aired": "ausgestrahlt, Dateien fehlen",
+    "complete": "komplett",
+    "disputed": "Folgenzahl unklar"
+  },
+  "error": {
+    "unauthorized": "Der Schlüssel ist falsch.",
+    "rate_limited": "Zu viele Versuche. Warte eine Minute.",
+    "network": "Finalarr ist gerade nicht erreichbar.",
+    "generic": "Etwas ist schiefgelaufen. Details stehen im Log."
+  }
+}

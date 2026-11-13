@@ -1,0 +1,71 @@
+{
+  "nav": {
+    "label": "Main navigation",
+    "dashboard": "Overview",
+    "series": "Series",
+    "events": "Events",
+    "settings": "Settings",
+    "about": "About"
+  },
+  "brand": {
+    "credit": "A project by",
+    "tagline": "Self-built. Self-hosted.",
+    "claim": "Reports season finales and complete seasons from Sonarr."
+  },
+  "login": {
+    "title": "Sign in",
+    "intro": "Enter the API key Finalarr was started with (FINALARR_API_KEY).",
+    "apiKey": "API key",
+    "submit": "Sign in",
+    "busy": "Checking …",
+    "logout": "Sign out"
+  },
+  "dashboard": {
+    "title": "Overview",
+    "airing": "Airing now",
+    "upcoming": "Upcoming finales",
+    "recent": "Recently reported",
+    "emptyTitle": "Nothing to show yet",
+    "emptyBody": "Connect Sonarr first and pick the series you want to follow. Airing seasons, upcoming finales and the latest reports will then show up here."
+  },
+  "series": {
+    "title": "Series",
+    "emptyTitle": "No series",
+    "emptyBody": "Once a Sonarr instance is connected, all its series are listed here, ready to follow."
+  },
+  "events": {
+    "title": "Events",
+    "emptyTitle": "No events yet",
+    "emptyBody": "Every report Finalarr sends ends up here, with its delivery status per channel."
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "theme": "Colour scheme",
+    "themeSystem": "Follow the system",
+    "themeDark": "Dark",
+    "themeLight": "Light",
+    "language": "Language",
+    "comingSoon": "Sonarr, channels and rules follow in the next versions."
+  },
+  "about": {
+    "title": "About Finalarr",
+    "version": "Version",
+    "licence": "Licence",
+    "source": "Source code"
+  },
+  "state": {
+    "unknown": "unknown",
+    "scheduled": "announced",
+    "airing": "airing",
+    "aired": "aired, files missing",
+    "complete": "complete",
+    "disputed": "episode count disputed"
+  },
+  "error": {
+    "unauthorized": "The key is wrong.",
+    "rate_limited": "Too many attempts. Wait a minute.",
+    "network": "Finalarr cannot be reached right now.",
+    "generic": "Something went wrong. The log has the details."
+  }
+}

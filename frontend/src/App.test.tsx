@@ -1,7 +1,27 @@
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import App from './App'
+import { mockFetch, renderWithProviders } from './test/render'
 
-test('renders the product name', () => {
-  render(<App />)
-  expect(screen.getByRole('heading', { name: 'Finalarr' })).toBeInTheDocument()
+afterEach(() => vi.unstubAllGlobals())
+
+test('an anonymous visitor is sent to the login page', async () => {
+  mockFetch({ 'GET /api/v1/auth/status': { body: { authenticated: false } } })
+  renderWithProviders(<App />, { route: '/series' })
+  expect(await screen.findByLabelText('API-Schlüssel')).toBeInTheDocument()
+})
+
+test('a signed-in user sees the page inside the shell', async () => {
+  mockFetch({ 'GET /api/v1/auth/status': { body: { authenticated: true } } })
+  renderWithProviders(<App />, { route: '/series' })
+  expect(await screen.findByRole('heading', { name: 'Serien' })).toBeInTheDocument()
+  expect(screen.getByText('Keine Serien')).toBeInTheDocument()
+})
+
+test('the about page shows the running version', async () => {
+  mockFetch({
+    'GET /api/v1/auth/status': { body: { authenticated: true } },
+    'GET /health': { body: { status: 'ok', version: '0.0.1' } },
+  })
+  renderWithProviders(<App />, { route: '/about' })
+  expect(await screen.findByText('0.0.1')).toBeInTheDocument()
 })

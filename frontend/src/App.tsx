@@ -1,7 +1,34 @@
+import { Route, Routes } from 'react-router'
+import { AppShell } from './components/AppShell'
+import { RequireAuth } from './components/RequireAuth'
+import { AboutPage } from './pages/AboutPage'
+import { LoginPage } from './pages/LoginPage'
+import { DashboardPage, EventsPage, SeriesPage } from './pages/placeholders'
+import { SettingsPage } from './pages/SettingsPage'
+
+const PAGES = [
+  { path: '/', element: <DashboardPage /> },
+  { path: '/series', element: <SeriesPage /> },
+  { path: '/events', element: <EventsPage /> },
+  { path: '/settings', element: <SettingsPage /> },
+  { path: '/about', element: <AboutPage /> },
+]
+
 export default function App() {
   return (
-    <main className="min-h-screen p-6">
-      <h1 className="text-2xl font-bold">Finalarr</h1>
-    </main>
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      {PAGES.map(({ path, element }) => (
+        <Route
+          key={path}
+          path={path}
+          element={
+            <RequireAuth>
+              <AppShell>{element}</AppShell>
+            </RequireAuth>
+          }
+        />
+      ))}
+    </Routes>
   )
 }

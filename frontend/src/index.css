@@ -1,1 +1,74 @@
 @import 'tailwindcss';
+@import '@fontsource/space-grotesk/400.css';
+@import '@fontsource/space-grotesk/500.css';
+@import '@fontsource/space-grotesk/700.css';
+@import '@fontsource/jetbrains-mono/800.css';
+
+/* abrechen2 tokens (PLAN.md 16.1). Dark is the default; light follows the
+   system unless the user picked a theme (data-theme on <html>). */
+:root {
+  color-scheme: dark;
+  --bg: #2a2a2a;
+  --surface: #333333;
+  --ink: #ffffff;
+  --muted: #b5b1ac;
+  --accent: #ff7a1a;
+  --ok: #5fb37c;
+  --warn: #e0a43a;
+  --bad: #f07167;
+  --line: #3d3d3d;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    color-scheme: light;
+    --bg: #faf8f5;
+    --surface: #ffffff;
+    --ink: #141414;
+    --muted: #5c5956;
+    --accent: #c2410c;
+    --ok: #2f7d4a;
+    --warn: #b7791f;
+    --bad: #b42318;
+    --line: #e7e2db;
+  }
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #faf8f5;
+  --surface: #ffffff;
+  --ink: #141414;
+  --muted: #5c5956;
+  --accent: #c2410c;
+  --ok: #2f7d4a;
+  --warn: #b7791f;
+  --bad: #b42318;
+  --line: #e7e2db;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-bad: var(--bad);
+  --color-line: var(--line);
+  --font-sans: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --radius-card: 6px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
