@@ -6,6 +6,8 @@ to "now", so the demo looks the same whenever it runs. API key: "demo-key".
 
   python3 e2e/fake_sonarr.py [port]
   POST /_control/files {"series": 1, "season": 3, "files": [1, 2, 3]}  # change files
+  POST /_hooks   any JSON, recorded (stands in for a notification channel)
+  GET  /_hooks   the recorded bodies
 """
 
 import json
@@ -57,6 +59,9 @@ EPISODES = {
 }
 
 
+HOOKS = []
+
+
 class Handler(BaseHTTPRequestHandler):
     def _send(self, status, body):
         data = json.dumps(body).encode()
@@ -67,6 +72,8 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
     def do_GET(self):  # noqa: N802
+        if self.path == "/_hooks":
+            return self._send(200, HOOKS)
         if self.headers.get("X-Api-Key") != API_KEY:
             return self._send(401, {"message": "Unauthorized"})
         url = urlsplit(self.path)
@@ -83,9 +90,12 @@ class Handler(BaseHTTPRequestHandler):
         return self._send(404, {"message": "Not found"})
 
     def do_POST(self):  # noqa: N802
+        body = json.loads(self.rfile.read(int(self.headers["Content-Length"])) or b"null")
+        if self.path == "/_hooks":
+            HOOKS.append(body)
+            return self._send(200, {"ok": True})
         if self.path != "/_control/files":
             return self._send(404, {})
-        body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
         for ep in EPISODES[body["series"]]:
             if ep["seasonNumber"] == body["season"]:
                 ep["hasFile"] = ep["episodeNumber"] in body["files"]

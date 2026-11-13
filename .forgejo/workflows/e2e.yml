@@ -1,0 +1,31 @@
+name: E2E smoke (Forgejo)
+
+# Weekly and on demand: demo Sonarr + Finalarr (gunicorn) + Playwright, no Docker.
+
+on:
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    name: Onboarding to a delivered report
+    runs-on: homelab-docker
+    container: python:3.12-bookworm
+    steps:
+      # actions/checkout is a node action; the Python image has no node.
+      - name: Install node
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq --no-install-recommends ca-certificates curl gnupg
+          curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+          apt-get install -y -qq --no-install-recommends nodejs
+      - uses: https://code.forgejo.org/actions/checkout@v4
+      - name: Install backend
+        run: python -m venv backend/.venv && backend/.venv/bin/pip install --no-cache-dir -q ./backend
+      - name: Install frontend and Playwright
+        run: |
+          (cd frontend && npm ci --no-audit --no-fund)
+          (cd e2e && npm ci --no-audit --no-fund && npx playwright install --with-deps chromium)
+      - name: Run
+        run: e2e/run.sh
