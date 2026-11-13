@@ -61,10 +61,17 @@ class AnimeEnricher:
             s.commit()
         media = self._anilist.media(ids) if ids else {}
         with self._db.session() as s:
-            series = s.get_one(m.Series, series_id)
+            series = s.get(m.Series, series_id)
+            if series is None:  # removed by a reconcile while AniList was asked
+                return
             results = [
-                _apply_season(series, number, [media[i] for i in group if i in media])
+                _apply_season(s, series, number, [media[i] for i in group if i in media])
                 for number, group in sorted(mapping.items())
+            ]
+            results += [
+                _clear_season(s, season)
+                for season in series.seasons
+                if season.number not in mapping
             ]
             changed = any(results)
             s.commit()
@@ -86,7 +93,16 @@ def season_mapping(s: Session, tvdb_id: int) -> tuple[dict[int, list[int]], str]
     return mapping, resolution
 
 
-def _apply_season(series: m.Series, number: int, entries: list[AnilistMedia]) -> bool:
+def _clear_season(s: Session, season: m.Season) -> bool:
+    """A season whose AniList mapping was withdrawn loses the AniList data."""
+    if season.anilist_count is None and season.anilist_start is None and not season.parts:
+        return False
+    season.anilist_count, season.anilist_start = None, None
+    _apply_parts(s, season, [])
+    return True
+
+
+def _apply_season(s: Session, series: m.Series, number: int, entries: list[AnilistMedia]) -> bool:
     entries = sorted(entries, key=lambda e: (e.start_date or date.max, e.id))
     season = next((x for x in series.seasons if x.number == number), None)
     if season is None:
@@ -99,10 +115,10 @@ def _apply_season(series: m.Series, number: int, entries: list[AnilistMedia]) ->
     start = min((e.start_date for e in entries if e.start_date), default=None)
     changed = (season.anilist_count, season.anilist_start) != (total, start)
     season.anilist_count, season.anilist_start = total, start
-    return _apply_parts(season, entries if total else []) or changed
+    return _apply_parts(s, season, entries if total else []) or changed
 
 
-def _apply_parts(season: m.Season, entries: list[AnilistMedia]) -> bool:
+def _apply_parts(s: Session, season: m.Season, entries: list[AnilistMedia]) -> bool:
     """Consecutive episode ranges for split cours; one entry means no parts."""
     wanted: list[tuple[int, int, int, int, str]] = []
     first = 1
@@ -116,6 +132,7 @@ def _apply_parts(season: m.Season, entries: list[AnilistMedia]) -> bool:
     if current == wanted:
         return False
     season.parts.clear()
+    s.flush()  # delete the old rows before inserting their replacements (UNIQUE index)
     for index, anilist_id, start, end, title in wanted:
         season.parts.append(
             m.AnimePart(

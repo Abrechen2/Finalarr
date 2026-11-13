@@ -192,3 +192,16 @@ def test_quiet_hours_defer_without_using_an_attempt(env):
     clock["now"] = NOW.replace(hour=13)
     worker.run()
     assert len(sender.sent) == 1
+
+
+def test_disabled_channel_is_not_sent_to(env):
+    db, box, sender, worker, _ = env
+    cid = add_channel(db, box)
+    add_event(db)
+    with db.session() as s:
+        s.get(m.Channel, cid).enabled = False
+        s.commit()
+    worker.run()
+    assert sender.sent == []
+    assert deliveries(db)[0][1] == "failed"
+    assert deliveries(db)[0][3] == "Channel disabled"

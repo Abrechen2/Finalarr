@@ -279,3 +279,21 @@ def test_tag_labels_are_stored(env):
     with db.session() as s:
         tags = {r.title: json.loads(r.tags_json) for r in s.scalars(select(m.Series))}
     assert tags == {"Slime": ["anime", "kids"], "Andor": []}
+
+
+def test_sonarr_replacing_an_episode_id_keeps_the_number(env):
+    db, sonarr, reconciler, _ = env
+    sonarr.add(make_series(1, "Slime"), make_episodes(1, 1, 2, {1}))
+    reconciler.reconcile(1)
+    follow(db, 1)
+    reconciler.reconcile(1)
+    replaced = [
+        e.model_copy(update={"id": e.id + 500}) if e.episode_number == 2 else e
+        for e in make_episodes(1, 1, 2, {1})
+    ]
+    sonarr.episodes_by_series[1] = replaced
+    reconciler.reconcile(1)
+    with db.session() as s:
+        assert s.get(m.SonarrInstance, 1).last_error is None
+        ids = sorted(s.scalars(select(m.Episode.sonarr_episode_id)))
+    assert ids == [1101, 1602]

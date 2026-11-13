@@ -94,7 +94,9 @@ class DeliveryWorker:
             ).all()
             for delivery in due:
                 until = self._quiet_until(delivery.channel, now)
-                if until is not None:
+                if not delivery.channel.enabled:
+                    delivery.status, delivery.last_error = "failed", "Channel disabled"
+                elif until is not None:
                     delivery.next_attempt_at = until  # waiting is not a failed attempt
                 else:
                     self._attempt(delivery, now)

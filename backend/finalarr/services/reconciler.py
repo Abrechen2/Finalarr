@@ -16,7 +16,7 @@ from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.dialects.sqlite import insert
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, object_session
 
 from finalarr.core.codec import dump_memory, load_memory
 from finalarr.core.evaluator import evaluate
@@ -247,8 +247,13 @@ def season_input(series: m.Series, season: m.Season) -> SeasonInput:
 def _sync_episodes(season: m.Season, remote: Iterable[SonarrEpisode]) -> None:
     current = {e.sonarr_episode_id: e for e in season.episodes}
     incoming = {e.id: e for e in remote}
-    for gone in current.keys() - incoming.keys():
+    gone_ids = current.keys() - incoming.keys()
+    for gone in gone_ids:
         season.episodes.remove(current[gone])
+    if gone_ids:
+        # Sonarr may re-create an episode under a new id with the same number:
+        # delete first, or the insert hits UNIQUE(season_id, number).
+        object_session(season).flush()  # type: ignore[union-attr]
     for sonarr_id, episode in incoming.items():
         row = current.get(sonarr_id)
         if row is None:

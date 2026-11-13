@@ -280,3 +280,44 @@ def test_refresh_if_stale_downloads_once_and_survives_failures(db):
     assert not refresh_if_stale(db, broken, NOW + timedelta(days=8))
     with db.session() as s:
         assert len(s.scalars(select(m.AnilistMapping)).all()) == 9
+
+
+def test_changed_part_titles_replace_parts_without_unique_errors(db, mushoku):
+    run(db, FakeAnilist())
+    fake = FakeAnilist()
+    fake.media[146065] = fake.media[146065].model_copy(update={"episodes": 12})
+    with db.session() as s:
+        s.execute(m.AnilistCache.__table__.delete())  # finished entries are cached for days
+        s.commit()
+    run(db, fake)
+    with db.session() as s:
+        ranges = [
+            (p.episode_from, p.episode_to)
+            for p in s.scalars(select(m.AnimePart).order_by(m.AnimePart.id))
+            if p.season.number == 2
+        ]
+    assert ranges == [(1, 12), (13, 24)]
+
+
+def test_removed_mapping_clears_anilist_data(db, mushoku):
+    run(db, FakeAnilist())
+    with db.session() as s:
+        s.execute(m.AnilistMapping.__table__.delete().where(m.AnilistMapping.tvdb_season == 2))
+        s.commit()
+    changed = run(db, FakeAnilist())
+    second = seasons(db, mushoku)[2]
+    assert (second.anilist_count, second.anilist_start) == (None, None)
+    with db.session() as s:
+        assert {p.season.number for p in s.scalars(select(m.AnimePart))} == {1}
+    assert changed == [(1, 2)]
+
+
+def test_series_deleted_during_the_request_is_skipped(db, mushoku):
+    class Deleting(FakeAnilist):
+        def media_batch(self, ids):
+            with db.session() as s:
+                s.delete(s.get(m.Series, mushoku))
+                s.commit()
+            return super().media_batch(ids)
+
+    assert run(db, Deleting()) == []
