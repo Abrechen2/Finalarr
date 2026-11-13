@@ -1,0 +1,16 @@
+# Private files live in the Finalarr-local companion repo
+CLAUDE.md
+AGENTS.md
+ROADMAP.private.md
+PENTEST_FINDINGS.md
+.private/
+.serena/
+.claude/
+
+.env
+.venv/
+node_modules/
+__pycache__/
+dist/
+data/
+*.log
