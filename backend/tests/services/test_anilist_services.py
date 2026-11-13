@@ -321,3 +321,23 @@ def test_series_deleted_during_the_request_is_skipped(db, mushoku):
             return super().media_batch(ids)
 
     assert run(db, Deleting()) == []
+
+
+def test_one_run_batches_all_series_into_one_request(db, mushoku):
+    with db.session() as s:
+        instance = s.scalar(select(m.SonarrInstance))
+        s.add(
+            m.Series(
+                instance=instance,
+                sonarr_id=7,
+                tvdb_id=353712,
+                title="Shield Hero",
+                series_type="anime",
+                followed=True,
+            )
+        )
+        s.commit()
+    fake = FakeAnilist()
+    run(db, fake)
+    assert len(fake.batches) == 1
+    assert set(fake.batches[0]) >= {108465, 166873, 99263, 173780}

@@ -53,5 +53,6 @@ def configure_logging(level: str, data_dir: Path) -> None:
         handler.addFilter(RedactingFilter())
         handler.finalarr = True  # type: ignore[attr-defined]
         root.addHandler(handler)
-    # The drain job runs every few seconds; its per-run INFO lines are noise.
-    logging.getLogger("apscheduler").setLevel(logging.WARNING)
+    # The drain job runs every few seconds; its INFO lines and "skipped: maximum
+    # number of running instances" warnings during a long sync are noise.
+    logging.getLogger("apscheduler").setLevel(logging.ERROR)

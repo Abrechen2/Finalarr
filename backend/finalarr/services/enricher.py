@@ -39,6 +39,28 @@ class AnimeEnricher:
     def run(self) -> None:
         with self._db.session() as s:
             series_ids = list(s.scalars(select(m.Series.id).where(m.Series.followed.is_(True))))
+            anime_tvdb_ids = s.scalars(
+                select(m.Series.tvdb_id).where(
+                    m.Series.followed.is_(True),
+                    m.Series.series_type == "anime",
+                    m.Series.tvdb_id.is_not(None),
+                )
+            ).all()
+            wanted = sorted(
+                {
+                    anilist_id
+                    for tvdb_id in anime_tvdb_ids
+                    if tvdb_id is not None
+                    for group in season_mapping(s, tvdb_id)[0].values()
+                    for anilist_id in group
+                }
+            )
+        try:
+            # One request per 50 ids fills the cache for every series below.
+            self._anilist.media(wanted)
+        except AnilistError as error:
+            log.info("AniList enrichment paused: %s", error)
+            return
         for series_id in series_ids:
             try:
                 self.enrich(series_id)

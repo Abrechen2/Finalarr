@@ -81,7 +81,9 @@ def dashboard() -> ResponseReturnValue:
             "channel": bool(s.scalar(select(exists().where(Channel.id.is_not(None))))),
         }
         airing = sorted(
-            (c for c in cards if c["state"] in ("airing", "aired")),
+            # Only seasons still airing: old seasons with missing files are library
+            # gaps, not news, and would bury the few that matter.
+            (c for c in cards if c["state"] == "airing"),
             key=lambda c: (c["next_air_date"] or "9999", c["title"]),
         )
         finales = sorted(

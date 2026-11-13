@@ -50,3 +50,8 @@ def test_tracebacks_are_redacted_too(tmp_path):
     assert "Traceback" in content
     assert "tracesecret" not in content
     assert "ABC" not in content
+
+
+def test_scheduler_skip_warnings_are_quiet(tmp_path):
+    configure_logging("INFO", tmp_path)
+    assert logging.getLogger("apscheduler").getEffectiveLevel() == logging.ERROR

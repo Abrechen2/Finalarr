@@ -41,6 +41,7 @@ def test_airing_seasons_and_upcoming_finales(api, app, instance):
     add_series(app, instance, "Slime", "airing", [-14, -7, 7, 14], {1, 2}, finale=4)
     add_series(app, instance, "Andor", "airing", [-3, 3, 30], {1})
     add_series(app, instance, "Done", "complete", [-30, -20], {1, 2})
+    add_series(app, instance, "Old gaps", "aired", [-300, -293], {1})
     add_series(app, instance, "Ignored", "airing", [-1, 1], set(), followed=False)
     body = api.get("/api/v1/dashboard").get_json()
     airing = [(a["title"], a["have"], a["expected"]) for a in body["airing"]]
