@@ -121,7 +121,11 @@ def create_instance() -> ResponseReturnValue:
         _apply_basic(instance, body.basic_user, body.basic_password)
         s.add(instance)
         _commit(s)
-        return serialize(instance), 201
+        enqueue(s, instance.id)
+        s.commit()
+        result = serialize(instance)
+    _nudge()
+    return result, 201
 
 
 @bp.post("/test")
@@ -185,7 +189,11 @@ def sync_instance(instance_id: int) -> ResponseReturnValue:
         _load(s, instance_id)
         enqueue(s, instance_id)
         s.commit()
+    _nudge()
+    return {"queued": True}, 202
+
+
+def _nudge() -> None:
     nudge = current_app.extensions.get("finalarr.nudge")
     if nudge:
         nudge()
-    return {"queued": True}, 202

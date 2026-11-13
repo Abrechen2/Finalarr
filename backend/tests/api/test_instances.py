@@ -142,3 +142,16 @@ def test_queue_take_all_drains_in_order(app, instance):
         enqueue(s, instance["id"])
         assert take_all(s) == [(instance["id"], 5), (instance["id"], 0)]
         assert take_all(s) == []
+
+
+def test_creating_an_instance_queues_a_first_sync(api, app):
+    from finalarr.services.reconcile_queue import take_all
+
+    nudged = []
+    app.extensions["finalarr.nudge"] = lambda: nudged.append(1)
+    created = api.post(
+        "/api/v1/instances", json={"name": "B", "url": "http://b:1", "api_key": "k"}
+    ).get_json()
+    with app.extensions["finalarr.db"].session() as s:
+        assert take_all(s) == [(created["id"], 0)]
+    assert nudged == [1]

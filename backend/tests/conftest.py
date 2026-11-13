@@ -39,10 +39,15 @@ def api(client):
 
 
 @pytest.fixture
-def instance(api):
+def instance(api, app):
     response = api.post(
         "/api/v1/instances",
         json={"name": "Unraid", "url": "http://sonarr:8989", "api_key": "sonarr-secret-key"},
     )
     assert response.status_code == 201, response.get_json()
+    from finalarr.services.reconcile_queue import take_all
+
+    with app.extensions["finalarr.db"].session() as s:
+        take_all(s)  # the first sync queued on creation; tests start from an empty queue
+        s.commit()
     return response.get_json()

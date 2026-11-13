@@ -33,7 +33,7 @@ function readFilter(params: URLSearchParams): SeriesFilter {
 function SeriesRow({ series }: { series: SeriesSummary }) {
   const { t } = useTranslation()
   const patch = useSeriesPatch()
-  const seasons = series.seasons.filter((s) => s.number > 0 && (series.followed || s.expected))
+  const seasons = series.seasons.filter((s) => s.number > 0 && s.expected !== null)
   return (
     <li className="flex gap-4 rounded-card border border-line bg-surface p-3">
       <Poster url={series.poster_url} />
