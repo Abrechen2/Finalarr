@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "finalarr"
+dynamic = ["version"]
+description = "Season-finale and season-complete notifier for Sonarr"
+license = "GPL-3.0-only"
+requires-python = ">=3.12"
+dependencies = [
+    "flask>=3.1,<4",
+    "gunicorn>=23,<24",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-cov>=6",
+    "pyyaml>=6",
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "types-pyyaml",
+    "bandit>=1.8",
+    "pip-audit>=2.7",
+]
+
+[tool.setuptools.packages.find]
+include = ["finalarr*"]
+
+[tool.setuptools.dynamic]
+version = { file = "VERSION" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+
+[tool.coverage.run]
+source = ["finalarr"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]
+
+[tool.mypy]
+python_version = "3.12"
+packages = ["finalarr"]
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = "finalarr.core.*"
+strict = true

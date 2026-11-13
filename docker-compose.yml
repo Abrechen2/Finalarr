@@ -1,0 +1,19 @@
+services:
+  finalarr:
+    image: finalarr:latest
+    build: .
+    container_name: finalarr
+    restart: unless-stopped
+    ports:
+      - "5790:5790"
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Europe/Berlin}
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - ./data:/config
+    stop_grace_period: 90s
+    mem_limit: 256m

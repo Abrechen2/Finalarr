@@ -1,0 +1,37 @@
+"""Flask application factory."""
+
+import os
+from pathlib import Path
+
+from flask import Flask, abort, jsonify, send_from_directory
+from flask.typing import ResponseReturnValue
+from werkzeug.exceptions import NotFound
+
+from finalarr.version import get_version
+
+_DEFAULT_STATIC_DIR = Path("/app/static")
+_API_PREFIXES = ("api/", "webhook/")
+
+
+def create_app(static_dir: Path | None = None) -> Flask:
+    app = Flask(__name__, static_folder=None)
+    spa_dir = static_dir or Path(os.environ.get("FINALARR_STATIC_DIR", _DEFAULT_STATIC_DIR))
+
+    @app.get("/health")
+    def health() -> ResponseReturnValue:
+        return jsonify(status="ok", version=get_version())
+
+    @app.get("/", defaults={"path": ""})
+    @app.get("/<path:path>")
+    def spa(path: str) -> ResponseReturnValue:
+        if path.startswith(_API_PREFIXES) or not (spa_dir / "index.html").is_file():
+            abort(404)
+        if path and (spa_dir / path).is_file():
+            return send_from_directory(spa_dir, path)
+        return send_from_directory(spa_dir, "index.html")
+
+    @app.errorhandler(NotFound)
+    def not_found(_error: NotFound) -> ResponseReturnValue:
+        return jsonify(error={"code": "not_found", "message": "Not found"}), 404
+
+    return app

@@ -14,3 +14,10 @@ __pycache__/
 dist/
 data/
 *.log
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage/
+*.egg-info/
+build/
