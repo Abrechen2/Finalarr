@@ -15,7 +15,7 @@ def endpoint():
     state = {"status": 200}
 
     class Handler(BaseHTTPRequestHandler):
-        def do_POST(self):  # noqa: N802
+        def do_POST(self):
             received.append(json.loads(self.rfile.read(int(self.headers["Content-Length"]))))
             self.send_response(state["status"])
             self.end_headers()

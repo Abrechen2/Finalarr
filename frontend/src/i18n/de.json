@@ -26,7 +26,14 @@
     "upcoming": "Nächste Finals",
     "recent": "Zuletzt gemeldet",
     "emptyTitle": "Noch nichts zu sehen",
-    "emptyBody": "Verbinde zuerst Sonarr und wähle die Serien, denen du folgen willst. Danach erscheinen hier laufende Staffeln, anstehende Finals und die letzten Meldungen."
+    "emptyBody": "Verbinde zuerst Sonarr und wähle die Serien, denen du folgen willst. Danach erscheinen hier laufende Staffeln, anstehende Finals und die letzten Meldungen.",
+    "nextAir": "nächste Folge {{date}}",
+    "finaleOn": "S{{s}}E{{e}} am {{date}}",
+    "nothingAiring": "Gerade läuft keine gefolgte Staffel.",
+    "noFinales": "Kein Finale in Sicht.",
+    "noEvents": "Noch nichts gemeldet.",
+    "setupTitle": "Einrichtung",
+    "setupStart": "Einrichtung starten"
   },
   "series": {
     "title": "Serien",
@@ -67,7 +74,6 @@
     "themeDark": "Dunkel",
     "themeLight": "Hell",
     "language": "Sprache",
-    "comingSoon": "Sonarr, Kanäle und Regeln folgen in den nächsten Versionen.",
     "tabAppearance": "Darstellung",
     "tabRules": "Regeln",
     "tabChannels": "Kanäle",
@@ -231,5 +237,68 @@
       "app_token": "Pushover App Token",
       "url": "URL"
     }
+  },
+  "setup": {
+    "instance": "Sonarr verbinden",
+    "followed": "Serien zum Folgen wählen",
+    "channel": "Benachrichtigungskanal einrichten",
+    "done": "erledigt",
+    "open": "offen"
+  },
+  "onboarding": {
+    "title": "Einrichtung",
+    "step": "Schritt {{n}} von 3",
+    "next": "Weiter",
+    "skip": "Überspringen",
+    "finish": "Fertig",
+    "s1Title": "Sonarr verbinden",
+    "s1Body": "Adresse und API-Schlüssel findest du in Sonarr unter Einstellungen → Allgemein.",
+    "s2Title": "Serien wählen",
+    "s2Body": "Finalarr meldet nur Serien, denen du folgst. Folge allen überwachten Serien mit einem Klick oder wähle einzeln.",
+    "s2Count": "Du folgst {{count}} Serien.",
+    "s2Pick": "Einzeln auswählen",
+    "s3Title": "Kanal einrichten",
+    "s3Body": "Wohin sollen die Meldungen gehen? Schick zuerst eine Testnachricht."
+  },
+  "instance": {
+    "title": "Sonarr-Instanzen",
+    "add": "Instanz hinzufügen",
+    "name": "Name",
+    "url": "Sonarr-Adresse",
+    "urlHint": "z. B. http://192.168.1.10:8989",
+    "apiKey": "API-Schlüssel",
+    "apiKeyKeep": "leer lassen = unverändert",
+    "test": "Verbindung testen",
+    "testOk": "Verbunden mit Sonarr {{version}}.",
+    "save": "Speichern",
+    "sync": "Jetzt abgleichen",
+    "syncQueued": "Abgleich angestoßen.",
+    "rotate": "Webhook-Token erneuern",
+    "rotateConfirm": "Neuen Token erzeugen? Die alte Webhook-URL in Sonarr funktioniert danach nicht mehr.",
+    "delete": "Löschen",
+    "deleteConfirm": "Instanz „{{name}}“ und alle ihre Serien aus Finalarr entfernen?",
+    "webhook": "Webhook-URL für Sonarr",
+    "webhookHint": "In Sonarr unter Einstellungen → Verbinden → Webhook eintragen, Methode POST, Ereignisse „Import“, „Upgrade“, „Serie hinzugefügt“ und „Episodendatei gelöscht“.",
+    "copy": "Kopieren",
+    "copied": "Kopiert.",
+    "lastSync": "Letzter Abgleich: {{date}}",
+    "neverSynced": "Noch nicht abgeglichen.",
+    "enabled": "aktiv",
+    "empty": "Noch keine Sonarr-Instanz.",
+    "sonarr_auth": "Sonarr hat den API-Schlüssel abgelehnt.",
+    "sonarr_unreachable": "Sonarr ist unter dieser Adresse nicht erreichbar."
+  },
+  "system": {
+    "title": "System",
+    "version": "Version",
+    "database": "Datenbank",
+    "scheduler": "Hintergrundjobs",
+    "running": "läuft",
+    "stopped": "angehalten",
+    "job": "Job",
+    "nextRun": "nächster Lauf",
+    "logs": "Log (letzte Zeilen)",
+    "reload": "Neu laden",
+    "apiKeyHint": "Den API-Schlüssel änderst du über FINALARR_API_KEY und einen Neustart; alle Sitzungen enden dann."
   }
 }

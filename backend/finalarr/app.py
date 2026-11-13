@@ -9,7 +9,17 @@ from werkzeug.exceptions import NotFound
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import safe_join
 
-from finalarr.api import anilist, channels, events, instances, rules, series, webhook
+from finalarr.api import (
+    anilist,
+    channels,
+    dashboard,
+    events,
+    instances,
+    rules,
+    series,
+    system,
+    webhook,
+)
 from finalarr.api.common import register_error_handler
 from finalarr.auth import init_auth
 from finalarr.config import Settings, load_settings
@@ -93,6 +103,8 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
     app.register_blueprint(rules.bp)
     app.register_blueprint(anilist.bp)
     app.register_blueprint(channels.bp)
+    app.register_blueprint(dashboard.bp)
+    app.register_blueprint(system.bp)
     spa_dir = static_dir or Path(os.environ.get("FINALARR_STATIC_DIR", _DEFAULT_STATIC_DIR))
 
     @app.get("/health")

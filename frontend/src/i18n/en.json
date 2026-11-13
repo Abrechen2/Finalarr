@@ -26,7 +26,14 @@
     "upcoming": "Upcoming finales",
     "recent": "Recently reported",
     "emptyTitle": "Nothing to show yet",
-    "emptyBody": "Connect Sonarr first and pick the series you want to follow. Airing seasons, upcoming finales and the latest reports will then show up here."
+    "emptyBody": "Connect Sonarr first and pick the series you want to follow. Airing seasons, upcoming finales and the latest reports will then show up here.",
+    "nextAir": "next episode {{date}}",
+    "finaleOn": "S{{s}}E{{e}} on {{date}}",
+    "nothingAiring": "No followed season is airing right now.",
+    "noFinales": "No finale in sight.",
+    "noEvents": "Nothing reported yet.",
+    "setupTitle": "Setup",
+    "setupStart": "Start setup"
   },
   "series": {
     "title": "Series",
@@ -67,7 +74,6 @@
     "themeDark": "Dark",
     "themeLight": "Light",
     "language": "Language",
-    "comingSoon": "Sonarr, channels and rules follow in the next versions.",
     "tabAppearance": "Appearance",
     "tabRules": "Rules",
     "tabChannels": "Channels",
@@ -231,5 +237,68 @@
       "app_token": "Pushover app token",
       "url": "URL"
     }
+  },
+  "setup": {
+    "instance": "Connect Sonarr",
+    "followed": "Pick series to follow",
+    "channel": "Set up a notification channel",
+    "done": "done",
+    "open": "open"
+  },
+  "onboarding": {
+    "title": "Setup",
+    "step": "Step {{n}} of 3",
+    "next": "Next",
+    "skip": "Skip",
+    "finish": "Finish",
+    "s1Title": "Connect Sonarr",
+    "s1Body": "You find the address and API key in Sonarr under Settings → General.",
+    "s2Title": "Pick series",
+    "s2Body": "Finalarr only reports series you follow. Follow every monitored series with one click or pick them one by one.",
+    "s2Count": "You follow {{count}} series.",
+    "s2Pick": "Pick one by one",
+    "s3Title": "Set up a channel",
+    "s3Body": "Where should the reports go? Send a test message first."
+  },
+  "instance": {
+    "title": "Sonarr instances",
+    "add": "Add instance",
+    "name": "Name",
+    "url": "Sonarr address",
+    "urlHint": "e.g. http://192.168.1.10:8989",
+    "apiKey": "API key",
+    "apiKeyKeep": "leave empty = unchanged",
+    "test": "Test connection",
+    "testOk": "Connected to Sonarr {{version}}.",
+    "save": "Save",
+    "sync": "Sync now",
+    "syncQueued": "Sync started.",
+    "rotate": "Renew webhook token",
+    "rotateConfirm": "Create a new token? The old webhook URL in Sonarr stops working.",
+    "delete": "Delete",
+    "deleteConfirm": "Remove instance \"{{name}}\" and all its series from Finalarr?",
+    "webhook": "Webhook URL for Sonarr",
+    "webhookHint": "Add it in Sonarr under Settings → Connect → Webhook, method POST, events \"On Import\", \"On Upgrade\", \"On Series Add\" and \"On Episode File Delete\".",
+    "copy": "Copy",
+    "copied": "Copied.",
+    "lastSync": "Last sync: {{date}}",
+    "neverSynced": "Not synced yet.",
+    "enabled": "active",
+    "empty": "No Sonarr instance yet.",
+    "sonarr_auth": "Sonarr rejected the API key.",
+    "sonarr_unreachable": "Sonarr cannot be reached at this address."
+  },
+  "system": {
+    "title": "System",
+    "version": "Version",
+    "database": "Database",
+    "scheduler": "Background jobs",
+    "running": "running",
+    "stopped": "stopped",
+    "job": "Job",
+    "nextRun": "next run",
+    "logs": "Log (last lines)",
+    "reload": "Reload",
+    "apiKeyHint": "Change the API key through FINALARR_API_KEY and a restart; all sessions end then."
   }
 }

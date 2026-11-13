@@ -4,7 +4,8 @@ import { RequireAuth } from './components/RequireAuth'
 import { AboutPage } from './pages/AboutPage'
 import { LoginPage } from './pages/LoginPage'
 import { EventsPage } from './pages/EventsPage'
-import { DashboardPage } from './pages/placeholders'
+import { DashboardPage } from './pages/DashboardPage'
+import { OnboardingPage } from './pages/OnboardingPage'
 import { SeriesDetailPage } from './pages/SeriesDetailPage'
 import { SeriesPage } from './pages/SeriesPage'
 import { SettingsPage } from './pages/SettingsPage'
@@ -16,6 +17,7 @@ const PAGES = [
   { path: '/events', element: <EventsPage /> },
   { path: '/settings', element: <SettingsPage /> },
   { path: '/about', element: <AboutPage /> },
+  { path: '/onboarding', element: <OnboardingPage /> },
 ]
 
 export default function App() {

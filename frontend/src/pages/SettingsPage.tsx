@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PageTitle } from '../components/EmptyState'
 import { ChannelsSettings } from './ChannelsSettings'
+import { InstancesSettings } from './InstancesSettings'
+import { SystemSettings } from './SystemSettings'
 import { RulesSettings } from './RulesSettings'
 import { LANGUAGES } from '../i18n'
 import { THEMES, type Theme, applyTheme, storedTheme } from '../lib/theme'
@@ -43,18 +45,26 @@ function Choice<T extends string>(props: {
   )
 }
 
-const TABS = ['channels', 'rules', 'appearance'] as const
+const TABS = ['sonarr', 'channels', 'rules', 'appearance', 'system'] as const
 type Tab = (typeof TABS)[number]
 const TAB_LABEL = {
+  sonarr: 'settings.tabSonarr',
   channels: 'settings.tabChannels',
   rules: 'settings.tabRules',
   appearance: 'settings.tabAppearance',
+  system: 'settings.tabSystem',
 } as const
-const PANELS = { channels: ChannelsSettings, rules: RulesSettings, appearance: AppearanceSettings }
+const PANELS = {
+  sonarr: InstancesSettings,
+  channels: ChannelsSettings,
+  rules: RulesSettings,
+  appearance: AppearanceSettings,
+  system: SystemSettings,
+}
 
 export function SettingsPage() {
   const { t } = useTranslation()
-  const [tab, setTab] = useState<Tab>('channels')
+  const [tab, setTab] = useState<Tab>('sonarr')
   const Panel = PANELS[tab]
   return (
     <>
@@ -80,7 +90,6 @@ export function SettingsPage() {
       <div role="tabpanel">
         <Panel />
       </div>
-      <p className="mt-6 text-sm text-muted">{t('settings.comingSoon')}</p>
     </>
   )
 }

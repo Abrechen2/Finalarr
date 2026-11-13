@@ -27,7 +27,7 @@ function ResendButton({ eventId }: { eventId: number }) {
   )
 }
 
-export function EventRow({ event }: { event: EventView }) {
+export function EventRow({ event, compact = false }: { event: EventView; compact?: boolean }) {
   const { t, i18n } = useTranslation()
   const when = new Date(event.created_at).toLocaleString(
     i18n.language === 'en' ? 'en-GB' : 'de-DE',
@@ -39,11 +39,20 @@ export function EventRow({ event }: { event: EventView }) {
   const text = formatEvent(t, event.type, event.payload, i18n.language)
   return (
     <li
-      className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-card border border-line bg-surface px-4 py-3"
+      className={`flex flex-wrap gap-x-4 gap-y-1 ${
+        compact ? 'flex-col' : 'items-center rounded-card border border-line bg-surface px-4 py-3'
+      }`}
       title={t('event.fingerprint', { value: event.fingerprint })}
     >
-      <span className="w-28 shrink-0 font-mono text-xs text-muted">{when}</span>
-      <span className="w-28 shrink-0 text-xs text-accent">{t(`event.types.${event.type}`)}</span>
+      <span className={`${compact ? '' : 'w-28'} shrink-0 font-mono text-xs text-muted`}>
+        {when}
+        {compact && (
+          <span className="ml-2 font-sans text-accent">{t(`event.types.${event.type}`)}</span>
+        )}
+      </span>
+      {!compact && (
+        <span className="w-28 shrink-0 text-xs text-accent">{t(`event.types.${event.type}`)}</span>
+      )}
       <span className="min-w-0 flex-1 text-sm">
         {event.series_id ? (
           <Link to={`/series/${event.series_id}`} className="hover:text-accent">
@@ -54,7 +63,7 @@ export function EventRow({ event }: { event: EventView }) {
         )}
       </span>
       <DeliveryDots deliveries={event.deliveries} />
-      <ResendButton eventId={event.id} />
+      {!compact && <ResendButton eventId={event.id} />}
     </li>
   )
 }
