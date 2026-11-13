@@ -55,6 +55,8 @@ class SeasonMemory:
     last_expected: int | None
     stable_runs: int
     season_announced: bool
+    # Policy-approved file losses so far; keeps repeat notifications distinct.
+    file_losses: int = 0
 
     @classmethod
     def initial(cls) -> SeasonMemory:

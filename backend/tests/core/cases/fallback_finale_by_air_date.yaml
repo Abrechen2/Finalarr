@@ -1,0 +1,7 @@
+# Codex review: the fallback finale is the last episode by air date, not by number.
+season: {number: 1, anilist_count: 2}
+episodes: {count: 2, first_air: 2026-01-20, interval_days: -10}
+runs:
+  - {now: 2026-01-01, files: "", expect: {state: scheduled, events: []}}
+  - {now: 2026-02-01, files: "2", expect: {state: aired, events: [{type: episodes_available, episodes: "2"}]}}
+  - {now: 2026-02-02, files: "1-2", expect: {state: complete, events: [{type: season_complete, have: 2, expected: 2, finale: 1}]}}

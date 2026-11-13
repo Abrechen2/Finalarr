@@ -59,11 +59,11 @@ def evaluate(
 
     events: tuple[Event, ...] = ()
     if not silent:
-        events = _library_event(season, snap, new_ids, new_finales, fires_complete)
-        if _announce_is_due(memory, snap):
+        events = _library_event(season, snap, new_ids, new_finales, fires_complete, memory)
+        if _announce_is_due(memory, snap, season):
             events = (_announcement(season, snap), *events)
 
-    next_memory = _remember(memory, snap, new_finales, policy)
+    next_memory = _remember(memory, snap, season, new_finales, policy)
     return Evaluation(next_memory, events, snap.expected, snap.disputed)
 
 
@@ -73,21 +73,26 @@ def _snapshot(
     counted = tuple(e for e in season.episodes if e.monitored or not season.respect_monitoring)
     expected, disputed = _expected_count(season, len(counted))
     with_file = frozenset(e.sonarr_id for e in counted if e.has_file)
-    unchanged = memory.last_expected is None or memory.last_expected == expected
+    unchanged = memory.last_expected == expected
     stable_runs = memory.stable_runs + 1 if unchanged else 1
-    stable = memory.last_expected is None or stable_runs >= policy.stable_runs
+    stable = not memory.initialized or stable_runs >= policy.stable_runs
     state = _state(counted, expected, with_file, now, stable and not disputed)
     return _Snapshot(counted, expected, disputed, with_file, stable_runs, state)
 
 
-def _expected_count(season: SeasonInput, sonarr_count: int) -> tuple[int | None, bool]:
-    """Override wins; a larger AniList count disputes Sonarr's (split-cour trap)."""
+def _expected_count(season: SeasonInput, counted: int) -> tuple[int | None, bool]:
+    """Override wins; AniList counting more than Sonarr lists is a dispute (split cours).
+
+    AniList is compared with every listed episode; episodes left out of the
+    expected set (unmonitored) are subtracted from its count again.
+    """
     if season.expected_override is not None:
         return season.expected_override, False
+    listed = len(season.episodes)
     anilist = season.anilist_count
-    if anilist is not None and anilist > sonarr_count:
-        return anilist, sonarr_count > 0
-    return (sonarr_count or None), False
+    if anilist is not None and anilist > listed:
+        return anilist - (listed - counted), listed > 0
+    return (counted or None), False
 
 
 def _state(
@@ -114,9 +119,19 @@ def _finale_ids(season: SeasonInput, snap: _Snapshot) -> frozenset[int]:
     explicit = frozenset(e.sonarr_id for e in snap.counted if e.finale_type in SEASON_FINALE_TYPES)
     if explicit:
         return explicit
-    corroborated = season.expected_override is not None or season.anilist_count == len(snap.counted)
-    if snap.counted and corroborated and len(snap.counted) == snap.expected:
-        return frozenset({max(snap.counted, key=lambda e: e.number).sonarr_id})
+    dated = [(e.air_date, e.number, e) for e in season.episodes if e.air_date is not None]
+    if not snap.counted or len(dated) < len(season.episodes):
+        return frozenset()
+    last = max(dated, key=lambda d: (d[0], d[1]))[2]
+    listed = len(season.episodes)
+    corroborated = season.expected_override is not None or season.anilist_count == listed
+    if (
+        corroborated
+        and last.finale_type is None
+        and last in snap.counted
+        and len(snap.counted) == snap.expected
+    ):
+        return frozenset({last.sonarr_id})
     return frozenset()
 
 
@@ -127,12 +142,11 @@ def _complete_is_due(memory: SeasonMemory, snap: _Snapshot, policy: Policy) -> b
     return policy.renotify_on_growth and grown
 
 
-def _announce_is_due(memory: SeasonMemory, snap: _Snapshot) -> bool:
+def _announce_is_due(memory: SeasonMemory, snap: _Snapshot, season: SeasonInput) -> bool:
+    """Sonarr lists a season for the first time, or AniList knows one Sonarr does not."""
+    known = snap.state != "unknown" or (not snap.counted and bool(season.anilist_count))
     return (
-        not memory.season_announced
-        and memory.state == "unknown"
-        and snap.state != "unknown"
-        and not snap.with_file
+        not memory.season_announced and memory.state == "unknown" and known and not snap.with_file
     )
 
 
@@ -142,16 +156,19 @@ def _library_event(
     new_ids: frozenset[int],
     new_finales: frozenset[int],
     fires_complete: bool,
+    memory: SeasonMemory,
 ) -> tuple[Event, ...]:
+    # A policy-approved repeat after a file loss needs a fingerprint of its own.
+    occurrence = f"#{memory.file_losses}" if memory.file_losses else ""
     payload = _payload(snap, new_ids)
     if new_finales:
         payload["finale"] = min(new_finales)
     if fires_complete:
         return (_event("season_complete", season, str(snap.expected), payload),)
     if new_finales:
-        return (_event("finale_available", season, str(payload["finale"]), payload),)
+        return (_event("finale_available", season, f"{payload['finale']}{occurrence}", payload),)
     if new_ids:
-        key = ",".join(str(i) for i in sorted(new_ids))
+        key = ",".join(str(i) for i in sorted(new_ids)) + occurrence
         return (_event("episodes_available", season, key, payload),)
     return ()
 
@@ -183,11 +200,17 @@ def _event(event_type: EventType, season: SeasonInput, key: str, payload: dict[s
 
 
 def _remember(
-    memory: SeasonMemory, snap: _Snapshot, new_finales: frozenset[int], policy: Policy
+    memory: SeasonMemory,
+    snap: _Snapshot,
+    season: SeasonInput,
+    new_finales: frozenset[int],
+    policy: Policy,
 ) -> SeasonMemory:
     announced = memory.announced_ids | snap.with_file
     finales = memory.finale_ids | new_finales
+    losses = memory.file_losses
     if policy.renotify_after_file_loss:
+        losses += bool(memory.announced_ids - snap.with_file)
         announced = snap.with_file
         finales = finales & snap.with_file
     completed = memory.completed_count
@@ -201,5 +224,6 @@ def _remember(
         completed_count=completed,
         last_expected=snap.expected,
         stable_runs=snap.stable_runs,
-        season_announced=memory.season_announced or _announce_is_due(memory, snap),
+        season_announced=memory.season_announced or _announce_is_due(memory, snap, season),
+        file_losses=losses,
     )

@@ -56,3 +56,18 @@ def test_case(name: str, case: dict[str, Any]) -> None:
         assert len(result.events) == len(wanted), f"{where}: {[e.type for e in result.events]}"
         assert got == wanted, where
         memory = result.memory
+
+
+def test_renotify_after_file_loss_gets_a_new_fingerprint() -> None:
+    """Codex review: a repeat the policy asks for must survive the UNIQUE fingerprint."""
+    case = dict(load_cases())["file_deleted_renotify_enabled"]
+    memory = SeasonMemory.initial()
+    fingerprints = []
+    for run in case["runs"]:
+        result = evaluate(
+            build_input(case, run), memory, as_datetime(run["now"]), build_policy(case)
+        )
+        fingerprints += [e.fingerprint for e in result.events]
+        memory = result.memory
+    assert len(fingerprints) == 2
+    assert len(set(fingerprints)) == 2

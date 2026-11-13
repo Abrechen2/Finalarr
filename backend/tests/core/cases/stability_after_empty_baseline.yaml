@@ -1,0 +1,7 @@
+# Codex review: a count that first appears after an empty baseline is a change, not stable.
+season: {number: 1}
+episodes: {count: 0}
+runs:
+  - {now: 2026-01-01, files: "", expect: {state: unknown, events: []}}
+  - {now: 2026-01-10, count: 1, first_air: 2026-01-05, files: "1", expect: {state: aired, events: [{type: episodes_available, episodes: "1"}]}}
+  - {now: 2026-01-10T00:30, count: 1, first_air: 2026-01-05, files: "1", expect: {state: complete, events: [{type: season_complete, have: 1, expected: 1}]}}

@@ -1,0 +1,6 @@
+# Codex review: an unmonitored episode Sonarr lists still counts toward AniList's number.
+season: {number: 1, anilist_count: 2}
+episodes: {count: 2, first_air: 2026-01-05, interval_days: 7, unmonitored: "2"}
+runs:
+  - {now: 2026-01-01, files: "", expect: {state: scheduled, disputed: false, events: []}}
+  - {now: 2026-02-01, files: "1", expect: {state: complete, disputed: false, events: [{type: season_complete, have: 1, expected: 1}]}}
