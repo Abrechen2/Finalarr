@@ -6,6 +6,7 @@ from pathlib import Path
 from flask import Flask, abort, jsonify, send_from_directory
 from flask.typing import ResponseReturnValue
 from werkzeug.exceptions import NotFound
+from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import safe_join
 
 from finalarr.auth import init_auth
@@ -21,6 +22,9 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
     settings = settings or load_settings()
     app = Flask(__name__, static_folder=None)
     app.extensions["finalarr.settings"] = settings
+    if settings.trusted_proxies:
+        hops = settings.trusted_proxies
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=hops, x_proto=hops)  # type: ignore[method-assign]
     init_auth(app, settings)
     spa_dir = static_dir or Path(os.environ.get("FINALARR_STATIC_DIR", _DEFAULT_STATIC_DIR))
 

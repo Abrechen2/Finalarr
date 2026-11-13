@@ -29,3 +29,11 @@ def test_window_slides():
     assert limiter.hit("a")
     clock.now += 61
     assert limiter.hit("a")
+
+
+def test_blocked_does_not_record_a_hit():
+    limiter = RateLimiter(limit=1, window_seconds=60, clock=Clock())
+    assert not limiter.blocked("a")
+    assert not limiter.blocked("a")
+    assert limiter.hit("a")
+    assert limiter.blocked("a")

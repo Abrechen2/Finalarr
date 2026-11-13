@@ -16,14 +16,23 @@ class RateLimiter:
         self._hits: defaultdict[str, deque[float]] = defaultdict(deque)
         self._lock = threading.Lock()
 
+    def blocked(self, key: str) -> bool:
+        """True when ``key`` has used up its limit; records nothing."""
+        with self._lock:
+            return len(self._recent(key)) >= self._limit
+
     def hit(self, key: str) -> bool:
         """Record a hit for ``key``; False when the limit is already reached."""
-        now = self._clock()
         with self._lock:
-            hits = self._hits[key]
-            while hits and hits[0] <= now - self._window:
-                hits.popleft()
+            hits = self._recent(key)
             if len(hits) >= self._limit:
                 return False
-            hits.append(now)
+            hits.append(self._clock())
             return True
+
+    def _recent(self, key: str) -> deque[float]:
+        hits = self._hits[key]
+        cutoff = self._clock() - self._window
+        while hits and hits[0] <= cutoff:
+            hits.popleft()
+        return hits

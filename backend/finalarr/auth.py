@@ -23,7 +23,7 @@ PUBLIC_ENDPOINTS = frozenset({"auth.login", "auth.status"})
 CSRF_HEADER = "X-Requested-With"
 CSRF_VALUE = "finalarr"
 SAFE_METHODS = frozenset({"GET", "HEAD", "OPTIONS"})
-LOGIN_LIMIT_PER_MINUTE = 5
+LOGIN_FAILURES_PER_MINUTE = 5
 
 bp = Blueprint("auth", __name__, url_prefix="/api/v1/auth")
 
@@ -39,7 +39,7 @@ def init_auth(app: Flask, settings: Settings) -> None:
         SESSION_COOKIE_SECURE=settings.cookie_secure,
     )
     app.extensions["finalarr.api_key"] = api_key
-    app.extensions["finalarr.login_limiter"] = RateLimiter(LOGIN_LIMIT_PER_MINUTE, 60)
+    app.extensions["finalarr.login_limiter"] = RateLimiter(LOGIN_FAILURES_PER_MINUTE, 60)
 
     @app.before_request
     def _guard() -> ResponseReturnValue | None:
@@ -77,14 +77,17 @@ def _api_key() -> str:
 
 @bp.post("/login")
 def login() -> ResponseReturnValue:
+    # Only failures count, so the owner is never locked out by their own logins.
     limiter: RateLimiter = current_app.extensions["finalarr.login_limiter"]
-    if not limiter.hit(request.remote_addr or "unknown"):
+    client = request.remote_addr or "unknown"
+    if limiter.blocked(client):
         return api_error(429, "rate_limited", "Too many login attempts, try again later")
     body = request.get_json(silent=True)
     if not isinstance(body, dict) or not isinstance(body.get("api_key"), str):
         return api_error(400, "bad_request", "Expected JSON body with api_key")
     api_key = _api_key()
     if not hmac.compare_digest(body["api_key"].encode(), api_key.encode()):
+        limiter.hit(client)
         return api_error(401, "unauthorized", "Invalid API key")
     session.clear()
     session["key_digest"] = _key_digest(api_key)

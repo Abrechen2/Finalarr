@@ -34,6 +34,9 @@ class Settings(BaseSettings):
     language: Literal["de", "en"] = "de"
     data: Path = Path("/config")
     cookie_secure: bool = False
+    # Reverse proxies in front of Finalarr (e.g. 1 behind NPM). Only then is
+    # X-Forwarded-For trusted for the client address.
+    trusted_proxies: int = Field(default=0, ge=0, le=5)
 
     @field_validator("api_key")
     @classmethod

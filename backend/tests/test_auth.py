@@ -76,3 +76,39 @@ def test_login_is_rate_limited(client):
     response = client.post("/api/v1/auth/login", json={"api_key": API_KEY}, headers=CSRF)
     assert response.status_code == 429
     assert response.get_json()["error"]["code"] == "rate_limited"
+
+
+def test_successful_logins_do_not_use_up_the_limit(client):
+    for _ in range(8):
+        response = client.post("/api/v1/auth/login", json={"api_key": API_KEY}, headers=CSRF)
+        assert response.status_code == 200
+
+
+def test_limit_follows_the_real_client_behind_a_trusted_proxy(settings, tmp_path):
+    from finalarr.app import create_app
+
+    proxied = settings.model_copy(update={"trusted_proxies": 1})
+    client = create_app(settings=proxied, static_dir=tmp_path).test_client()
+    for _ in range(5):
+        client.post(
+            "/api/v1/auth/login",
+            json={"api_key": "nope"},
+            headers={**CSRF, "X-Forwarded-For": "10.0.0.66"},
+        )
+    other = client.post(
+        "/api/v1/auth/login",
+        json={"api_key": API_KEY},
+        headers={**CSRF, "X-Forwarded-For": "10.0.0.7"},
+    )
+    assert other.status_code == 200
+
+
+def test_forwarded_header_is_ignored_without_trusted_proxies(client):
+    for i in range(5):
+        client.post(
+            "/api/v1/auth/login",
+            json={"api_key": "nope"},
+            headers={**CSRF, "X-Forwarded-For": f"10.0.0.{i}"},
+        )
+    response = client.post("/api/v1/auth/login", json={"api_key": API_KEY}, headers=CSRF)
+    assert response.status_code == 429
