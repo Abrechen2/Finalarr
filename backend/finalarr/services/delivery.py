@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 import logging
 from collections.abc import Callable
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, timedelta, tzinfo
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -19,6 +19,7 @@ from finalarr.crypto import SecretBox, SecretDecryptError
 from finalarr.db import models as m
 from finalarr.db.session import Database
 from finalarr.notify.messages import render
+from finalarr.notify.quiet import QuietHours, quiet_until
 from finalarr.notify.sender import Sender, SendError
 
 log = logging.getLogger(__name__)
@@ -73,7 +74,9 @@ class DeliveryWorker:
         sender: Sender,
         clock: Callable[[], datetime] = lambda: datetime.now(UTC),
         public_url: str | None = None,
+        zone: tzinfo = UTC,
     ) -> None:
+        self._zone = zone
         self._db = db
         self._box = box
         self.sender = sender
@@ -90,8 +93,18 @@ class DeliveryWorker:
                 .limit(BATCH)
             ).all()
             for delivery in due:
-                self._attempt(delivery, now)
+                until = self._quiet_until(delivery.channel, now)
+                if until is not None:
+                    delivery.next_attempt_at = until  # waiting is not a failed attempt
+                else:
+                    self._attempt(delivery, now)
                 s.commit()
+
+    def _quiet_until(self, channel: m.Channel, now: datetime) -> datetime | None:
+        if not channel.quiet_hours_json:
+            return None
+        window = json.loads(channel.quiet_hours_json)
+        return quiet_until(QuietHours(window["start"], window["end"]), now, self._zone)
 
     def _attempt(self, delivery: m.Delivery, now: datetime) -> None:
         event, channel = delivery.event, delivery.channel

@@ -236,7 +236,12 @@
       "user_key": "Pushover user key",
       "app_token": "Pushover app token",
       "url": "URL"
-    }
+    },
+    "quiet": "Quiet hours",
+    "quietHint": "Reports wait during this time and arrive afterwards (container time zone).",
+    "quietFrom": "from",
+    "quietTo": "until",
+    "quietOff": "no quiet hours"
   },
   "setup": {
     "instance": "Connect Sonarr",

@@ -27,6 +27,13 @@ EventName = Literal[
 ]
 
 
+class QuietIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    start: str = Field(pattern=r"^([01]\d|2[0-3]):[0-5]\d$")
+    end: str = Field(pattern=r"^([01]\d|2[0-3]):[0-5]\d$")
+
+
 class ChannelTest(BaseModel):
     """The add-channel form; testing it before saving sends the same body."""
 
@@ -38,6 +45,7 @@ class ChannelTest(BaseModel):
     name: str | None = None
     event_filter: list[EventName] = []
     enabled: bool = True
+    quiet_hours: QuietIn | None = None
 
 
 class ChannelIn(ChannelTest):
@@ -53,6 +61,7 @@ class ChannelPatch(BaseModel):
     language: Language | None = None
     event_filter: list[EventName] | None = None
     enabled: bool | None = None
+    quiet_hours: QuietIn | None = None
 
 
 class ResendIn(BaseModel):
@@ -70,6 +79,7 @@ def serialize(channel: Channel) -> dict[str, Any]:
         "enabled": channel.enabled,
         "language": channel.language,
         "event_filter": json.loads(channel.event_filter_json or "[]"),
+        "quiet_hours": json.loads(channel.quiet_hours_json) if channel.quiet_hours_json else None,
     }
 
 
@@ -80,6 +90,10 @@ def _url(kind: str, fields: dict[str, str]) -> str:
         raise ApiProblem(
             400, "validation", "Invalid channel", {f"fields.{error.field}": str(error)}
         ) from None
+
+
+def _quiet_json(quiet: QuietIn | None) -> str | None:
+    return quiet.model_dump_json() if quiet else None
 
 
 def _load(s: Session, channel_id: int) -> Channel:
@@ -116,6 +130,7 @@ def create_channel() -> ResponseReturnValue:
             language=body.language,
             event_filter_json=json.dumps(body.event_filter),
             enabled=body.enabled,
+            quiet_hours_json=_quiet_json(body.quiet_hours),
         )
         s.add(channel)
         s.commit()
@@ -144,6 +159,8 @@ def patch_channel(channel_id: int) -> ResponseReturnValue:
             channel.event_filter_json = json.dumps(body.event_filter)
         if body.enabled is not None:
             channel.enabled = body.enabled
+        if "quiet_hours" in body.model_fields_set:
+            channel.quiet_hours_json = _quiet_json(body.quiet_hours)
         s.commit()
         return serialize(channel)
 

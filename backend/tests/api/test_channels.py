@@ -148,3 +148,14 @@ def test_api_literals_match_the_model_and_presets():
 
     assert set(get_args(Kind)) == set(KINDS)
     assert set(get_args(EventName)) == set(EVENT_TYPES)
+
+
+def test_quiet_hours_round_trip_and_validation(api, channel):
+    url = f"/api/v1/channels/{channel['id']}"
+    body = api.patch(url, json={"quiet_hours": {"start": "22:00", "end": "07:00"}}).get_json()
+    assert body["quiet_hours"] == {"start": "22:00", "end": "07:00"}
+    assert (
+        api.patch(url, json={"quiet_hours": {"start": "25:00", "end": "07:00"}}).status_code == 400
+    )
+    assert api.patch(url, json={"quiet_hours": None}).get_json()["quiet_hours"] is None
+    assert channel["quiet_hours"] is None

@@ -174,3 +174,21 @@ def test_resend_to_one_channel(env):
         resend(s, event_id, channel_id=a, now=NOW)
         s.commit()
     assert [(n, st) for n, st, *_ in deliveries(db)] == [("a", "pending"), ("b", "sent")]
+
+
+def test_quiet_hours_defer_without_using_an_attempt(env):
+    from zoneinfo import ZoneInfo
+
+    db, box, sender, worker, clock = env
+    worker._zone = ZoneInfo("UTC")
+    add_channel(db, box, quiet_hours_json='{"start": "11:00", "end": "13:00"}')
+    add_event(db)
+    worker.run()  # NOW is 12:00 UTC: inside the window
+    assert sender.sent == []
+    with db.session() as s:
+        delivery = s.scalar(select(m.Delivery))
+        assert (delivery.status, delivery.attempts) == ("pending", 0)
+        assert delivery.next_attempt_at.replace(tzinfo=UTC) == NOW.replace(hour=13)
+    clock["now"] = NOW.replace(hour=13)
+    worker.run()
+    assert len(sender.sent) == 1

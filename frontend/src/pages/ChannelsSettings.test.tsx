@@ -12,6 +12,7 @@ const channel: ChannelView = {
   enabled: true,
   language: 'de',
   event_filter: ['season_complete'],
+  quiet_hours: { start: '22:00', end: '07:00' },
 }
 
 function lastBody(calls: { init?: RequestInit }[]) {
@@ -32,7 +33,7 @@ test('lists channels without secrets and can toggle, test and delete', async () 
   renderWithProviders(<ChannelsSettings />)
   expect(await screen.findByText('Handy')).toBeInTheDocument()
   expect(screen.getByText(/tgram:\/\/\*\*\*/)).toBeInTheDocument()
-  expect(screen.getByText(/Komplett/)).toBeInTheDocument()
+  expect(screen.getByText(/Komplett · Ruhezeit 22:00–07:00/)).toBeInTheDocument()
   fireEvent.click(screen.getByLabelText('aktiv'))
   await waitFor(() => {
     const patch = calls.find((c) => c.init?.method === 'PATCH')
@@ -77,8 +78,18 @@ test('empty state and adding a Telegram channel with test and field errors', asy
     language: 'de',
     fields: { bot_token: 'bad', chat_id: '-100' },
     event_filter: ['season_complete'],
+    quiet_hours: null,
   })
+  fireEvent.change(screen.getByLabelText('von'), { target: { value: '22:00' } })
+  fireEvent.change(screen.getByLabelText('bis'), { target: { value: '07:00' } })
   fireEvent.click(screen.getByRole('button', { name: 'Speichern' }))
+  await waitFor(() => {
+    const save = calls.find((c) => c.url === '/api/v1/channels' && c.init?.method === 'POST')
+    expect(JSON.parse(String(save?.init?.body)).quiet_hours).toEqual({
+      start: '22:00',
+      end: '07:00',
+    })
+  })
   await waitFor(() =>
     expect(screen.queryByRole('button', { name: 'Speichern' })).not.toBeInTheDocument(),
   )

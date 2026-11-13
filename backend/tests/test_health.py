@@ -53,3 +53,14 @@ def test_database_file_lives_in_the_data_dir(app, settings):
 def test_health_is_503_when_the_database_is_gone(app, client):
     app.extensions["finalarr.db"].ping = lambda: False
     assert client.get("/health").status_code == 503
+
+
+def test_local_zone_falls_back_to_utc(monkeypatch):
+    from datetime import UTC
+
+    from finalarr.app import local_zone
+
+    monkeypatch.setenv("TZ", "Europe/Berlin")
+    assert str(local_zone()) == "Europe/Berlin"
+    monkeypatch.setenv("TZ", "Mars/Olympus")
+    assert local_zone() is UTC

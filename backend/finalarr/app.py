@@ -1,7 +1,9 @@
 """Flask application factory."""
 
 import os
+from datetime import UTC, tzinfo
 from pathlib import Path
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from flask import Flask, abort, jsonify, send_from_directory
 from flask.typing import ResponseReturnValue
@@ -45,6 +47,14 @@ ANILIST_EVERY_SECONDS = 30 * 60
 DELIVER_EVERY_SECONDS = 10
 
 
+def local_zone() -> tzinfo:
+    """Container time zone (TZ) for quiet hours; UTC when unset or unknown."""
+    try:
+        return ZoneInfo(os.environ.get("TZ") or "UTC")
+    except (ZoneInfoNotFoundError, ValueError):
+        return UTC
+
+
 def create_app(settings: Settings | None = None, static_dir: Path | None = None) -> Flask:
     """Build the app; without ``settings`` they come from the environment (fail closed)."""
     settings = settings or load_settings()
@@ -64,7 +74,9 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
     app.extensions["finalarr.webhook_limiter"] = RateLimiter(webhook.TRIGGERS_PER_MINUTE, 60)
     register_error_handler(app)
     box = app.extensions["finalarr.secrets"]
-    delivery = DeliveryWorker(database, box, AppriseSender(), public_url=settings.public_url)
+    delivery = DeliveryWorker(
+        database, box, AppriseSender(), public_url=settings.public_url, zone=local_zone()
+    )
     reconciler = Reconciler(database, box, on_events=lambda s, events: create_deliveries(s, events))
     cached_anilist = CachedAnilist(database, AnilistClient())
 

@@ -26,6 +26,7 @@ export interface ChannelView {
   enabled: boolean
   language: 'de' | 'en'
   event_filter: EventType[]
+  quiet_hours: { start: string; end: string } | null
 }
 
 const input = 'mt-1 w-full rounded-card border border-line bg-bg px-2 py-1.5 text-sm'
@@ -40,7 +41,10 @@ export function ChannelForm({ onDone }: { onDone: () => void }) {
   const [language, setLanguage] = useState<'de' | 'en'>('de')
   const [fields, setFields] = useState<Record<string, string>>({})
   const [events, setEvents] = useState<EventType[]>([])
-  const body = () => ({ kind, name, language, fields, event_filter: events })
+  const [quietFrom, setQuietFrom] = useState('')
+  const [quietTo, setQuietTo] = useState('')
+  const quiet_hours = quietFrom && quietTo ? { start: quietFrom, end: quietTo } : null
+  const body = () => ({ kind, name, language, fields, event_filter: events, quiet_hours })
   const test = useMutation({
     mutationFn: () =>
       apiFetch('/api/v1/channels/test', { method: 'POST', body: JSON.stringify(body()) }),
@@ -143,6 +147,30 @@ export function ChannelForm({ onDone }: { onDone: () => void }) {
           ))}
         </div>
       </fieldset>
+      <fieldset className="mt-3">
+        <legend className="text-sm">{t('channel.quiet')}</legend>
+        <p className="text-xs text-muted">{t('channel.quietHint')}</p>
+        <div className="mt-1 flex flex-wrap items-center gap-2 text-sm">
+          <label className="flex items-center gap-1">
+            {t('channel.quietFrom')}
+            <input
+              type="time"
+              value={quietFrom}
+              onChange={(e) => setQuietFrom(e.target.value)}
+              className={`${input} mt-0 w-28`}
+            />
+          </label>
+          <label className="flex items-center gap-1">
+            {t('channel.quietTo')}
+            <input
+              type="time"
+              value={quietTo}
+              onChange={(e) => setQuietTo(e.target.value)}
+              className={`${input} mt-0 w-28`}
+            />
+          </label>
+        </div>
+      </fieldset>
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <button
           type="button"
@@ -200,7 +228,10 @@ function ChannelRow({ channel }: { channel: ChannelView }) {
           <p className="text-xs text-muted">
             {t(`channel.kinds.${channel.kind}`)} ·{' '}
             <span className="font-mono">{channel.target}</span> · {channel.language.toUpperCase()} ·{' '}
-            {filter}
+            {filter} ·{' '}
+            {channel.quiet_hours
+              ? `${t('channel.quiet')} ${channel.quiet_hours.start}–${channel.quiet_hours.end}`
+              : t('channel.quietOff')}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
