@@ -21,6 +21,8 @@ _TEXT = {
         "sequel_announced": "📅 <b>{title}</b>: Fortsetzung angekündigt – {sequel_title}",
         "announced_detail": " (Start {date}, {expected} Folgen)",
         "sequel_detail": " (Start {date})",
+        "news_mention": "📰 <b>{title}</b> in den News: {headline}",
+        "article": "Artikel",
         "date": "%d.%m.%Y",
         "test": "✅ Finalarr: Testnachricht – dieser Kanal funktioniert.",
     },
@@ -36,6 +38,8 @@ _TEXT = {
         "sequel_announced": "📅 <b>{title}</b>: sequel announced – {sequel_title}",
         "announced_detail": " (starts {date}, {expected} episodes)",
         "sequel_detail": " (starts {date})",
+        "news_mention": "📰 <b>{title}</b> in the news: {headline}",
+        "article": "Article",
         "date": "%d/%m/%Y",
         "test": "✅ Finalarr: test message – this channel works.",
     },
@@ -78,6 +82,7 @@ def render(
         "part": payload.get("part", "?"),
         "part_title": escape(str(payload.get("part_title", ""))),
         "sequel_title": escape(str(payload.get("sequel_title", ""))),
+        "headline": escape(str(payload.get("headline", ""))),
     }
     key = event_type
     if (
@@ -91,7 +96,9 @@ def render(
         day = _when(str(payload["first_air"]), texts["date"])
         detail = "announced_detail" if event_type == "season_announced" else "sequel_detail"
         text += texts[detail].format(date=day, expected=values["expected"])
-    return text + _links(finalarr_url, payload.get("sonarr_url"))
+    if event_type == "news_mention":
+        return text + _links([(texts["article"], payload.get("link")), ("Finalarr", finalarr_url)])
+    return text + _links([("Finalarr", finalarr_url), ("Sonarr", payload.get("sonarr_url"))])
 
 
 def _when(first_air: str, day_format: str) -> str:
@@ -100,10 +107,10 @@ def _when(first_air: str, day_format: str) -> str:
     return str(day.year) if (day.month, day.day) == (1, 1) else day.strftime(day_format)
 
 
-def _links(finalarr_url: str | None, sonarr_url: Any) -> str:
+def _links(targets: list[tuple[str, Any]]) -> str:
     links = [
         f'<a href="{escape(url, quote=True)}">{name}</a>'
-        for name, url in (("Finalarr", finalarr_url), ("Sonarr", sonarr_url))
+        for name, url in targets
         if isinstance(url, str) and url.startswith(("http://", "https://"))
     ]
     return "\n" + " · ".join(links) if links else ""

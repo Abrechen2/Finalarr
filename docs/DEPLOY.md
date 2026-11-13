@@ -49,3 +49,18 @@ restarting.
 Add a channel under *Einstellungen → Kanäle* (Telegram, Discord, Pushover, webhook or
 any Apprise URL) and send a test message. Channel URLs are stored encrypted and never
 shown again.
+
+## Where announcements come from
+
+| Source | Covers | Key |
+|---|---|---|
+| Sonarr / TheTVDB | a season once TVDB lists its episodes | — |
+| AniList (+ Fribb mapping) | anime counts, split cours, sequels before TVDB knows them | — |
+| MyAnimeList via Jikan | second source for anime sequels | — |
+| TVmaze | renewed TV seasons, often months early | — |
+| TMDB | same, second source | `FINALARR_TMDB_API_KEY` |
+| Trakt | same, third source | `FINALARR_TRAKT_CLIENT_ID` |
+| LiveChart.me, Anime News Network (RSS) | headlines that name a followed series (hint with link) | — |
+
+Every source reports a season or sequel under the same key, so you get one message no
+matter which one knows first. News hints can be switched off under *Einstellungen → Regeln*.

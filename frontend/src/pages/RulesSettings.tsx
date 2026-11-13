@@ -10,6 +10,7 @@ export interface GlobalRules {
   respect_monitoring_default: boolean
   stable_runs: number
   reconcile_interval_minutes: number
+  news_feeds: boolean
 }
 
 const TOGGLES = [
@@ -17,6 +18,7 @@ const TOGGLES = [
   ['renotify_after_file_loss', 'renotifyAfterFileLoss', true],
   ['include_specials_default', 'includeSpecialsDefault', false],
   ['respect_monitoring_default', 'respectMonitoringDefault', false],
+  ['news_feeds', 'newsFeeds', true],
 ] as const
 
 const NUMBERS = [

@@ -34,6 +34,7 @@ class SettingsPatch(BaseModel):
     respect_monitoring_default: StrictBool | None = None
     stable_runs: int | None = Field(default=None, ge=1, le=10)
     reconcile_interval_minutes: int | None = Field(default=None, ge=5, le=1440)
+    news_feeds: StrictBool | None = None
 
 
 def _nudge() -> None:

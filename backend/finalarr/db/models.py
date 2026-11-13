@@ -27,6 +27,7 @@ EVENT_TYPES = (
     "season_complete",
     "part_complete",
     "sequel_announced",
+    "news_mention",
 )
 SERIES_TYPES = ("standard", "anime", "daily")
 CHANNEL_KINDS = ("telegram", "discord", "pushover", "webhook", "apprise")

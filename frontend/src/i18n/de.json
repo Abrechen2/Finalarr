@@ -139,7 +139,8 @@
       "finale_available": "Finale",
       "season_complete": "Komplett",
       "part_complete": "Teil komplett",
-      "sequel_announced": "Fortsetzung"
+      "sequel_announced": "Fortsetzung",
+      "news_mention": "News"
     },
     "announced": "{{title}}: Staffel {{s}} angekündigt",
     "announcedDetail": "Start {{date}}, {{expected}} Folgen",
@@ -150,7 +151,9 @@
     "fingerprint": "Fingerprint: {{value}}",
     "partCompleteAsSeason": "{{part}} komplett",
     "sequelAnnounced": "{{title}}: Fortsetzung angekündigt – {{sequel}}",
-    "sequelDetail": "Start {{date}}"
+    "sequelDetail": "Start {{date}}",
+    "newsMention": "{{title}} in den News: {{headline}}",
+    "sources": "Quellen"
   },
   "delivery": {
     "pending": "wartet",
@@ -184,7 +187,9 @@
     "includeSpecialsDefault": "Specials bei neuen Serien einbeziehen",
     "respectMonitoringDefault": "Nicht überwachte Folgen bei neuen Serien ignorieren",
     "stableRuns": "Abgleiche mit gleicher Folgenzahl vor „komplett“",
-    "interval": "Abgleich mit Sonarr alle … Minuten"
+    "interval": "Abgleich mit Sonarr alle … Minuten",
+    "newsFeeds": "News-Schlagzeilen (LiveChart, Anime News Network) zu gefolgten Serien melden",
+    "newsFeedsHint": "Streng nach Titel abgeglichen; ein Hinweis mit Link, keine Ankündigung."
   },
   "anilist": {
     "badge": "AniList",

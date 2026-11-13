@@ -14,6 +14,7 @@ EventType = Literal[
     "part_complete",
     "season_complete",
     "sequel_announced",
+    "news_mention",
 ]
 
 # Sonarr `finaleType` values that mark the end of a season; `midseason` does not.

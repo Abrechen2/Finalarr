@@ -74,3 +74,18 @@ def test_sequel_announced_with_year_only_and_full_date():
     )
     dated = render("sequel_announced", {**payload, "first_air": "2027-07-04"}, "de", None)
     assert "(Start 04.07.2027)" in dated
+
+
+def test_news_mention_links_the_article():
+    payload = {
+        "title": "Mushoku Tensei",
+        "headline": "Season 3 Part 2 <premiere>",
+        "link": "https://news.example/a",
+    }
+    text = render("news_mention", payload, "de", "https://f.lan/series/1")
+    assert "<b>Mushoku Tensei</b> in den News: Season 3 Part 2 &lt;premiere&gt;" in text
+    assert (
+        '<a href="https://news.example/a">Artikel</a> · <a href="https://f.lan/series/1">Finalarr</a>'
+        in text
+    )
+    assert "in the news" in render("news_mention", payload, "en", None)

@@ -18,6 +18,7 @@ DEFAULTS: dict[str, Any] = {
     "include_specials_default": False,
     "respect_monitoring_default": True,
     "reconcile_interval_minutes": 30,
+    "news_feeds": True,
 }
 
 

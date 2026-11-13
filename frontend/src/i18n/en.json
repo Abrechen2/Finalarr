@@ -139,7 +139,8 @@
       "finale_available": "Finale",
       "season_complete": "Complete",
       "part_complete": "Part complete",
-      "sequel_announced": "Sequel"
+      "sequel_announced": "Sequel",
+      "news_mention": "News"
     },
     "announced": "{{title}}: season {{s}} announced",
     "announcedDetail": "starts {{date}}, {{expected}} episodes",
@@ -150,7 +151,9 @@
     "fingerprint": "Fingerprint: {{value}}",
     "partCompleteAsSeason": "{{part}} complete",
     "sequelAnnounced": "{{title}}: sequel announced – {{sequel}}",
-    "sequelDetail": "starts {{date}}"
+    "sequelDetail": "starts {{date}}",
+    "newsMention": "{{title}} in the news: {{headline}}",
+    "sources": "Sources"
   },
   "delivery": {
     "pending": "pending",
@@ -184,7 +187,9 @@
     "includeSpecialsDefault": "Include specials for new series",
     "respectMonitoringDefault": "Ignore unmonitored episodes for new series",
     "stableRuns": "Syncs with an unchanged count before \"complete\"",
-    "interval": "Sync with Sonarr every … minutes"
+    "interval": "Sync with Sonarr every … minutes",
+    "newsFeeds": "Report headlines (LiveChart, Anime News Network) about followed series",
+    "newsFeedsHint": "Matched strictly by title; a hint with a link, not an announcement."
   },
   "anilist": {
     "badge": "AniList",

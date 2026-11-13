@@ -80,3 +80,9 @@ test('sequel announcements show the year when only the year is known', () => {
     'Mushoku Tensei: Fortsetzung angekündigt – Mushoku Tensei III Part 2',
   )
 })
+
+test('news mentions quote the headline', () => {
+  expect(
+    formatEvent(t, 'news_mention', { title: 'Mushoku Tensei', headline: 'Part 2 in 2027' }),
+  ).toBe('Mushoku Tensei in den News: Part 2 in 2027')
+})

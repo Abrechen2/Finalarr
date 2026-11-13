@@ -11,6 +11,7 @@ export const EVENT_TYPES = [
   'season_complete',
   'part_complete',
   'sequel_announced',
+  'news_mention',
 ] as const
 export type EventType = (typeof EVENT_TYPES)[number]
 
@@ -25,6 +26,8 @@ export interface EventPayload {
   part?: number
   part_title?: string
   sequel_title?: string
+  headline?: string
+  link?: string | null
   parts_mode?: 'season' | 'parts'
 }
 
@@ -103,6 +106,8 @@ export function formatEvent(
           : day.toLocaleDateString(language === 'en' ? 'en-GB' : 'de-DE')
       return `${text} (${t('event.sequelDetail', { date })})`
     }
+    case 'news_mention':
+      return t('event.newsMention', { title: base.title, headline: payload.headline ?? '' })
     case 'part_complete':
       if (payload.parts_mode === 'parts' && payload.part_title) {
         return t('event.partCompleteAsSeason', { part: payload.part_title })

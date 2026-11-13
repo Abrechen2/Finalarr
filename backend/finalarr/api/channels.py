@@ -29,6 +29,7 @@ EventName = Literal[
     "part_complete",
     "season_complete",
     "sequel_announced",
+    "news_mention",
 ]
 
 

@@ -62,6 +62,16 @@ export function EventRow({ event, compact = false }: { event: EventView; compact
           text
         )}
       </span>
+      {event.type === 'news_mention' && event.payload.link && (
+        <a
+          href={event.payload.link}
+          target="_blank"
+          rel="noreferrer noopener"
+          className="text-xs text-accent hover:underline"
+        >
+          {event.payload.link.replace(/^https?:\/\/(www\.)?/, '').split('/')[0]}
+        </a>
+      )}
       <DeliveryDots deliveries={event.deliveries} />
       {!compact && <ResendButton eventId={event.id} />}
     </li>

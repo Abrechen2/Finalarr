@@ -189,3 +189,30 @@ test('resend queues the event again', async () => {
   expect(await screen.findByText('Wird erneut gesendet.')).toBeInTheDocument()
   expect(calls.some((c) => c.url === '/api/v1/events/9/resend')).toBe(true)
 })
+
+test('news hints link to the article', async () => {
+  mockFetch({
+    'GET /api/v1/events': {
+      body: {
+        items: [
+          {
+            ...event,
+            type: 'news_mention',
+            payload: {
+              title: 'Slime',
+              headline: 'S4 Part 3',
+              link: 'https://www.livechart.me/headlines/1',
+            },
+            deliveries: [],
+          },
+        ],
+        next_cursor: null,
+      },
+    },
+  })
+  renderWithProviders(<EventsPage />, { route: '/events' })
+  expect(await screen.findByRole('link', { name: 'livechart.me' })).toHaveAttribute(
+    'href',
+    'https://www.livechart.me/headlines/1',
+  )
+})

@@ -30,6 +30,10 @@ landed and when a season is complete.
   not started yet (e.g. a 2027 continuation), Finalarr reports it once as "Fortsetzung
   angekündigt", before TheTVDB or Sonarr know the season. Anime typed "Standard" in Sonarr
   now get AniList data too.
+- **More sources**: TVmaze (no key) and, with a free key each, TMDB and Trakt announce
+  renewed TV seasons early; MyAnimeList (Jikan) backs up AniList for anime sequels;
+  LiveChart.me and Anime News Network headlines that name a followed series arrive as
+  "In den News" hints with a link. One message per season or sequel, whatever the source.
 - `FINALARR_AUTH=local`: no login from your home network; the API key is still needed from
   anywhere else.
 - Runs as one Docker container (non-root, PUID/PGID, healthcheck, data in `/config`);

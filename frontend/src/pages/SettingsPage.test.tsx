@@ -10,6 +10,7 @@ const RULES = {
   respect_monitoring_default: true,
   stable_runs: 2,
   reconcile_interval_minutes: 30,
+  news_feeds: true,
 }
 
 afterEach(async () => {

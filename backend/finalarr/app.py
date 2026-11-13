@@ -2,6 +2,7 @@
 
 import os
 from datetime import UTC, tzinfo
+from functools import partial
 from pathlib import Path
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -36,11 +37,13 @@ from finalarr.services.announcements import AnnouncementWatcher, SeasonSource
 from finalarr.services.delivery import DeliveryWorker, create_deliveries
 from finalarr.services.enricher import AnimeEnricher
 from finalarr.services.fribb import refresh_if_stale
-from finalarr.services.reconcile_queue import enqueue
 from finalarr.services.mal_backup import MalSequelWatcher
+from finalarr.services.news import NewsWatcher, anilist_titles
+from finalarr.services.reconcile_queue import enqueue
 from finalarr.services.reconciler import Reconciler
 from finalarr.services.season_sources import JsonCache, TmdbSource, TraktSource, TvmazeSource
 from finalarr.sources.anilist import AnilistClient
+from finalarr.sources.feeds import FEEDS, fetch_feed
 from finalarr.sources.jikan import JikanClient
 from finalarr.sources.tmdb import TmdbClient
 from finalarr.sources.trakt import TraktClient
@@ -52,6 +55,7 @@ _API_PREFIXES = ("api/", "webhook/")
 MAX_REQUEST_BYTES = 1024 * 1024
 ANILIST_EVERY_SECONDS = 30 * 60
 ANNOUNCEMENTS_EVERY_SECONDS = 6 * 60 * 60
+NEWS_EVERY_SECONDS = 30 * 60
 DELIVER_EVERY_SECONDS = 10
 
 
@@ -128,6 +132,13 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
         on_events=lambda s, events: create_deliveries(s, events),
     )
 
+    news = NewsWatcher(
+        database,
+        [(name, partial(fetch_feed, url)) for name, url in FEEDS.items()],
+        on_events=lambda s, events: create_deliveries(s, events),
+        extra_titles=anilist_titles,
+    )
+
     def announcement_cycle() -> None:
         watcher.run()
         mal_watcher.run()
@@ -139,6 +150,7 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
         extra_jobs=[
             ("anilist", anilist_cycle, ANILIST_EVERY_SECONDS),
             ("announcements", announcement_cycle, ANNOUNCEMENTS_EVERY_SECONDS),
+            ("news", news.run, NEWS_EVERY_SECONDS),
             ("deliver", delivery.run, DELIVER_EVERY_SECONDS),
         ],
     )
