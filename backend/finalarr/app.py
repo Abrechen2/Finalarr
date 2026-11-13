@@ -6,6 +6,7 @@ from pathlib import Path
 from flask import Flask, abort, jsonify, send_from_directory
 from flask.typing import ResponseReturnValue
 from werkzeug.exceptions import NotFound
+from werkzeug.security import safe_join
 
 from finalarr.version import get_version
 
@@ -26,7 +27,8 @@ def create_app(static_dir: Path | None = None) -> Flask:
     def spa(path: str) -> ResponseReturnValue:
         if path.startswith(_API_PREFIXES) or not (spa_dir / "index.html").is_file():
             abort(404)
-        if path and (spa_dir / path).is_file():
+        asset = safe_join(str(spa_dir), path) if path else None
+        if asset and Path(asset).is_file():
             return send_from_directory(spa_dir, path)
         return send_from_directory(spa_dir, "index.html")
 
