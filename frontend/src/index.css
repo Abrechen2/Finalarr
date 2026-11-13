@@ -1,74 +1,99 @@
 @import 'tailwindcss';
-@import '@fontsource/space-grotesk/400.css';
-@import '@fontsource/space-grotesk/500.css';
-@import '@fontsource/space-grotesk/700.css';
-@import '@fontsource/jetbrains-mono/800.css';
+@import '@fontsource-variable/unbounded';
+@import '@fontsource-variable/atkinson-hyperlegible-next';
 
-/* abrechen2 tokens (PLAN.md 16.1). Dark is the default; light follows the
-   system unless the user picked a theme (data-theme on <html>). */
+/* Finalarr "Crescendo" tokens (docs/DESIGN.md). Dark is the default; light follows
+   the system unless the user picked a theme (data-theme on <html>).
+   Gold means "finished" and is used for nothing else. */
 :root {
   color-scheme: dark;
-  --bg: #2a2a2a;
-  --surface: #333333;
-  --ink: #ffffff;
-  --muted: #b5b1ac;
-  --accent: #ff7a1a;
-  --ok: #5fb37c;
-  --warn: #e0a43a;
-  --bad: #f07167;
-  --line: #3d3d3d;
+  --bg: #191529;
+  --surface: #231e35;
+  --line: #352e4d;
+  --ink: #efeaf7;
+  --muted: #a49cb8;
+  --accent: #e5608a;
+  --on-accent: #1b1020;
+  --gold: #f2c14e;
+  --sky: #7fb2f0;
+  --ok: #4cc38a;
+  --bad: #f0605a;
+  --warn: #7fb2f0;
+  /* abrechen2 credit: the umbrella brand keeps its own colours (Signal-Orange). */
+  --a2-accent: #ff7a1a;
 }
 
 @media (prefers-color-scheme: light) {
   :root:not([data-theme='dark']) {
     color-scheme: light;
-    --bg: #faf8f5;
+    --bg: #f6f4fa;
     --surface: #ffffff;
-    --ink: #141414;
-    --muted: #5c5956;
-    --accent: #c2410c;
-    --ok: #2f7d4a;
-    --warn: #b7791f;
+    --line: #e2dcec;
+    --ink: #1b1726;
+    --muted: #5f5873;
+    --accent: #c2335f;
+    --on-accent: #ffffff;
+    --gold: #9a6e08;
+    --sky: #2f6db5;
+    --ok: #187a4c;
     --bad: #b42318;
-    --line: #e7e2db;
+    --warn: #2f6db5;
+    --a2-accent: #c2410c;
   }
 }
 
 :root[data-theme='light'] {
   color-scheme: light;
-  --bg: #faf8f5;
+  --bg: #f6f4fa;
   --surface: #ffffff;
-  --ink: #141414;
-  --muted: #5c5956;
-  --accent: #c2410c;
-  --ok: #2f7d4a;
-  --warn: #b7791f;
+  --line: #e2dcec;
+  --ink: #1b1726;
+  --muted: #5f5873;
+  --accent: #c2335f;
+  --on-accent: #ffffff;
+  --gold: #9a6e08;
+  --sky: #2f6db5;
+  --ok: #187a4c;
   --bad: #b42318;
-  --line: #e7e2db;
+  --warn: #2f6db5;
+  --a2-accent: #c2410c;
 }
 
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
+  --color-line: var(--line);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-gold: var(--gold);
+  --color-sky: var(--sky);
   --color-ok: var(--ok);
   --color-warn: var(--warn);
   --color-bad: var(--bad);
-  --color-line: var(--line);
-  --font-sans: 'Space Grotesk', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
-  --radius-card: 6px;
+  --color-a2: var(--a2-accent);
+  --font-sans: 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif;
+  --font-display: 'Unbounded Variable', 'Atkinson Hyperlegible Next Variable', sans-serif;
+  --radius-card: 10px;
+  --radius-control: 6px;
 }
 
 body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.5;
 }
 
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
 }

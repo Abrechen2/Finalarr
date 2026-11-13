@@ -1,46 +1,22 @@
-// Finalarr mark (PLAN.md 16.2): a ring of 12 segments, the last one in the
-// accent colour — the finale. Built from geometry.
-const SEGMENTS = 12
-const CENTER = 32
-const RADIUS = 25
-const GAP_DEG = 7
+// Finalarr mark (docs/DESIGN.md): a tally of five — four strokes count the
+// episodes, the gold diagonal closes the bundle: counted to the end.
+const STROKES = [13, 23, 33, 43] as const
 
-function point(deg: number): [number, number] {
-  const rad = ((deg - 90) * Math.PI) / 180
-  return [CENTER + RADIUS * Math.cos(rad), CENTER + RADIUS * Math.sin(rad)]
-}
-
-function arc(index: number): string {
-  const step = 360 / SEGMENTS
-  const [x1, y1] = point(index * step + GAP_DEG / 2)
-  const [x2, y2] = point((index + 1) * step - GAP_DEG / 2)
-  return `M${x1.toFixed(2)} ${y1.toFixed(2)}A${RADIUS} ${RADIUS} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`
-}
-
-export function Logo({ size = 32, withLetter = true }: { size?: number; withLetter?: boolean }) {
+export function Logo({ size = 32 }: { size?: number }) {
   return (
     <svg viewBox="0 0 64 64" width={size} height={size} aria-hidden="true">
-      {Array.from({ length: SEGMENTS }, (_, i) => (
-        <path
-          key={i}
-          d={arc(i)}
-          fill="none"
-          strokeWidth={6}
-          className={i === SEGMENTS - 1 ? 'stroke-accent' : 'stroke-ink'}
-        />
+      {STROKES.map((x) => (
+        <rect key={x} x={x} y={12} width={7} height={40} rx={3.5} className="fill-ink" />
       ))}
-      {withLetter && (
-        <text
-          x={32}
-          y={41}
-          textAnchor="middle"
-          className="fill-ink font-mono"
-          fontSize={24}
-          fontWeight={800}
-        >
-          F
-        </text>
-      )}
+      <line
+        x1={8}
+        y1={45}
+        x2={56}
+        y2={19}
+        strokeWidth={7}
+        strokeLinecap="round"
+        className="stroke-gold"
+      />
     </svg>
   )
 }

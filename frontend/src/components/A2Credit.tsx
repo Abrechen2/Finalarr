@@ -16,9 +16,9 @@ export function A2Credit() {
     >
       <span>{t('brand.credit')}</span>
       <svg viewBox="60 40 820 120" width="128" height="19" role="img" aria-label="abrechen2">
-        <path d={OPEN} className="fill-accent" />
+        <path d={OPEN} className="fill-a2" />
         <path d={NAME} className="fill-ink" />
-        <path d={CLOSE} className="fill-accent" />
+        <path d={CLOSE} className="fill-a2" />
       </svg>
     </a>
   )

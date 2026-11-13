@@ -10,5 +10,9 @@ export function EmptyState({ title, children }: { title: string; children: React
 }
 
 export function PageTitle({ children }: { children: ReactNode }) {
-  return <h1 className="mb-6 font-mono text-2xl font-extrabold tracking-tight">{children}</h1>
+  return (
+    <h1 className="mb-6 font-display text-[1.75rem] leading-tight font-bold tracking-tight">
+      {children}
+    </h1>
+  )
 }

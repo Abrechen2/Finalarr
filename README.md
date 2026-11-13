@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/icon-512.png" width="96" alt="Finalarr"></p>
+
 # Finalarr
 
 Season-finale and season-complete notifier for Sonarr. Finalarr tells you when a
@@ -16,7 +18,8 @@ has landed, and when a season is complete — once, on Telegram (more channels l
   them.
 - Sends to Telegram, Discord, Pushover, a webhook or any [Apprise](https://github.com/caronc/apprise)
   URL, in German or English, with quiet hours.
-- Small web UI (German default, English), one Docker container, SQLite.
+- Small web UI in English and German (follows your browser), dark and light theme, one
+  Docker container, SQLite. Design notes: [docs/DESIGN.md](docs/DESIGN.md).
 
 ## Is it for you?
 
@@ -47,8 +50,11 @@ e2e/run.sh                  # end-to-end smoke test with a demo Sonarr
 
 ## Privacy
 
-Finalarr talks only to your Sonarr, AniList (title lookups) and the notification
-channels you configure. No telemetry.
+Finalarr talks to your Sonarr, the notification channels you configure, and public
+metadata sources to learn about seasons and announcements: AniList and Fribb's
+anime-lists (GitHub), MyAnimeList via Jikan, TVmaze, LiveChart.me and Anime News Network,
+plus TMDB and Trakt only if you add their keys. It sends them TVDB/AniList ids or plain
+search terms — never your Sonarr address, keys or library contents. No telemetry.
 
 ## Licence
 
@@ -56,4 +62,4 @@ GPL-3.0 — see [LICENSE](LICENSE).
 
 ---
 
-A project by [`<abrechen2 />`](https://www.abrechen2.de/en/) — `// Self-built. Self-hosted.`
+A project by [`<abrechen2 />`](https://www.abrechen2.de/en/).

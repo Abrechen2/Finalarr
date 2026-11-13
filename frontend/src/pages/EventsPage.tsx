@@ -44,7 +44,7 @@ export function EventRow({ event, compact = false }: { event: EventView; compact
       }`}
       title={t('event.fingerprint', { value: event.fingerprint })}
     >
-      <span className={`${compact ? '' : 'w-28'} shrink-0 font-mono text-xs text-muted`}>
+      <span className={`${compact ? '' : 'w-28'} shrink-0 text-xs text-muted`}>
         {when}
         {compact && (
           <span className="ml-2 font-sans text-accent">{t(`event.types.${event.type}`)}</span>

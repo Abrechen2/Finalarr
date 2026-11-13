@@ -34,7 +34,7 @@ export function LoginPage() {
       >
         <div className="mb-6 flex items-center gap-3">
           <Logo size={40} />
-          <h1 className="font-mono text-2xl font-extrabold">{t('login.title')}</h1>
+          <h1 className="font-display text-2xl font-bold tracking-tight">{t('login.title')}</h1>
         </div>
         <p className="mb-4 text-sm text-muted">{t('login.intro')}</p>
         <label htmlFor="api-key" className="mb-1 block text-sm font-medium">
@@ -47,7 +47,7 @@ export function LoginPage() {
           required
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
-          className="mb-4 w-full rounded-card border border-line bg-bg px-3 py-2 font-mono"
+          className="mb-4 w-full rounded-card border border-line bg-bg px-3 py-2"
         />
         {login.isError && (
           <p role="alert" className="mb-4 text-sm text-bad">
@@ -57,7 +57,7 @@ export function LoginPage() {
         <button
           type="submit"
           disabled={login.isPending}
-          className="w-full rounded-card bg-accent px-4 py-2 font-medium text-white disabled:opacity-60"
+          className="w-full rounded-control bg-accent px-4 py-2 font-bold text-on-accent disabled:opacity-60"
         >
           {login.isPending ? t('login.busy') : t('login.submit')}
         </button>

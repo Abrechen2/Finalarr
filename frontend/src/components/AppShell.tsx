@@ -24,7 +24,7 @@ function linkClass({ isActive }: { isActive: boolean }) {
 
 function Wordmark() {
   return (
-    <span className="font-mono text-lg font-extrabold">
+    <span className="font-display text-lg font-bold tracking-tight">
       Final<span className="text-muted">arr</span>
     </span>
   )
@@ -67,9 +67,6 @@ export function AppShell({ children }: { children: ReactNode }) {
         </main>
         <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-4 py-4 min-[900px]:px-8">
           <A2Credit />
-          <span className="font-mono text-xs text-muted">
-            <span className="text-accent">//</span> {t('brand.tagline')}
-          </span>
         </footer>
       </div>
     </div>

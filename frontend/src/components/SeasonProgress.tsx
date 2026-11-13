@@ -10,7 +10,7 @@ export function SeasonProgress({ season }: { season: SeasonSummary }) {
   const label = expected ? `${season.have}/${expected}` : `${season.have}/?`
   return (
     <div className="flex items-center gap-3">
-      <span className="w-10 shrink-0 font-mono text-xs text-muted">
+      <span className="w-10 shrink-0 text-xs text-muted">
         {t('season.short', { n: season.number })}
       </span>
       <div
@@ -21,9 +21,12 @@ export function SeasonProgress({ season }: { season: SeasonSummary }) {
         aria-valuenow={season.have}
         className="h-1.5 min-w-16 flex-1 overflow-hidden rounded-full bg-line"
       >
-        <div className="h-full bg-accent" style={{ width: `${percent}%` }} />
+        <div
+          className={`h-full rounded-full ${season.state === 'complete' ? 'bg-gold' : 'bg-accent'}`}
+          style={{ width: `${percent}%` }}
+        />
       </div>
-      <span className="w-12 shrink-0 text-right font-mono text-xs font-extrabold">{label}</span>
+      <span className="w-12 shrink-0 text-right text-xs font-bold">{label}</span>
       <StateBadge state={season.state} disputed={season.disputed} />
     </div>
   )

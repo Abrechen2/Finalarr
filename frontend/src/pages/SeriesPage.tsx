@@ -165,7 +165,7 @@ export function SeriesPage() {
             type="button"
             onClick={() => followAll.mutate(tag || undefined)}
             disabled={followAll.isPending}
-            className="rounded-card bg-accent px-3 py-1.5 text-sm font-medium text-white disabled:opacity-60"
+            className="rounded-control bg-accent px-3 py-1.5 text-sm font-bold text-on-accent disabled:opacity-60"
           >
             {tag ? t('series.followTag') : t('series.followAll')}
           </button>

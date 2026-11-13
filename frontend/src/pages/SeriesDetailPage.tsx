@@ -21,9 +21,9 @@ function SeasonSection({ series, season }: { series: SeriesDetail; season: Seaso
   return (
     <section className="rounded-card border border-line bg-surface p-4">
       <div className="mb-3 flex flex-wrap items-center gap-3">
-        <h2 className="font-mono font-extrabold">{title}</h2>
+        <h2 className="font-display font-semibold">{title}</h2>
         <StateBadge state={season.state} disputed={season.disputed} />
-        <span className="font-mono text-sm">
+        <span className="text-sm font-bold">
           {season.have}/{season.expected ?? '?'}
         </span>
       </div>

@@ -75,7 +75,7 @@ export function RulesSettings() {
                 if (value !== data[key] && value >= min && value <= max)
                   save.mutate({ [key]: value })
               }}
-              className="mt-1 w-24 rounded-card border border-line bg-bg px-2 py-1 font-mono"
+              className="mt-1 w-24 rounded-card border border-line bg-bg px-2 py-1"
             />
           </label>
         ))}

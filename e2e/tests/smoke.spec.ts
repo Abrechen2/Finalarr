@@ -53,5 +53,6 @@ test('onboarding to a delivered report', async ({ page, request }) => {
     expect(hooks.some((h) => h.message.includes('S03 E19–E20 verfügbar (20/24)'))).toBe(true)
   }).toPass({ timeout: 30_000 })
   await page.reload()
-  await expect(page.getByLabel(/Webhook: gesendet/)).toBeVisible()
+  const row = page.getByRole('listitem').filter({ hasText: /S03 E19–E20 verfügbar/ })
+  await expect(row.getByLabel(/Webhook: gesendet/)).toBeVisible()
 })

@@ -70,7 +70,7 @@ function Setup({ steps }: { steps: Dashboard['onboarding'] }) {
       </ul>
       <Link
         to="/onboarding"
-        className="mt-3 inline-block rounded-card bg-accent px-3 py-1.5 text-sm font-medium text-white"
+        className="mt-3 inline-block rounded-control bg-accent px-3 py-1.5 text-sm font-bold text-on-accent"
       >
         {t('dashboard.setupStart')}
       </Link>
@@ -129,7 +129,7 @@ export function DashboardPage() {
               <Link to={`/series/${f.series_id}`} className="text-sm font-medium hover:text-accent">
                 {f.title}
               </Link>
-              <p className="font-mono text-xs text-muted">
+              <p className="text-xs text-muted">
                 {t('dashboard.finaleOn', {
                   s: pad(f.season),
                   e: pad(f.episode),

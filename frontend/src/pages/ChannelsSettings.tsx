@@ -34,11 +34,11 @@ const button =
   'rounded-card border border-line px-3 py-1.5 text-sm text-muted hover:text-ink disabled:opacity-60'
 
 export function ChannelForm({ onDone }: { onDone: () => void }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const client = useQueryClient()
   const [kind, setKind] = useState<Kind>('telegram')
   const [name, setName] = useState('Telegram')
-  const [language, setLanguage] = useState<'de' | 'en'>('de')
+  const [language, setLanguage] = useState<'de' | 'en'>(i18n.language === 'de' ? 'de' : 'en')
   const [fields, setFields] = useState<Record<string, string>>({})
   const [events, setEvents] = useState<EventType[]>([])
   const [quietFrom, setQuietFrom] = useState('')
@@ -183,7 +183,7 @@ export function ChannelForm({ onDone }: { onDone: () => void }) {
         <button
           type="submit"
           disabled={save.isPending}
-          className="rounded-card bg-accent px-3 py-1.5 text-sm font-medium text-white"
+          className="rounded-control bg-accent px-3 py-1.5 text-sm font-bold text-on-accent"
         >
           {t('channel.save')}
         </button>

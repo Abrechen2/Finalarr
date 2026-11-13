@@ -3,15 +3,15 @@ import { initReactI18next } from 'react-i18next'
 import { readPref, writePref } from '../lib/storage'
 import de from './de.json'
 import en from './en.json'
+import { initialLanguage } from './detect'
 
-export const LANGUAGES = ['de', 'en'] as const
-export type Language = (typeof LANGUAGES)[number]
+export { LANGUAGES, type Language } from './detect'
 const LANGUAGE_KEY = 'finalarr.language'
 
 const stored = readPref(LANGUAGE_KEY)
 void i18n.use(initReactI18next).init({
   resources: { de: { translation: de }, en: { translation: en } },
-  lng: stored === 'en' ? 'en' : 'de',
+  lng: initialLanguage(stored, navigator.language),
   fallbackLng: 'de',
   interpolation: { escapeValue: false },
 })

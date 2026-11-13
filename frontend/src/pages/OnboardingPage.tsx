@@ -56,7 +56,7 @@ function StepFollow({ onNext }: { onNext: () => void }) {
           type="button"
           onClick={() => followAll.mutate(undefined)}
           disabled={followAll.isPending}
-          className="rounded-card bg-accent px-3 py-1.5 text-sm font-medium text-white"
+          className="rounded-control bg-accent px-3 py-1.5 text-sm font-bold text-on-accent"
         >
           {t('series.followAll')}
         </button>
@@ -94,7 +94,7 @@ export function OnboardingPage() {
       <PageTitle>{t('onboarding.title')}</PageTitle>
       <section className="rounded-card border border-line bg-surface p-6">
         <p className="text-xs text-muted">{t('onboarding.step', { n: step })}</p>
-        <h2 className="mb-3 font-mono text-lg font-extrabold">{t(titles[step - 1])}</h2>
+        <h2 className="mb-3 font-display text-lg font-semibold">{t(titles[step - 1])}</h2>
         {step === 1 && <StepSonarr onNext={() => setStep(2)} />}
         {step === 2 && <StepFollow onNext={() => setStep(3)} />}
         {step === 3 && <StepChannel onDone={() => void navigate('/')} />}

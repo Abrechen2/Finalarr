@@ -36,7 +36,7 @@ export function SeasonOverride({ seriesId, season }: { seriesId: number; season:
           max={2000}
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          className="mt-1 w-24 rounded-card border border-line bg-bg px-2 py-1 font-mono text-sm text-ink"
+          className="mt-1 w-24 rounded-card border border-line bg-bg px-2 py-1 text-sm text-ink"
         />
       </label>
       <button type="submit" className={button} disabled={save.isPending}>

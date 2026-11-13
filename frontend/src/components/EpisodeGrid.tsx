@@ -3,13 +3,13 @@ import { episodeCell, isSeasonFinale, pad } from '../lib/episodes'
 import type { EpisodeDetail } from '../lib/types'
 
 const CELL = {
-  file: 'bg-ink border-ink text-bg',
+  file: 'bg-accent border-accent text-on-accent',
   missing: 'border-ink text-ink',
   future: 'border-dashed border-muted text-muted',
 } as const
 
-/** One square per episode: filled = on disk, outlined = aired without file,
- *  dashed = not aired yet; the season finale carries the accent. */
+/** One square per episode (docs/DESIGN.md): rose = on disk, outlined = aired without
+ *  file, dashed = not aired yet; the season finale is gold. */
 export function EpisodeGrid({
   season,
   episodes,
@@ -32,15 +32,15 @@ export function EpisodeGrid({
         const status = t(`episode.${cell}`) + (finale ? `, ${t('episode.finale')}` : '')
         const accent = finale
           ? cell === 'file'
-            ? ' !bg-accent !border-accent'
-            : ' !border-accent'
+            ? ' !bg-gold !border-gold !text-bg'
+            : ' !border-gold !text-gold'
           : ''
         return (
           <li
             key={episode.id}
             title={`${code} ${episode.title}`.trim()}
             aria-label={`${code}: ${status}`}
-            className={`flex h-8 w-8 items-center justify-center rounded border font-mono text-[11px] ${CELL[cell]}${accent}${episode.monitored ? '' : ' opacity-40'}${partStarts.includes(episode.number) ? ' ml-3' : ''}`}
+            className={`flex h-8 w-8 items-center justify-center rounded-control border text-[11px] font-bold ${CELL[cell]}${accent}${episode.monitored ? '' : ' opacity-40'}${partStarts.includes(episode.number) ? ' ml-3' : ''}`}
           >
             {episode.number}
           </li>

@@ -92,7 +92,7 @@ export function InstanceForm({
         <button
           type="submit"
           disabled={save.isPending}
-          className="rounded-card bg-accent px-3 py-1.5 text-sm font-medium text-white"
+          className="rounded-control bg-accent px-3 py-1.5 text-sm font-bold text-on-accent"
         >
           {t('instance.save')}
         </button>

@@ -24,8 +24,9 @@ landed and when a season is complete.
 - **Channels**: Telegram, Discord, Pushover, generic webhook or any Apprise URL; message
   language, event filter and quiet hours per channel; test message; failed sends are
   retried twice and then shown with the reason; resend from the event log.
-- **UI** (German, English switchable): overview, series, events, settings, setup wizard,
-  dark and light theme.
+- **UI** in English and German (follows the browser, switchable): overview, series, events,
+  settings, setup wizard, dark and light theme, with Finalarr's own look — a tally mark,
+  dusk rose for what is running and gold for what is finished (docs/DESIGN.md).
 - **Sequels announced early**: when AniList lists a sequel of a season you follow that has
   not started yet (e.g. a 2027 continuation), Finalarr reports it once as "Fortsetzung
   angekündigt", before TheTVDB or Sonarr know the season. Anime typed "Standard" in Sonarr
