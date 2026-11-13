@@ -55,7 +55,9 @@
     "search": "Search series",
     "noMatch": "No events match this filter.",
     "noDelivery": "not delivered to any channel yet",
-    "loadMore": "Load more"
+    "loadMore": "Load more",
+    "resend": "Resend",
+    "resent": "Will be sent again."
   },
   "settings": {
     "title": "Settings",
@@ -67,7 +69,10 @@
     "language": "Language",
     "comingSoon": "Sonarr, channels and rules follow in the next versions.",
     "tabAppearance": "Appearance",
-    "tabRules": "Rules"
+    "tabRules": "Rules",
+    "tabChannels": "Channels",
+    "tabSonarr": "Sonarr",
+    "tabSystem": "System"
   },
   "about": {
     "title": "About Finalarr",
@@ -87,7 +92,9 @@
     "unauthorized": "The key is wrong.",
     "rate_limited": "Too many attempts. Wait a minute.",
     "network": "Finalarr cannot be reached right now.",
-    "generic": "Something went wrong. The log has the details."
+    "generic": "Something went wrong. The log has the details.",
+    "channel_failed": "The service rejected the message: {{message}}",
+    "validation": "Please check the marked fields."
   },
   "season": {
     "short": "S{{n}}",
@@ -191,5 +198,38 @@
     "range": "Part {{index}}: episodes {{from}}–{{to}}",
     "asSeasons": "Report parts as seasons of their own",
     "asSeasonsHint": "Useful when months pass between the cours."
+  },
+  "channel": {
+    "title": "Channels",
+    "empty": "No channel yet. Without one, Finalarr records events but sends nothing.",
+    "add": "Add channel",
+    "name": "Name",
+    "kind": "Service",
+    "language": "Message language",
+    "events": "Events",
+    "eventsHint": "Nothing ticked = all events.",
+    "enabled": "active",
+    "test": "Send test message",
+    "testOk": "Test message sent.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleteConfirm": "Delete channel \"{{name}}\"?",
+    "all": "all events",
+    "kinds": {
+      "telegram": "Telegram",
+      "discord": "Discord",
+      "pushover": "Pushover",
+      "webhook": "Webhook",
+      "apprise": "Apprise URL"
+    },
+    "fields": {
+      "bot_token": "Bot token (from @BotFather)",
+      "chat_id": "Chat id (e.g. -100… or @channel)",
+      "webhook_url": "Discord webhook URL",
+      "user_key": "Pushover user key",
+      "app_token": "Pushover app token",
+      "url": "URL"
+    }
   }
 }

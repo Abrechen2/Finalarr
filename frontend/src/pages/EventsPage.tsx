@@ -1,9 +1,31 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router'
 import { DeliveryDots } from '../components/DeliveryDots'
 import { EmptyState, PageTitle } from '../components/EmptyState'
-import { errorKey } from '../lib/api'
+import { apiFetch, errorKey } from '../lib/api'
 import { EVENT_TYPES, type EventView, formatEvent, useEvents } from '../lib/events'
+
+function ResendButton({ eventId }: { eventId: number }) {
+  const { t } = useTranslation()
+  const client = useQueryClient()
+  const resend = useMutation({
+    mutationFn: () =>
+      apiFetch(`/api/v1/events/${eventId}/resend`, { method: 'POST', body: JSON.stringify({}) }),
+    onSuccess: () => client.invalidateQueries({ queryKey: ['events'] }),
+  })
+  if (resend.isSuccess) return <span className="text-xs text-ok">{t('events.resent')}</span>
+  return (
+    <button
+      type="button"
+      onClick={() => resend.mutate()}
+      disabled={resend.isPending}
+      className="rounded-card border border-line px-2 py-0.5 text-xs text-muted hover:text-ink"
+    >
+      {t('events.resend')}
+    </button>
+  )
+}
 
 export function EventRow({ event }: { event: EventView }) {
   const { t, i18n } = useTranslation()
@@ -32,6 +54,7 @@ export function EventRow({ event }: { event: EventView }) {
         )}
       </span>
       <DeliveryDots deliveries={event.deliveries} />
+      <ResendButton eventId={event.id} />
     </li>
   )
 }

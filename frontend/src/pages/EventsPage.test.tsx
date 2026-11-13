@@ -177,3 +177,14 @@ test('series rule switches patch the series', async () => {
     include_specials: true,
   })
 })
+
+test('resend queues the event again', async () => {
+  const calls = mockFetch({
+    'GET /api/v1/events': { body: { items: [event], next_cursor: null } },
+    'POST /api/v1/events/9/resend': { status: 202, body: { queued: 2 } },
+  })
+  renderWithProviders(<EventsPage />, { route: '/events' })
+  fireEvent.click(await screen.findByRole('button', { name: 'Erneut senden' }))
+  expect(await screen.findByText('Wird erneut gesendet.')).toBeInTheDocument()
+  expect(calls.some((c) => c.url === '/api/v1/events/9/resend')).toBe(true)
+})

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PageTitle } from '../components/EmptyState'
+import { ChannelsSettings } from './ChannelsSettings'
 import { RulesSettings } from './RulesSettings'
 import { LANGUAGES } from '../i18n'
 import { THEMES, type Theme, applyTheme, storedTheme } from '../lib/theme'
@@ -42,13 +43,19 @@ function Choice<T extends string>(props: {
   )
 }
 
-const TABS = ['rules', 'appearance'] as const
+const TABS = ['channels', 'rules', 'appearance'] as const
 type Tab = (typeof TABS)[number]
-const TAB_LABEL = { rules: 'settings.tabRules', appearance: 'settings.tabAppearance' } as const
+const TAB_LABEL = {
+  channels: 'settings.tabChannels',
+  rules: 'settings.tabRules',
+  appearance: 'settings.tabAppearance',
+} as const
+const PANELS = { channels: ChannelsSettings, rules: RulesSettings, appearance: AppearanceSettings }
 
 export function SettingsPage() {
   const { t } = useTranslation()
-  const [tab, setTab] = useState<Tab>('rules')
+  const [tab, setTab] = useState<Tab>('channels')
+  const Panel = PANELS[tab]
   return (
     <>
       <PageTitle>{t('settings.title')}</PageTitle>
@@ -70,7 +77,9 @@ export function SettingsPage() {
           </button>
         ))}
       </div>
-      <div role="tabpanel">{tab === 'rules' ? <RulesSettings /> : <AppearanceSettings />}</div>
+      <div role="tabpanel">
+        <Panel />
+      </div>
       <p className="mt-6 text-sm text-muted">{t('settings.comingSoon')}</p>
     </>
   )

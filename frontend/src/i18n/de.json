@@ -55,7 +55,9 @@
     "search": "Serie suchen",
     "noMatch": "Keine Ereignisse zu diesem Filter.",
     "noDelivery": "noch an keinen Kanal zugestellt",
-    "loadMore": "Mehr laden"
+    "loadMore": "Mehr laden",
+    "resend": "Erneut senden",
+    "resent": "Wird erneut gesendet."
   },
   "settings": {
     "title": "Einstellungen",
@@ -67,7 +69,10 @@
     "language": "Sprache",
     "comingSoon": "Sonarr, Kanäle und Regeln folgen in den nächsten Versionen.",
     "tabAppearance": "Darstellung",
-    "tabRules": "Regeln"
+    "tabRules": "Regeln",
+    "tabChannels": "Kanäle",
+    "tabSonarr": "Sonarr",
+    "tabSystem": "System"
   },
   "about": {
     "title": "Über Finalarr",
@@ -87,7 +92,9 @@
     "unauthorized": "Der Schlüssel ist falsch.",
     "rate_limited": "Zu viele Versuche. Warte eine Minute.",
     "network": "Finalarr ist gerade nicht erreichbar.",
-    "generic": "Etwas ist schiefgelaufen. Details stehen im Log."
+    "generic": "Etwas ist schiefgelaufen. Details stehen im Log.",
+    "channel_failed": "Der Dienst hat die Nachricht abgelehnt: {{message}}",
+    "validation": "Bitte die markierten Felder prüfen."
   },
   "season": {
     "short": "S{{n}}",
@@ -191,5 +198,38 @@
     "range": "Teil {{index}}: Folgen {{from}}–{{to}}",
     "asSeasons": "Teile als eigene Staffeln melden",
     "asSeasonsHint": "Sinnvoll, wenn zwischen den Cours Monate liegen."
+  },
+  "channel": {
+    "title": "Kanäle",
+    "empty": "Noch kein Kanal. Ohne Kanal sammelt Finalarr Ereignisse, verschickt aber nichts.",
+    "add": "Kanal hinzufügen",
+    "name": "Name",
+    "kind": "Dienst",
+    "language": "Sprache der Meldungen",
+    "events": "Ereignisse",
+    "eventsHint": "Nichts angehakt = alle Ereignisse.",
+    "enabled": "aktiv",
+    "test": "Testnachricht senden",
+    "testOk": "Testnachricht verschickt.",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "deleteConfirm": "Kanal „{{name}}“ löschen?",
+    "all": "alle Ereignisse",
+    "kinds": {
+      "telegram": "Telegram",
+      "discord": "Discord",
+      "pushover": "Pushover",
+      "webhook": "Webhook",
+      "apprise": "Apprise-URL"
+    },
+    "fields": {
+      "bot_token": "Bot-Token (von @BotFather)",
+      "chat_id": "Chat-ID (z. B. -100… oder @kanal)",
+      "webhook_url": "Discord-Webhook-URL",
+      "user_key": "Pushover User Key",
+      "app_token": "Pushover App Token",
+      "url": "URL"
+    }
   }
 }

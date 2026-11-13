@@ -66,5 +66,5 @@ test('an existing override can be reset; errors are shown', async () => {
   expect(screen.getByLabelText('Erwartete Folgen festlegen')).toHaveValue(20)
   fireEvent.click(screen.getByRole('button', { name: 'Zurücksetzen' }))
   await waitFor(() => expect(body(calls)).toEqual({ expected_override: null }))
-  expect(await screen.findByText(/Etwas ist schiefgelaufen/)).toBeInTheDocument()
+  expect(await screen.findByText('Bitte die markierten Felder prüfen.')).toBeInTheDocument()
 })

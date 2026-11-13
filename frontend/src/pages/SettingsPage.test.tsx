@@ -42,6 +42,7 @@ test('rules load and a toggle saves immediately', async () => {
     'PATCH /api/v1/settings': { body: { ...RULES, renotify_on_growth: true } },
   })
   renderWithProviders(<SettingsPage />)
+  fireEvent.click(screen.getByRole('tab', { name: 'Regeln' }))
   const toggle = await screen.findByLabelText(/Erneut melden, wenn eine komplette Staffel wächst/)
   fireEvent.click(toggle)
   expect(await screen.findByText('Gespeichert.')).toBeInTheDocument()
@@ -55,6 +56,7 @@ test('number rules save on blur only when valid and changed', async () => {
     'PATCH /api/v1/settings': { body: { ...RULES, reconcile_interval_minutes: 15 } },
   })
   renderWithProviders(<SettingsPage />)
+  fireEvent.click(screen.getByRole('tab', { name: 'Regeln' }))
   const interval = await screen.findByLabelText('Abgleich mit Sonarr alle … Minuten')
   fireEvent.blur(interval, { target: { value: '2' } })
   fireEvent.blur(interval, { target: { value: '30' } })
@@ -66,5 +68,6 @@ test('number rules save on blur only when valid and changed', async () => {
 test('rule errors are shown', async () => {
   mockFetch({ 'GET /api/v1/settings': { status: 500, body: {} } })
   renderWithProviders(<SettingsPage />)
+  fireEvent.click(screen.getByRole('tab', { name: 'Regeln' }))
   expect(await screen.findByRole('alert')).toBeInTheDocument()
 })
