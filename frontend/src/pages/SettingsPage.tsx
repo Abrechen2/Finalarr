@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PageTitle } from '../components/EmptyState'
+import { RulesSettings } from './RulesSettings'
 import { LANGUAGES } from '../i18n'
 import { THEMES, type Theme, applyTheme, storedTheme } from '../lib/theme'
 
@@ -41,13 +42,46 @@ function Choice<T extends string>(props: {
   )
 }
 
+const TABS = ['rules', 'appearance'] as const
+type Tab = (typeof TABS)[number]
+const TAB_LABEL = { rules: 'settings.tabRules', appearance: 'settings.tabAppearance' } as const
+
 export function SettingsPage() {
+  const { t } = useTranslation()
+  const [tab, setTab] = useState<Tab>('rules')
+  return (
+    <>
+      <PageTitle>{t('settings.title')}</PageTitle>
+      <div role="tablist" className="mb-4 flex gap-1 border-b border-line">
+        {TABS.map((value) => (
+          <button
+            key={value}
+            role="tab"
+            type="button"
+            aria-selected={tab === value}
+            onClick={() => setTab(value)}
+            className={`-mb-px border-b-2 px-3 py-2 text-sm ${
+              tab === value
+                ? 'border-accent text-ink'
+                : 'border-transparent text-muted hover:text-ink'
+            }`}
+          >
+            {t(TAB_LABEL[value])}
+          </button>
+        ))}
+      </div>
+      <div role="tabpanel">{tab === 'rules' ? <RulesSettings /> : <AppearanceSettings />}</div>
+      <p className="mt-6 text-sm text-muted">{t('settings.comingSoon')}</p>
+    </>
+  )
+}
+
+function AppearanceSettings() {
   const { t, i18n } = useTranslation()
   const [theme, setTheme] = useState<Theme>(storedTheme)
 
   return (
     <>
-      <PageTitle>{t('settings.title')}</PageTitle>
       <section className="rounded-card border border-line bg-surface p-6">
         <h2 className="mb-4 font-medium">{t('settings.appearance')}</h2>
         <Choice
@@ -70,7 +104,6 @@ export function SettingsPage() {
           onChange={(option) => void i18n.changeLanguage(option)}
         />
       </section>
-      <p className="mt-6 text-sm text-muted">{t('settings.comingSoon')}</p>
     </>
   )
 }

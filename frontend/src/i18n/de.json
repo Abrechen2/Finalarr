@@ -65,7 +65,9 @@
     "themeDark": "Dunkel",
     "themeLight": "Hell",
     "language": "Sprache",
-    "comingSoon": "Sonarr, Kanäle und Regeln folgen in den nächsten Versionen."
+    "comingSoon": "Sonarr, Kanäle und Regeln folgen in den nächsten Versionen.",
+    "tabAppearance": "Darstellung",
+    "tabRules": "Regeln"
   },
   "about": {
     "title": "Über Finalarr",
@@ -141,5 +143,27 @@
     "refreshQueued": "Abgleich mit Sonarr ist angestoßen.",
     "nothing": "Keine neue Meldung fällig. Zustand: {{state}}.",
     "would": "Würde jetzt melden:"
+  },
+  "rules": {
+    "title": "Regeln",
+    "series": "Regeln für diese Serie",
+    "includeSpecials": "Specials (Staffel 0) einbeziehen",
+    "respectMonitoring": "Nicht überwachte Folgen ignorieren",
+    "override": "Erwartete Folgen festlegen",
+    "overrideHint": "Überschreibt Sonarr und AniList für diese Staffel.",
+    "save": "Speichern",
+    "clear": "Zurücksetzen",
+    "takeAnilist": "{{n}} übernehmen (AniList)",
+    "takeSonarr": "{{n}} übernehmen (Sonarr)",
+    "saved": "Gespeichert.",
+    "global": "Standardregeln",
+    "renotifyOnGrowth": "Erneut melden, wenn eine komplette Staffel wächst",
+    "renotifyOnGrowthHint": "Z. B. wenn TVDB später einen zweiten Cour an die Staffel hängt.",
+    "renotifyAfterFileLoss": "Erneut melden, wenn eine gelöschte Datei zurückkommt",
+    "renotifyAfterFileLossHint": "Aus: Upgrades in Sonarr lösen keine zweite Meldung aus.",
+    "includeSpecialsDefault": "Specials bei neuen Serien einbeziehen",
+    "respectMonitoringDefault": "Nicht überwachte Folgen bei neuen Serien ignorieren",
+    "stableRuns": "Abgleiche mit gleicher Folgenzahl vor „komplett“",
+    "interval": "Abgleich mit Sonarr alle … Minuten"
   }
 }

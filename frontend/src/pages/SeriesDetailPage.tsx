@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { PageTitle } from '../components/EmptyState'
 import { SeasonCheck } from '../components/SeasonCheck'
+import { SeasonOverride } from '../components/SeasonOverride'
+import { Toggle } from '../components/Toggle'
 import { EpisodeGrid } from '../components/EpisodeGrid'
 import { FollowToggle } from '../components/FollowToggle'
 import { Poster } from '../components/Poster'
@@ -41,6 +43,9 @@ function SeasonSection({ series, season }: { series: SeriesDetail; season: Seaso
       )}
       {season.episodes.length > 0 && (
         <EpisodeGrid season={season.number} episodes={season.episodes} />
+      )}
+      {series.followed && season.number > 0 && (
+        <SeasonOverride seriesId={series.id} season={season} />
       )}
       {series.followed && <SeasonCheck seasonId={season.id} title={series.title} />}
     </section>
@@ -104,6 +109,25 @@ export function SeriesDetailPage() {
             </a>
           </div>
           {!series.followed && <p className="text-sm text-muted">{t('season.notFollowed')}</p>}
+          {series.followed && (
+            <fieldset>
+              <legend className="text-xs text-muted">{t('rules.series')}</legend>
+              <Toggle
+                label={t('rules.includeSpecials')}
+                checked={series.include_specials}
+                disabled={patch.isPending}
+                onChange={(include_specials) => patch.mutate({ id: series.id, include_specials })}
+              />
+              <Toggle
+                label={t('rules.respectMonitoring')}
+                checked={series.respect_monitoring}
+                disabled={patch.isPending}
+                onChange={(respect_monitoring) =>
+                  patch.mutate({ id: series.id, respect_monitoring })
+                }
+              />
+            </fieldset>
+          )}
         </div>
       </div>
       <div className="flex flex-col gap-3">

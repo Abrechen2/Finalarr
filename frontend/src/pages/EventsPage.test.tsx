@@ -161,3 +161,16 @@ test('check errors are shown', async () => {
   fireEvent.click(await screen.findByRole('button', { name: 'Jetzt prüfen' }))
   expect(await screen.findByText(/Etwas ist schiefgelaufen/)).toBeInTheDocument()
 })
+
+test('series rule switches patch the series', async () => {
+  const calls = mockFetch({
+    'GET /api/v1/series/1': { body: detail },
+    'PATCH /api/v1/series/1': { body: { ...detail, include_specials: true } },
+  })
+  renderDetail()
+  fireEvent.click(await screen.findByLabelText('Specials (Staffel 0) einbeziehen'))
+  await waitFor(() => expect(calls.some((c) => c.init?.method === 'PATCH')).toBe(true))
+  expect(JSON.parse(String(calls.find((c) => c.init?.method === 'PATCH')?.init?.body))).toEqual({
+    include_specials: true,
+  })
+})

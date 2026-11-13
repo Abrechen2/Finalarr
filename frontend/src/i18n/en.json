@@ -65,7 +65,9 @@
     "themeDark": "Dark",
     "themeLight": "Light",
     "language": "Language",
-    "comingSoon": "Sonarr, channels and rules follow in the next versions."
+    "comingSoon": "Sonarr, channels and rules follow in the next versions.",
+    "tabAppearance": "Appearance",
+    "tabRules": "Rules"
   },
   "about": {
     "title": "About Finalarr",
@@ -141,5 +143,27 @@
     "refreshQueued": "Sync with Sonarr has been started.",
     "nothing": "No report due. State: {{state}}.",
     "would": "Would report now:"
+  },
+  "rules": {
+    "title": "Rules",
+    "series": "Rules for this series",
+    "includeSpecials": "Include specials (season 0)",
+    "respectMonitoring": "Ignore unmonitored episodes",
+    "override": "Set expected episodes",
+    "overrideHint": "Overrides Sonarr and AniList for this season.",
+    "save": "Save",
+    "clear": "Reset",
+    "takeAnilist": "Use {{n}} (AniList)",
+    "takeSonarr": "Use {{n}} (Sonarr)",
+    "saved": "Saved.",
+    "global": "Default rules",
+    "renotifyOnGrowth": "Report again when a complete season grows",
+    "renotifyOnGrowthHint": "E.g. when TVDB later adds a second cour to the season.",
+    "renotifyAfterFileLoss": "Report again when a deleted file comes back",
+    "renotifyAfterFileLossHint": "Off: upgrades in Sonarr do not cause a second report.",
+    "includeSpecialsDefault": "Include specials for new series",
+    "respectMonitoringDefault": "Ignore unmonitored episodes for new series",
+    "stableRuns": "Syncs with an unchanged count before \"complete\"",
+    "interval": "Sync with Sonarr every … minutes"
   }
 }
