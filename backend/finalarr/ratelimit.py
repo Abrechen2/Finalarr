@@ -16,11 +16,6 @@ class RateLimiter:
         self._hits: defaultdict[str, deque[float]] = defaultdict(deque)
         self._lock = threading.Lock()
 
-    def blocked(self, key: str) -> bool:
-        """True when ``key`` has used up its limit; records nothing."""
-        with self._lock:
-            return len(self._recent(key)) >= self._limit
-
     def hit(self, key: str) -> bool:
         """Record a hit for ``key``; False when the limit is already reached."""
         with self._lock:
@@ -29,6 +24,13 @@ class RateLimiter:
                 return False
             hits.append(self._clock())
             return True
+
+    def forgive(self, key: str) -> None:
+        """Give back the most recent hit, e.g. after a successful login."""
+        with self._lock:
+            hits = self._hits.get(key)
+            if hits:
+                hits.pop()
 
     def _recent(self, key: str) -> deque[float]:
         hits = self._hits[key]

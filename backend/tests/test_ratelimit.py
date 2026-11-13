@@ -31,9 +31,28 @@ def test_window_slides():
     assert limiter.hit("a")
 
 
-def test_blocked_does_not_record_a_hit():
+def test_forgive_returns_the_latest_slot():
     limiter = RateLimiter(limit=1, window_seconds=60, clock=Clock())
-    assert not limiter.blocked("a")
-    assert not limiter.blocked("a")
     assert limiter.hit("a")
-    assert limiter.blocked("a")
+    limiter.forgive("a")
+    assert limiter.hit("a")
+    limiter.forgive("unknown-key")
+
+
+def test_concurrent_hits_never_exceed_the_limit():
+    import threading
+
+    limiter = RateLimiter(limit=5, window_seconds=60)
+    results = []
+    barrier = threading.Barrier(20)
+
+    def attempt():
+        barrier.wait()
+        results.append(limiter.hit("a"))
+
+    threads = [threading.Thread(target=attempt) for _ in range(20)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    assert results.count(True) == 5
