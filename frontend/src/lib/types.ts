@@ -22,6 +22,7 @@ export interface SeriesSummary {
   followed: boolean
   include_specials: boolean
   respect_monitoring: boolean
+  calendar: boolean
   anilist_id: number | null
   anilist_resolution: 'auto' | 'manual' | 'unresolved' | 'none'
   tags: string[]

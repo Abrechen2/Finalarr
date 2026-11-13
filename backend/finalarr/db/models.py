@@ -94,6 +94,8 @@ class Series(Base):
     followed: Mapped[bool] = mapped_column(Boolean, default=False)
     include_specials: Mapped[bool] = mapped_column(Boolean, default=False)
     respect_monitoring: Mapped[bool] = mapped_column(Boolean, default=True)
+    # Shown in the calendar and the iCal feed (when followed).
+    calendar: Mapped[bool] = mapped_column(Boolean, default=True, server_default="1")
     anilist_id: Mapped[int | None] = mapped_column(Integer)
     anilist_resolution: Mapped[str] = mapped_column(String(20), default="none")
     updated_at: Mapped[datetime] = mapped_column(

@@ -5,7 +5,8 @@
     "series": "Serien",
     "events": "Ereignisse",
     "settings": "Einstellungen",
-    "about": "Über"
+    "about": "Über",
+    "calendar": "Kalender"
   },
   "brand": {
     "credit": "Ein Projekt von",
@@ -80,7 +81,8 @@
     "tabRules": "Regeln",
     "tabChannels": "Kanäle",
     "tabSonarr": "Sonarr",
-    "tabSystem": "System"
+    "tabSystem": "System",
+    "tabCalendar": "Kalender"
   },
   "about": {
     "title": "Über Finalarr",
@@ -315,5 +317,38 @@
     "logs": "Log (letzte Zeilen)",
     "reload": "Neu laden",
     "apiKeyHint": "Den API-Schlüssel änderst du über FINALARR_API_KEY und einen Neustart; alle Sitzungen enden dann."
+  },
+  "calendar": {
+    "title": "Kalender",
+    "today": "Heute",
+    "previous": "Vorheriger Monat",
+    "next": "Nächster Monat",
+    "empty": "In diesem Monat wartet nichts.",
+    "kinds": {
+      "finale": "Finale",
+      "premiere": "Staffelstart",
+      "episode": "Folge",
+      "announcement": "angekündigt"
+    },
+    "onDisk": "vorhanden",
+    "weekdays": "Mo,Di,Mi,Do,Fr,Sa,So",
+    "settings": "Kalender",
+    "scope": "Was steht im Kalender?",
+    "scopeFinales": "Nur Staffelfinals",
+    "scopeMilestones": "Staffelstarts und Finals",
+    "scopeAll": "Alle Folgen",
+    "scopeHint": "Nur Serien, denen du folgst. Einzelne Serien schaltest du auf ihrer Seite aus.",
+    "hideDownloaded": "Bereits vorhandene Folgen ausblenden",
+    "announcements": "Angekündigte Starttermine zeigen (TVmaze, AniList, …)",
+    "daysBack": "Feed: Tage zurück",
+    "daysAhead": "Feed: Tage voraus",
+    "feed": "Kalender abonnieren",
+    "feedHint": "Trag diese Adresse in deinen Kalender ein: Google Kalender → „Per URL“, Apple Kalender → „Neues Kalenderabonnement“, Outlook → „Aus dem Internet“. Die Adresse ist geheim – wer sie kennt, sieht deinen Kalender.",
+    "feedOn": "Kalender-Feed aktiv",
+    "copy": "Adresse kopieren",
+    "copied": "Kopiert.",
+    "rotate": "Neue Adresse erzeugen",
+    "rotateConfirm": "Neue Adresse erzeugen? Bestehende Abos funktionieren danach nicht mehr.",
+    "seriesSwitch": "Im Kalender zeigen"
   }
 }

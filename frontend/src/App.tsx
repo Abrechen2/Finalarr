@@ -4,6 +4,7 @@ import { RequireAuth } from './components/RequireAuth'
 import { AboutPage } from './pages/AboutPage'
 import { LoginPage } from './pages/LoginPage'
 import { EventsPage } from './pages/EventsPage'
+import { CalendarPage } from './pages/CalendarPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { OnboardingPage } from './pages/OnboardingPage'
 import { SeriesDetailPage } from './pages/SeriesDetailPage'
@@ -14,6 +15,7 @@ const PAGES = [
   { path: '/', element: <DashboardPage /> },
   { path: '/series', element: <SeriesPage /> },
   { path: '/series/:id', element: <SeriesDetailPage /> },
+  { path: '/calendar', element: <CalendarPage /> },
   { path: '/events', element: <EventsPage /> },
   { path: '/settings', element: <SettingsPage /> },
   { path: '/about', element: <AboutPage /> },

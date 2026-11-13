@@ -140,6 +140,12 @@ export function SeriesDetailPage() {
                   patch.mutate({ id: series.id, respect_monitoring })
                 }
               />
+              <Toggle
+                label={t('calendar.seriesSwitch')}
+                checked={series.calendar}
+                disabled={patch.isPending}
+                onChange={(calendar) => patch.mutate({ id: series.id, calendar })}
+              />
             </fieldset>
           )}
         </div>

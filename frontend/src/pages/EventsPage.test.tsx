@@ -92,6 +92,7 @@ const detail = {
   followed: true,
   include_specials: false,
   respect_monitoring: true,
+  calendar: true,
   anilist_id: null,
   anilist_resolution: 'none',
   tags: [],

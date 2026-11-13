@@ -19,6 +19,11 @@ DEFAULTS: dict[str, Any] = {
     "respect_monitoring_default": True,
     "reconcile_interval_minutes": 30,
     "news_feeds": True,
+    "calendar_scope": "milestones",
+    "calendar_hide_downloaded": True,
+    "calendar_announcements": True,
+    "calendar_days_back": 14,
+    "calendar_days_ahead": 120,
 }
 
 

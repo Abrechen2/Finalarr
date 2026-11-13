@@ -19,6 +19,7 @@ dependencies = [
     "apscheduler>=3.10,<4",
     "apprise>=1.9,<2",
     "defusedxml>=0.7,<1",
+    "icalendar>=6,<7",
 ]
 
 [project.optional-dependencies]
@@ -68,6 +69,7 @@ select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "RUF"]
 "tests/**" = ["S101", "S105", "S106", "RUF001"]
 # User-facing texts use typographic dashes on purpose.
 "finalarr/notify/messages.py" = ["RUF001", "RUF002"]
+"finalarr/services/calendar.py" = ["RUF001"]
 "finalarr/db/migrations/versions/**" = ["E501"]
 
 [tool.mypy]
@@ -81,4 +83,8 @@ strict = true
 
 [[tool.mypy.overrides]]
 module = "apscheduler.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "icalendar.*"
 ignore_missing_imports = true

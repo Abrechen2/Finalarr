@@ -14,6 +14,7 @@ from werkzeug.security import safe_join
 
 from finalarr.api import (
     anilist,
+    calendar,
     channels,
     dashboard,
     events,
@@ -51,9 +52,10 @@ from finalarr.sources.tvmaze import TvmazeClient
 from finalarr.version import get_version
 
 _DEFAULT_STATIC_DIR = Path("/app/static")
-_API_PREFIXES = ("api/", "webhook/")
+_API_PREFIXES = ("api/", "webhook/", "ical/")
 MAX_REQUEST_BYTES = 1024 * 1024
 ANILIST_EVERY_SECONDS = 30 * 60
+FEED_READS_PER_MINUTE = 30
 ANNOUNCEMENTS_EVERY_SECONDS = 6 * 60 * 60
 NEWS_EVERY_SECONDS = 30 * 60
 DELIVER_EVERY_SECONDS = 10
@@ -176,6 +178,8 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
     app.register_blueprint(channels.bp)
     app.register_blueprint(dashboard.bp)
     app.register_blueprint(system.bp)
+    app.register_blueprint(calendar.bp)
+    app.extensions["finalarr.feed_limiter"] = RateLimiter(FEED_READS_PER_MINUTE, 60)
     spa_dir = static_dir or Path(os.environ.get("FINALARR_STATIC_DIR", _DEFAULT_STATIC_DIR))
 
     @app.get("/health")

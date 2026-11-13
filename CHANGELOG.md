@@ -31,6 +31,10 @@ landed and when a season is complete.
   not started yet (e.g. a 2027 continuation), Finalarr reports it once as "Fortsetzung
   angekündigt", before TheTVDB or Sonarr know the season. Anime typed "Standard" in Sonarr
   now get AniList data too.
+- **Calendar**: a month view of what you are waiting for and a subscribable iCal feed
+  (Google, Apple, Outlook). Choose season finales only, premieres and finales, or every
+  episode; hide what is already on disk; show announced start dates; switch single series
+  off. The feed address is secret, can be renewed and switched off.
 - **More sources**: TVmaze (no key) and, with a free key each, TMDB and Trakt announce
   renewed TV seasons early; MyAnimeList (Jikan) backs up AniList for anime sequels;
   LiveChart.me and Anime News Network headlines that name a followed series arrive as

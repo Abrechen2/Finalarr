@@ -35,6 +35,11 @@ class SettingsPatch(BaseModel):
     stable_runs: int | None = Field(default=None, ge=1, le=10)
     reconcile_interval_minutes: int | None = Field(default=None, ge=5, le=1440)
     news_feeds: StrictBool | None = None
+    calendar_scope: Literal["finales", "milestones", "all"] | None = None
+    calendar_hide_downloaded: StrictBool | None = None
+    calendar_announcements: StrictBool | None = None
+    calendar_days_back: int | None = Field(default=None, ge=0, le=90)
+    calendar_days_ahead: int | None = Field(default=None, ge=7, le=730)
 
 
 def _nudge() -> None:

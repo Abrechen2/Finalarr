@@ -64,3 +64,10 @@ shown again.
 
 Every source reports a season or sequel under the same key, so you get one message no
 matter which one knows first. News hints can be switched off under *Einstellungen → Regeln*.
+
+## Calendar feed
+
+*Einstellungen → Kalender* switches on an iCal feed at `/ical/<token>.ics` (add `?lang=en`
+for English titles). Subscribe to it in any calendar app. The token is the only
+protection: keep the address private, renew it to revoke old subscriptions. If Finalarr is
+reachable from outside your network, the feed is too — that is how calendar apps fetch it.

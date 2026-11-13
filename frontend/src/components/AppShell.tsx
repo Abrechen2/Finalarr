@@ -1,4 +1,11 @@
-import { CalendarCheck, Info, LayoutDashboard, ListVideo, Settings } from 'lucide-react'
+import {
+  CalendarCheck,
+  CalendarDays,
+  Info,
+  LayoutDashboard,
+  ListVideo,
+  Settings,
+} from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router'
@@ -8,6 +15,7 @@ import { Logo } from './Logo'
 const NAV = [
   { to: '/', key: 'nav.dashboard', icon: LayoutDashboard },
   { to: '/series', key: 'nav.series', icon: ListVideo },
+  { to: '/calendar', key: 'nav.calendar', icon: CalendarDays },
   { to: '/events', key: 'nav.events', icon: CalendarCheck },
   { to: '/settings', key: 'nav.settings', icon: Settings },
   { to: '/about', key: 'nav.about', icon: Info },

@@ -29,6 +29,7 @@ class SeriesPatch(BaseModel):
     followed: bool | None = None
     include_specials: bool | None = None
     respect_monitoring: bool | None = None
+    calendar: bool | None = None
 
 
 class FollowMonitored(BaseModel):
@@ -66,6 +67,7 @@ def series_summary(series: Series) -> dict[str, Any]:
         "followed": series.followed,
         "include_specials": series.include_specials,
         "respect_monitoring": series.respect_monitoring,
+        "calendar": series.calendar,
         "anilist_id": series.anilist_id,
         "anilist_resolution": series.anilist_resolution,
         "tags": json.loads(series.tags_json or "[]"),

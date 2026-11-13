@@ -5,7 +5,8 @@
     "series": "Series",
     "events": "Events",
     "settings": "Settings",
-    "about": "About"
+    "about": "About",
+    "calendar": "Calendar"
   },
   "brand": {
     "credit": "A project by",
@@ -80,7 +81,8 @@
     "tabRules": "Rules",
     "tabChannels": "Channels",
     "tabSonarr": "Sonarr",
-    "tabSystem": "System"
+    "tabSystem": "System",
+    "tabCalendar": "Calendar"
   },
   "about": {
     "title": "About Finalarr",
@@ -315,5 +317,38 @@
     "logs": "Log (last lines)",
     "reload": "Reload",
     "apiKeyHint": "Change the API key through FINALARR_API_KEY and a restart; all sessions end then."
+  },
+  "calendar": {
+    "title": "Calendar",
+    "today": "Today",
+    "previous": "Previous month",
+    "next": "Next month",
+    "empty": "Nothing to wait for this month.",
+    "kinds": {
+      "finale": "Finale",
+      "premiere": "Season premiere",
+      "episode": "Episode",
+      "announcement": "announced"
+    },
+    "onDisk": "on disk",
+    "weekdays": "Mon,Tue,Wed,Thu,Fri,Sat,Sun",
+    "settings": "Calendar",
+    "scope": "What goes into the calendar?",
+    "scopeFinales": "Season finales only",
+    "scopeMilestones": "Season premieres and finales",
+    "scopeAll": "Every episode",
+    "scopeHint": "Only series you follow. Switch single series off on their page.",
+    "hideDownloaded": "Hide episodes already on disk",
+    "announcements": "Show announced start dates (TVmaze, AniList, …)",
+    "daysBack": "Feed: days back",
+    "daysAhead": "Feed: days ahead",
+    "feed": "Subscribe to the calendar",
+    "feedHint": "Add this address to your calendar: Google Calendar → \"From URL\", Apple Calendar → \"New calendar subscription\", Outlook → \"From the internet\". The address is secret – anyone who has it can see your calendar.",
+    "feedOn": "Calendar feed on",
+    "copy": "Copy address",
+    "copied": "Copied.",
+    "rotate": "Create a new address",
+    "rotateConfirm": "Create a new address? Existing subscriptions stop working.",
+    "seriesSwitch": "Show in calendar"
   }
 }

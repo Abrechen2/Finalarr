@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PageTitle } from '../components/EmptyState'
+import { CalendarSettings } from './CalendarSettings'
 import { ChannelsSettings } from './ChannelsSettings'
 import { InstancesSettings } from './InstancesSettings'
 import { SystemSettings } from './SystemSettings'
@@ -45,12 +46,13 @@ function Choice<T extends string>(props: {
   )
 }
 
-const TABS = ['sonarr', 'channels', 'rules', 'appearance', 'system'] as const
+const TABS = ['sonarr', 'channels', 'rules', 'calendar', 'appearance', 'system'] as const
 type Tab = (typeof TABS)[number]
 const TAB_LABEL = {
   sonarr: 'settings.tabSonarr',
   channels: 'settings.tabChannels',
   rules: 'settings.tabRules',
+  calendar: 'settings.tabCalendar',
   appearance: 'settings.tabAppearance',
   system: 'settings.tabSystem',
 } as const
@@ -58,6 +60,7 @@ const PANELS = {
   sonarr: InstancesSettings,
   channels: ChannelsSettings,
   rules: RulesSettings,
+  calendar: CalendarSettings,
   appearance: AppearanceSettings,
   system: SystemSettings,
 }

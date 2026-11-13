@@ -11,6 +11,11 @@ export interface GlobalRules {
   stable_runs: number
   reconcile_interval_minutes: number
   news_feeds: boolean
+  calendar_scope: 'finales' | 'milestones' | 'all'
+  calendar_hide_downloaded: boolean
+  calendar_announcements: boolean
+  calendar_days_back: number
+  calendar_days_ahead: number
 }
 
 const TOGGLES = [
