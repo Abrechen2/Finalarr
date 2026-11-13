@@ -101,3 +101,16 @@ class FakeAnilist:
         if self.error:
             raise self.error
         return [m for m in self.media.values() if text.lower() in m.title.lower()]
+
+
+class FakeSender:
+    def __init__(self) -> None:
+        self.sent: list[tuple[str, str]] = []
+        self.fail_with: str | None = None
+
+    def send(self, url: str, body: str) -> None:
+        from finalarr.notify.sender import SendError
+
+        if self.fail_with:
+            raise SendError(self.fail_with)
+        self.sent.append((url, body))

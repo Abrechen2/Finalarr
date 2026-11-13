@@ -108,6 +108,7 @@ def test_event_rows_link_instance_series_and_season(env):
         assert (event.instance_id, event.series_id) == (1, 1)
         assert event.season_id is not None
         assert json.loads(event.payload_json)["title"] == "Slime"
+        assert json.loads(event.payload_json)["sonarr_url"] == "http://s:1/series/slime"
 
 
 def test_single_series_reconcile_only_touches_that_series(env):

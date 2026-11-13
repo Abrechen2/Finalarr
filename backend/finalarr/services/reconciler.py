@@ -280,7 +280,12 @@ def record_events(
     """Insert new events; an existing fingerprint is a no-op (PLAN.md 4.3)."""
     created = []
     for event in result.events:
-        payload = {**event.payload, "title": series.title, "series_type": series.series_type}
+        payload = {
+            **event.payload,
+            "title": series.title,
+            "series_type": series.series_type,
+            "sonarr_url": f"{series.instance.url}/series/{series.title_slug}",
+        }
         if event.type == "part_complete":
             part = next(p for p in season.parts if p.part_index == event.payload["part"])
             payload |= {"part_title": part.title, "parts_mode": season.parts_mode}
