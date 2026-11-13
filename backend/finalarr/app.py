@@ -32,19 +32,35 @@ from finalarr.notify.sender import AppriseSender
 from finalarr.ratelimit import RateLimiter
 from finalarr.scheduler import SchedulerService
 from finalarr.services.anilist_cache import CachedAnilist
+from finalarr.services.announcements import AnnouncementWatcher, SeasonSource
 from finalarr.services.delivery import DeliveryWorker, create_deliveries
 from finalarr.services.enricher import AnimeEnricher
 from finalarr.services.fribb import refresh_if_stale
 from finalarr.services.reconcile_queue import enqueue
 from finalarr.services.reconciler import Reconciler
+from finalarr.services.season_sources import JsonCache, TmdbSource, TraktSource, TvmazeSource
 from finalarr.sources.anilist import AnilistClient
+from finalarr.sources.tmdb import TmdbClient
+from finalarr.sources.trakt import TraktClient
+from finalarr.sources.tvmaze import TvmazeClient
 from finalarr.version import get_version
 
 _DEFAULT_STATIC_DIR = Path("/app/static")
 _API_PREFIXES = ("api/", "webhook/")
 MAX_REQUEST_BYTES = 1024 * 1024
 ANILIST_EVERY_SECONDS = 30 * 60
+ANNOUNCEMENTS_EVERY_SECONDS = 6 * 60 * 60
 DELIVER_EVERY_SECONDS = 10
+
+
+def season_sources(settings: Settings, cache: JsonCache) -> list[SeasonSource]:
+    """TVmaze always; TMDB and Trakt only with a key."""
+    sources: list[SeasonSource] = [TvmazeSource(TvmazeClient(), cache)]
+    if settings.tmdb_api_key:
+        sources.append(TmdbSource(TmdbClient(settings.tmdb_api_key.get_secret_value()), cache))
+    if settings.trakt_client_id:
+        sources.append(TraktSource(TraktClient(settings.trakt_client_id.get_secret_value()), cache))
+    return sources
 
 
 def local_zone() -> tzinfo:
@@ -97,12 +113,18 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
         refresh_if_stale(database)
         enricher.run()
 
+    watcher = AnnouncementWatcher(
+        database,
+        season_sources(settings, JsonCache(database)),
+        on_events=lambda s, events: create_deliveries(s, events),
+    )
     scheduler = SchedulerService(
         database,
         reconciler,
         lock_path=settings.data / "scheduler.lock",
         extra_jobs=[
             ("anilist", anilist_cycle, ANILIST_EVERY_SECONDS),
+            ("announcements", watcher.run, ANNOUNCEMENTS_EVERY_SECONDS),
             ("deliver", delivery.run, DELIVER_EVERY_SECONDS),
         ],
     )
@@ -112,7 +134,12 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
     app.extensions["finalarr.reconciler"] = reconciler
     app.extensions["finalarr.scheduler"] = scheduler
     app.extensions["finalarr.nudge"] = scheduler.nudge
-    app.extensions["finalarr.nudge_anilist"] = lambda: scheduler.run_soon("anilist")
+    def nudge_sources() -> None:
+        scheduler.run_soon("anilist")
+        scheduler.run_soon("announcements")
+
+    app.extensions["finalarr.nudge_anilist"] = nudge_sources
+    app.extensions["finalarr.watcher"] = watcher
     app.register_blueprint(instances.bp)
     app.register_blueprint(webhook.bp)
     app.register_blueprint(series.bp)

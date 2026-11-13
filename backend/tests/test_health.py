@@ -64,3 +64,17 @@ def test_local_zone_falls_back_to_utc(monkeypatch):
     assert str(local_zone()) == "Europe/Berlin"
     monkeypatch.setenv("TZ", "Mars/Olympus")
     assert local_zone() is UTC
+
+
+def test_tmdb_and_trakt_are_used_only_with_keys(settings, tmp_path):
+    from finalarr.app import season_sources
+    from finalarr.services.season_sources import JsonCache
+
+    cache = JsonCache(db=None)  # not touched while building the list
+    assert [s.name for s in season_sources(settings, cache)] == ["tvmaze"]
+    from pydantic import SecretStr
+
+    keyed = settings.model_copy(
+        update={"tmdb_api_key": SecretStr("k"), "trakt_client_id": SecretStr("c")}
+    )
+    assert [s.name for s in season_sources(keyed, cache)] == ["tvmaze", "tmdb", "trakt"]

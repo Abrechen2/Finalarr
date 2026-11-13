@@ -39,6 +39,9 @@ class Settings(BaseSettings):
     # Reverse proxies in front of Finalarr (e.g. 1 behind NPM). Only then is
     # X-Forwarded-For trusted for the client address.
     trusted_proxies: int = Field(default=0, ge=0, le=5)
+    # Optional extra announcement sources (free keys); unset = source off.
+    tmdb_api_key: SecretStr | None = None
+    trakt_client_id: SecretStr | None = None
     # Base URL users open Finalarr at; enables "open in Finalarr" links in messages.
     public_url: str | None = None
     # Optional comma list of IPs/CIDRs allowed to call the Sonarr webhook.
