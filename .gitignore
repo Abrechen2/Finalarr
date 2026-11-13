@@ -21,3 +21,4 @@ data/
 coverage/
 *.egg-info/
 build/
+!.env.example

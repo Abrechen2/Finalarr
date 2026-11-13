@@ -1,0 +1,84 @@
+"""Bootstrap configuration from the environment (PLAN.md section 8).
+
+Fails closed: without a usable API key and Fernet secret key the app refuses to
+start. Everything else lives in the database and the UI.
+"""
+
+from __future__ import annotations
+
+import os
+from collections.abc import Mapping
+from pathlib import Path
+from typing import Literal
+
+from cryptography.fernet import Fernet
+from pydantic import Field, SecretStr, ValidationError, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+ENV_PREFIX = "FINALARR_"
+MIN_API_KEY_LENGTH = 20
+
+
+class ConfigError(RuntimeError):
+    """Startup configuration is missing or invalid. Messages never carry secret values."""
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix=ENV_PREFIX, extra="ignore", frozen=True)
+
+    api_key: SecretStr
+    secret_key: SecretStr
+    port: int = Field(default=5790, ge=1, le=65535)
+    base_path: str = "/"
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
+    language: Literal["de", "en"] = "de"
+    data: Path = Path("/config")
+    cookie_secure: bool = False
+
+    @field_validator("api_key")
+    @classmethod
+    def _api_key_strong_enough(cls, value: SecretStr) -> SecretStr:
+        key = value.get_secret_value().strip()
+        if not key:
+            raise ValueError("must not be empty")
+        if len(key) < MIN_API_KEY_LENGTH:
+            raise ValueError(f"must be at least {MIN_API_KEY_LENGTH} characters")
+        return SecretStr(key)
+
+    @field_validator("secret_key")
+    @classmethod
+    def _secret_key_is_fernet(cls, value: SecretStr) -> SecretStr:
+        try:
+            Fernet(value.get_secret_value().strip().encode())
+        except (ValueError, TypeError):
+            raise ValueError(
+                "must be a Fernet key (generate one with "
+                "`python -c 'from cryptography.fernet import Fernet; "
+                "print(Fernet.generate_key().decode())'`)"
+            ) from None
+        return SecretStr(value.get_secret_value().strip())
+
+
+def load_settings(environ: Mapping[str, str] | None = None) -> Settings:
+    """Read settings from ``environ`` (default: the process environment)."""
+    source = os.environ if environ is None else environ
+    values = {
+        key[len(ENV_PREFIX) :].lower(): value
+        for key, value in source.items()
+        if key.startswith(ENV_PREFIX) and key != f"{ENV_PREFIX}VERSION"
+    }
+    try:
+        return Settings.model_validate(values)
+    except ValidationError as error:
+        problems = [
+            f"{ENV_PREFIX}{'.'.join(str(p) for p in issue['loc']).upper()}: {_reason(issue)}"
+            for issue in error.errors(include_input=False)
+        ]
+        raise ConfigError("Invalid configuration — " + "; ".join(problems)) from None
+
+
+def _reason(issue: Mapping[str, object]) -> str:
+    if issue.get("type") == "missing":
+        return "required, not set"
+    message = str(issue.get("msg", "invalid"))
+    return message.removeprefix("Value error, ")

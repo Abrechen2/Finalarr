@@ -1,10 +1,7 @@
-from finalarr.app import create_app
 from finalarr.version import get_version
 
 
-def test_health_is_unauthenticated_and_reports_version():
-    client = create_app().test_client()
-
+def test_health_is_unauthenticated_and_reports_version(client):
     response = client.get("/health")
 
     assert response.status_code == 200

@@ -8,14 +8,20 @@ from flask.typing import ResponseReturnValue
 from werkzeug.exceptions import NotFound
 from werkzeug.security import safe_join
 
+from finalarr.auth import init_auth
+from finalarr.config import Settings, load_settings
 from finalarr.version import get_version
 
 _DEFAULT_STATIC_DIR = Path("/app/static")
 _API_PREFIXES = ("api/", "webhook/")
 
 
-def create_app(static_dir: Path | None = None) -> Flask:
+def create_app(settings: Settings | None = None, static_dir: Path | None = None) -> Flask:
+    """Build the app; without ``settings`` they come from the environment (fail closed)."""
+    settings = settings or load_settings()
     app = Flask(__name__, static_folder=None)
+    app.extensions["finalarr.settings"] = settings
+    init_auth(app, settings)
     spa_dir = static_dir or Path(os.environ.get("FINALARR_STATIC_DIR", _DEFAULT_STATIC_DIR))
 
     @app.get("/health")
