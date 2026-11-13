@@ -1,0 +1,5 @@
+season: {number: 1, respect_monitoring: false}
+episodes: {count: 4, first_air: 2026-01-05, interval_days: 7, unmonitored: "3"}
+runs:
+  - {now: 2026-01-01, files: "", expect: {state: scheduled, events: []}}
+  - {now: 2026-02-01, files: "1,2,4", expect: {state: aired, events: [{type: episodes_available, episodes: "1-2,4", have: 3, expected: 4}]}}

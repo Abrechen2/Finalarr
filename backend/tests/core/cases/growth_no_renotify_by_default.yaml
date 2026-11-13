@@ -1,0 +1,8 @@
+# TVDB adds a second cour after completion: back to airing, no second "complete" by default.
+season: {number: 1}
+episodes: {count: 2, first_air: 2026-01-05, interval_days: 7}
+runs:
+  - {now: 2026-01-01, files: "", expect: {state: scheduled, events: []}}
+  - {now: 2026-02-01, files: "1-2", expect: {state: complete, events: [{type: season_complete, have: 2, expected: 2}]}}
+  - {now: 2026-03-01, count: 4, files: "1-2", expect: {state: aired, events: []}}
+  - {now: 2026-04-01, count: 4, files: "1-4", expect: {state: complete, events: [{type: episodes_available, episodes: "3-4", have: 4, expected: 4}]}}

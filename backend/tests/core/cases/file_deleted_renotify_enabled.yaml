@@ -1,0 +1,8 @@
+season: {number: 1}
+policy: {renotify_after_file_loss: true}
+episodes: {count: 2, first_air: 2026-01-05, interval_days: 7}
+runs:
+  - {now: 2026-01-01, files: "", expect: {state: scheduled, events: []}}
+  - {now: 2026-01-06, files: "1", expect: {state: airing, events: [{type: episodes_available, episodes: "1"}]}}
+  - {now: 2026-01-07, files: "", expect: {state: airing, events: []}}
+  - {now: 2026-01-08, files: "1", expect: {state: airing, events: [{type: episodes_available, episodes: "1"}]}}

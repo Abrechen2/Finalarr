@@ -1,0 +1,5 @@
+season: {number: 1, anilist_count: 24, expected_override: 12}
+episodes: {count: 12, first_air: 2026-01-05, interval_days: 7}
+runs:
+  - {now: 2026-01-01, files: "", expect: {state: scheduled, disputed: false, events: []}}
+  - {now: 2026-04-01, files: "1-12", expect: {state: complete, events: [{type: season_complete, have: 12, expected: 12, finale: 12}]}}

@@ -1,0 +1,6 @@
+# First evaluation of a season already on disk must not announce anything.
+season: {number: 1}
+episodes: {count: 12, first_air: 2025-01-06}
+runs:
+  - {now: 2026-01-01, files: "1-12", expect: {state: complete, events: []}}
+  - {now: 2026-01-01T00:30, files: "1-12", expect: {state: complete, events: []}}

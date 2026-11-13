@@ -1,0 +1,7 @@
+# Sonarr learns about a new season (no episodes before) → announcement, once.
+season: {number: 3}
+episodes: {count: 0}
+runs:
+  - {now: 2026-01-01, files: "", expect: {state: unknown, events: []}}
+  - {now: 2026-02-01, count: 12, first_air: 2026-04-05, files: "", expect: {state: scheduled, events: [{type: season_announced, expected: 12, first_air: "2026-04-05"}]}}
+  - {now: 2026-02-01T00:30, count: 12, first_air: 2026-04-05, files: "", expect: {state: scheduled, events: []}}
