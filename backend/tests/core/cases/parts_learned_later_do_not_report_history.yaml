@@ -1,0 +1,8 @@
+# Real library (Dr. STONE, Vanitas): AniList parts become known after the series was
+# already watched and part 1 is long on disk. That is history, not news.
+season: {number: 2, anilist_count: 25}
+episodes: {count: 25, first_air: 2023-07-03, interval_days: 7}
+runs:
+  - {now: 2023-10-01, files: "1-13", expect: {state: airing, events: []}}
+  - {now: 2023-10-01T01:00, files: "1-13", parts: [[1, 146065, 1, 13], [2, 166873, 14, 25]], expect: {state: airing, events: []}}
+  - {now: 2023-10-03, files: "1-14", parts: [[1, 146065, 1, 13], [2, 166873, 14, 25]], expect: {state: airing, events: [{type: episodes_available, episodes: "14"}]}}

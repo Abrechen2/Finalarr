@@ -55,7 +55,7 @@ def evaluate(
     snap = _snapshot(season, memory, now, policy)
     new_ids = snap.with_file - memory.announced_ids
     new_finales = (_finale_ids(season, snap) & new_ids) - memory.finale_ids
-    new_parts = _completed_parts(season, snap) - memory.parts_done
+    new_parts = _completed_parts(season, snap, new_ids) - memory.parts_done
     fires_complete = snap.state == "complete" and _complete_is_due(memory, snap, policy)
     silent = not memory.initialized or (
         season.season_number == SPECIALS_SEASON and not season.include_specials
@@ -200,16 +200,20 @@ def _library_event(
     return ()
 
 
-def _completed_parts(season: SeasonInput, snap: _Snapshot) -> frozenset[int]:
-    """Split-cour parts whose every episode is listed and on disk. The last part
-    is left out: its completion is the season's own ``season_complete``."""
+def _completed_parts(
+    season: SeasonInput, snap: _Snapshot, new_ids: frozenset[int]
+) -> frozenset[int]:
+    """Split-cour parts completed by a file that arrived in this run: every episode
+    listed and on disk, one of them new. Parts learned later (AniList) that were
+    already complete are history, not news. The last part is left out: its
+    completion is the season's own ``season_complete``."""
     done = set()
     for part in season.parts[:-1]:
         wanted = set(range(part.first, part.last + 1))
-        on_disk = {
-            e.number for e in snap.counted if e.number in wanted and e.sonarr_id in snap.with_file
-        }
-        if on_disk == wanted:
+        in_part = [e for e in snap.counted if e.number in wanted]
+        on_disk = {e.number for e in in_part if e.sonarr_id in snap.with_file}
+        arrived = any(e.sonarr_id in new_ids for e in in_part)
+        if on_disk == wanted and arrived:
             done.add(part.anilist_id)
     return frozenset(done)
 

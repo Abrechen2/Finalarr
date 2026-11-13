@@ -71,7 +71,9 @@ def build_input(case: dict[str, Any], run: dict[str, Any]) -> SeasonInput:
         anilist_count=run.get("anilist_count", season.get("anilist_count")),
         include_specials=season.get("include_specials", False),
         anilist_start=season.get("anilist_start"),
-        parts=tuple(Part(i, a, lo, hi) for i, a, lo, hi in season.get("parts", [])),
+        parts=tuple(
+            Part(i, a, lo, hi) for i, a, lo, hi in run.get("parts", season.get("parts", []))
+        ),
         respect_monitoring=season.get("respect_monitoring", True),
     )
 
