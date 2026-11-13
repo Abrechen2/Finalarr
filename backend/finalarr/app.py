@@ -20,12 +20,14 @@ from finalarr.version import get_version
 
 _DEFAULT_STATIC_DIR = Path("/app/static")
 _API_PREFIXES = ("api/", "webhook/")
+MAX_REQUEST_BYTES = 1024 * 1024
 
 
 def create_app(settings: Settings | None = None, static_dir: Path | None = None) -> Flask:
     """Build the app; without ``settings`` they come from the environment (fail closed)."""
     settings = settings or load_settings()
     app = Flask(__name__, static_folder=None)
+    app.config["MAX_CONTENT_LENGTH"] = MAX_REQUEST_BYTES
     app.extensions["finalarr.settings"] = settings
     if settings.trusted_proxies:
         hops = settings.trusted_proxies

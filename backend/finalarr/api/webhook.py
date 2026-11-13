@@ -11,6 +11,7 @@ import base64
 import binascii
 import hmac
 import ipaddress
+import json
 from typing import Any
 
 from flask import Blueprint, current_app, request
@@ -62,6 +63,13 @@ def _basic_auth_ok(instance: SonarrInstance) -> bool:
     )
 
 
+def _json_or_none(raw: bytes) -> Any:
+    try:
+        return json.loads(raw)
+    except ValueError:
+        return None
+
+
 def _series_id(body: Any) -> int:
     series = body.get("series") if isinstance(body, dict) else None
     sid = series.get("id") if isinstance(series, dict) else None
@@ -70,6 +78,9 @@ def _series_id(body: Any) -> int:
 
 @bp.post("/sonarr/<token>")
 def sonarr(token: str) -> ResponseReturnValue:
+    # Reads stop one byte past the cap, so a chunked body without Content-Length
+    # can never be buffered in full; the length check below then rejects it.
+    request.max_content_length = MAX_BODY_BYTES + 1
     if (request.content_length or 0) > MAX_BODY_BYTES:
         return api_error(413, "too_large", "Body too large")
     if not _peer_allowed(current_app.extensions["finalarr.webhook_allow"]):
@@ -87,7 +98,10 @@ def sonarr(token: str) -> ResponseReturnValue:
         limiter: RateLimiter = current_app.extensions["finalarr.webhook_limiter"]
         if not limiter.hit(token):
             return api_error(429, "rate_limited", "Too many webhook calls")
-        body = request.get_json(silent=True, force=True)
+        raw = request.get_data(cache=False)
+        if len(raw) > MAX_BODY_BYTES:
+            return api_error(413, "too_large", "Body too large")
+        body = _json_or_none(raw)
         if isinstance(body, dict) and body.get("eventType") == "Test":
             return {"ok": True}
         enqueue(s, instance.id, _series_id(body))

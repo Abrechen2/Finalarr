@@ -149,3 +149,16 @@ def test_invalid_allowlist_refuses_to_start():
                 "FINALARR_WEBHOOK_ALLOW": "not-an-ip",
             }
         )
+
+
+def test_chunked_body_without_length_is_capped_too(client, app, instance):
+    import io
+
+    response = client.post(
+        instance["webhook_path"],
+        input_stream=io.BytesIO(b"x" * (200 * 1024)),
+        headers={"Transfer-Encoding": "chunked", "Content-Type": "application/json"},
+        environ_base={"wsgi.input_terminated": True},  # as gunicorn sets it for chunked
+    )
+    assert response.status_code == 413
+    assert requests_in(app) == []
