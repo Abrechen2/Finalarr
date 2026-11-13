@@ -89,6 +89,7 @@ class Reconciler:
             s.commit()
 
     def _full(self, instance_id: int, client: Any) -> None:
+        labels = client.tags()
         remote = client.series_list()
         with self._db.session() as s:
             known = {
@@ -99,7 +100,7 @@ class Reconciler:
                 s.delete(known[gone])
             followed = []
             for series in remote:
-                row = self._upsert_series(s, instance_id, known.get(series.id), series)
+                row = self._upsert_series(s, instance_id, known.get(series.id), series, labels)
                 if row.followed:
                     followed.append(series.id)
             s.commit()
@@ -107,6 +108,7 @@ class Reconciler:
             self._episodes(instance_id, sonarr_id, client.episodes(sonarr_id))
 
     def _one(self, instance_id: int, client: Any, sonarr_series_id: int) -> None:
+        labels = client.tags()
         series = client.series(sonarr_series_id)
         with self._db.session() as s:
             row = s.scalar(
@@ -114,14 +116,19 @@ class Reconciler:
                     m.Series.instance_id == instance_id, m.Series.sonarr_id == sonarr_series_id
                 )
             )
-            row = self._upsert_series(s, instance_id, row, series)
+            row = self._upsert_series(s, instance_id, row, series, labels)
             followed = row.followed
             s.commit()
         if followed:
             self._episodes(instance_id, sonarr_series_id, client.episodes(sonarr_series_id))
 
     def _upsert_series(
-        self, s: Session, instance_id: int, row: m.Series | None, series: SonarrSeries
+        self,
+        s: Session,
+        instance_id: int,
+        row: m.Series | None,
+        series: SonarrSeries,
+        labels: dict[int, str],
     ) -> m.Series:
         if row is None:
             defaults = load_settings(s)
@@ -141,6 +148,7 @@ class Reconciler:
         row.status = series.status
         row.monitored = series.monitored
         row.poster_url = series.poster_url
+        row.tags_json = json.dumps(sorted(labels[t] for t in series.tags if t in labels))
         seasons = {season.number: season for season in row.seasons}
         for remote in series.seasons:
             season = seasons.get(remote.season_number)

@@ -54,7 +54,7 @@ function StepFollow({ onNext }: { onNext: () => void }) {
       <div className="mt-3 flex flex-wrap gap-2">
         <button
           type="button"
-          onClick={() => followAll.mutate()}
+          onClick={() => followAll.mutate(undefined)}
           disabled={followAll.isPending}
           className="rounded-card bg-accent px-3 py-1.5 text-sm font-medium text-white"
         >

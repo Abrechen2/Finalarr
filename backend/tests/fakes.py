@@ -9,7 +9,9 @@ from finalarr.sources.sonarr import SonarrEpisode, SonarrSeries, SonarrUnreachab
 BASE_AIR = datetime(2026, 1, 5, 15, tzinfo=UTC)
 
 
-def make_series(sid: int, title: str, seasons=(1,), series_type="standard") -> SonarrSeries:
+def make_series(
+    sid: int, title: str, seasons=(1,), series_type="standard", tags=()
+) -> SonarrSeries:
     return SonarrSeries.model_validate(
         {
             "id": sid,
@@ -19,6 +21,7 @@ def make_series(sid: int, title: str, seasons=(1,), series_type="standard") -> S
             "seriesType": series_type,
             "seasons": [{"seasonNumber": n, "monitored": True} for n in seasons],
             "images": [{"coverType": "poster", "remoteUrl": f"https://img/{sid}.jpg"}],
+            "tags": list(tags),
         }
     )
 
@@ -48,6 +51,7 @@ class FakeSonarr:
         self.episodes_by_series: dict[int, list[SonarrEpisode]] = {}
         self.calls: list[str] = []
         self.down = False
+        self.tag_labels: dict[int, str] = {}
 
     def add(self, series: SonarrSeries, episodes=()) -> None:
         self.series_by_id[series.id] = series
@@ -57,6 +61,10 @@ class FakeSonarr:
         self.calls.append(call)
         if self.down:
             raise SonarrUnreachable("Sonarr cannot be reached")
+
+    def tags(self):
+        self._check("tags")
+        return dict(self.tag_labels)
 
     def series_list(self):
         self._check("series_list")

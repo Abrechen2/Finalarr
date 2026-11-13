@@ -21,6 +21,7 @@ const slime: SeriesSummary = {
   respect_monitoring: true,
   anilist_id: null,
   anilist_resolution: 'none',
+  tags: [],
   seasons: [{ id: 3, number: 3, state: 'airing', expected: 24, have: 7, disputed: false }],
 }
 const andor: SeriesSummary = {
@@ -187,4 +188,18 @@ test('detail 404 shows an error', async () => {
   })
   renderDetail()
   expect(await screen.findByRole('alert')).toBeInTheDocument()
+})
+
+test('follow all with a Sonarr tag', async () => {
+  const calls = mockFetch({
+    'GET /api/v1/series': { body: { items: [], next_cursor: null } },
+    'GET /api/v1/series/tags': { body: ['anime', 'kids'] },
+    'POST /api/v1/series/follow-monitored': { body: { followed: 3 } },
+  })
+  renderWithProviders(<SeriesPage />, { route: '/series' })
+  fireEvent.change(await screen.findByLabelText('Sonarr-Tag'), { target: { value: 'anime' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Alle mit Tag folgen' }))
+  expect(await screen.findByRole('status')).toHaveTextContent('3 Serien neu gefolgt')
+  const post = calls.find((c) => c.init?.method === 'POST')
+  expect(JSON.parse(String(post?.init?.body))).toEqual({ tag: 'anime' })
 })

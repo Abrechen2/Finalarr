@@ -1,4 +1,5 @@
 import { Search } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router'
 import { EmptyState, PageTitle } from '../components/EmptyState'
@@ -6,7 +7,13 @@ import { FollowToggle } from '../components/FollowToggle'
 import { Poster } from '../components/Poster'
 import { SeasonProgress } from '../components/SeasonProgress'
 import { errorKey } from '../lib/api'
-import { type SeriesFilter, useFollowMonitored, useSeriesList, useSeriesPatch } from '../lib/series'
+import {
+  type SeriesFilter,
+  useFollowMonitored,
+  useSeriesList,
+  useSeriesPatch,
+  useSeriesTags,
+} from '../lib/series'
 import type { SeriesSummary } from '../lib/types'
 
 const FOLLOWED = [
@@ -122,6 +129,8 @@ export function SeriesPage() {
   const filter = readFilter(params)
   const list = useSeriesList(filter)
   const followAll = useFollowMonitored()
+  const tags = useSeriesTags()
+  const [tag, setTag] = useState('')
   const items = list.data?.pages.flatMap((page) => page.items) ?? []
   const filtered = Boolean(filter.q || filter.followed || filter.type)
 
@@ -136,14 +145,31 @@ export function SeriesPage() {
     <>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <PageTitle>{t('series.title')}</PageTitle>
-        <button
-          type="button"
-          onClick={() => followAll.mutate()}
-          disabled={followAll.isPending}
-          className="rounded-card bg-accent px-3 py-1.5 text-sm font-medium text-white disabled:opacity-60"
-        >
-          {t('series.followAll')}
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          {(tags.data?.length ?? 0) > 0 && (
+            <select
+              aria-label={t('series.tag')}
+              value={tag}
+              onChange={(e) => setTag(e.target.value)}
+              className="rounded-card border border-line bg-bg px-2 py-1.5 text-sm"
+            >
+              <option value="">{t('series.tagAll')}</option>
+              {tags.data?.map((label) => (
+                <option key={label} value={label}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          )}
+          <button
+            type="button"
+            onClick={() => followAll.mutate(tag || undefined)}
+            disabled={followAll.isPending}
+            className="rounded-card bg-accent px-3 py-1.5 text-sm font-medium text-white disabled:opacity-60"
+          >
+            {tag ? t('series.followTag') : t('series.followAll')}
+          </button>
+        </div>
       </div>
       {followAll.isSuccess && (
         <p role="status" className="mb-4 text-sm text-ok">

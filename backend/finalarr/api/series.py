@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import base64
 import binascii
+import json
 from typing import Any
 
 from flask import Blueprint, current_app, request
 from flask.typing import ResponseReturnValue
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import Select, and_, or_, select, update
 from sqlalchemy.orm import Session, object_session, selectinload
 
@@ -34,6 +35,7 @@ class FollowMonitored(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     instance_id: int | None = None
+    tag: str | None = Field(default=None, min_length=1, max_length=100)
 
 
 def counted(series: Series, season: Season) -> list[Episode]:
@@ -66,6 +68,7 @@ def series_summary(series: Series) -> dict[str, Any]:
         "respect_monitoring": series.respect_monitoring,
         "anilist_id": series.anilist_id,
         "anilist_resolution": series.anilist_resolution,
+        "tags": json.loads(series.tags_json or "[]"),
         "seasons": [season_summary(series, s) for s in series.seasons],
     }
 
@@ -204,6 +207,13 @@ def _nudge(anilist: bool = False) -> None:
             nudge()
 
 
+@bp.get("/tags")
+def list_tags() -> ResponseReturnValue:
+    with database().session() as s:
+        labels = {label for raw in s.scalars(select(Series.tags_json)) for label in json.loads(raw)}
+    return sorted(labels)
+
+
 @bp.get("/<int:series_id>")
 def get_series(series_id: int) -> ResponseReturnValue:
     with database().session() as s:
@@ -237,6 +247,9 @@ def follow_monitored() -> ResponseReturnValue:
         query = update(Series).where(Series.monitored.is_(True), Series.followed.is_(False))
         if body.instance_id is not None:
             query = query.where(Series.instance_id == body.instance_id)
+        if body.tag is not None:
+            # tags_json is a JSON list of labels; match the quoted label exactly.
+            query = query.where(Series.tags_json.contains(json.dumps(body.tag), autoescape=True))
         changed = s.execute(query.values(followed=True)).rowcount  # type: ignore[attr-defined]
         instances = select(SonarrInstance.id).where(SonarrInstance.enabled.is_(True))
         if body.instance_id is not None:

@@ -25,6 +25,7 @@ def series(sid, title, year, stype, seasons, slug=None):
         "id": sid, "title": title, "sortTitle": title.lower(), "titleSlug": slug or title.lower().replace(" ", "-"),
         "year": year, "tvdbId": 300000 + sid, "seriesType": stype, "status": "continuing", "monitored": True,
         "images": [], "seasons": [{"seasonNumber": n, "monitored": True} for n in seasons],
+        "tags": [1] if stype == "anime" else [],
     }
 
 
@@ -79,6 +80,8 @@ class Handler(BaseHTTPRequestHandler):
         url = urlsplit(self.path)
         if url.path == "/api/v3/system/status":
             return self._send(200, {"appName": "Sonarr", "version": "4.0.99-fake"})
+        if url.path == "/api/v3/tag":
+            return self._send(200, [{"id": 1, "label": "anime"}])
         if url.path == "/api/v3/series":
             return self._send(200, SERIES)
         if url.path.startswith("/api/v3/series/"):

@@ -60,6 +60,7 @@ class SonarrSeries(_Model):
     monitored: bool = True
     images: tuple[SonarrImage, ...] = ()
     seasons: tuple[SonarrSeason, ...] = ()
+    tags: tuple[int, ...] = ()
 
     @property
     def poster_url(self) -> str | None:
@@ -77,6 +78,11 @@ class SonarrEpisode(_Model):
     monitored: bool = True
     has_file: bool = Field(default=False, alias="hasFile")
     finale_type: str | None = Field(default=None, alias="finaleType")
+
+
+class SonarrTag(_Model):
+    id: int
+    label: str
 
 
 class SonarrStatus(_Model):
@@ -107,6 +113,9 @@ class SonarrClient:
 
     def series_list(self) -> list[SonarrSeries]:
         return self._get("/api/v3/series", list[SonarrSeries])
+
+    def tags(self) -> dict[int, str]:
+        return {t.id: t.label for t in self._get("/api/v3/tag", list[SonarrTag])}
 
     def series(self, series_id: int) -> SonarrSeries:
         return self._get(f"/api/v3/series/{series_id}", SonarrSeries)

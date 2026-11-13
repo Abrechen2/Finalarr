@@ -50,13 +50,20 @@ export function useSeriesPatch() {
   })
 }
 
+export function useSeriesTags() {
+  return useQuery({
+    queryKey: ['series', 'tags'],
+    queryFn: () => apiFetch<string[]>('/api/v1/series/tags'),
+  })
+}
+
 export function useFollowMonitored() {
   const client = useQueryClient()
   return useMutation({
-    mutationFn: () =>
+    mutationFn: (tag?: string) =>
       apiFetch<{ followed: number }>('/api/v1/series/follow-monitored', {
         method: 'POST',
-        body: JSON.stringify({}),
+        body: JSON.stringify(tag ? { tag } : {}),
       }),
     onSuccess: () => client.invalidateQueries({ queryKey: ['series'] }),
   })

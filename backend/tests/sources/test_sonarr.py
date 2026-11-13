@@ -140,3 +140,13 @@ def test_client_rejects_invalid_base_url():
 def test_single_series(client):
     responses.get(f"{BASE}/api/v3/series/101", json=fixture("series.json")[0])
     assert client.series(101).title.startswith("That Time")
+
+
+@responses.activate
+def test_tags_and_series_tag_ids(client):
+    responses.get(
+        f"{BASE}/api/v3/tag", json=[{"id": 1, "label": "anime"}, {"id": 2, "label": "kids"}]
+    )
+    responses.get(f"{BASE}/api/v3/series", json=[{**fixture("series.json")[0], "tags": [1]}])
+    assert client.tags() == {1: "anime", 2: "kids"}
+    assert client.series_list()[0].tags == (1,)

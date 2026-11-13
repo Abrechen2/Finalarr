@@ -51,7 +51,10 @@
     "loadMore": "Mehr laden",
     "openInSonarr": "In Sonarr öffnen",
     "back": "Zurück zu Serien",
-    "noMatch": "Keine Serie passt zu diesem Filter."
+    "noMatch": "Keine Serie passt zu diesem Filter.",
+    "followTag": "Alle mit Tag folgen",
+    "tagAll": "ohne Tag-Filter",
+    "tag": "Sonarr-Tag"
   },
   "events": {
     "title": "Ereignisse",

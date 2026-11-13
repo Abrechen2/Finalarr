@@ -160,3 +160,17 @@ def test_following_nudges_the_anilist_job(api, app, library):
     api.patch(f"/api/v1/series/{andor.id}", json={"followed": True})
     api.post("/api/v1/series/follow-monitored", json={})
     assert nudged == [1, 1]
+
+
+def test_tags_list_and_follow_by_tag(api, app, library):
+    with app.extensions["finalarr.db"].session() as s:
+        for row in s.scalars(select(m.Series)):
+            row.tags_json = '["anime"]' if row.title in ("Zeta", "Slime") else '["kids"]'
+        s.scalar(select(m.Series).where(m.Series.title == "Zeta")).monitored = True
+        s.commit()
+    assert api.get("/api/v1/series/tags").get_json() == ["anime", "kids"]
+    assert api.post("/api/v1/series/follow-monitored", json={"tag": "anime"}).get_json() == {
+        "followed": 1
+    }
+    assert titles(api.get("/api/v1/series?followed=true")) == ["Slime", "Zeta"]
+    assert api.get("/api/v1/series").get_json()["items"][0]["tags"] == ["kids"]

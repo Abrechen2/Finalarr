@@ -86,6 +86,8 @@ class Series(Base):
     series_type: Mapped[str] = mapped_column(String(20), default="standard")
     status: Mapped[str] = mapped_column(String(20), default="")
     poster_url: Mapped[str | None] = mapped_column(String(1000))
+    # Sonarr tag labels, JSON list; used for "follow all with tag".
+    tags_json: Mapped[str] = mapped_column(Text, default="[]", server_default="[]")
     monitored: Mapped[bool] = mapped_column(Boolean, default=True)
     followed: Mapped[bool] = mapped_column(Boolean, default=False)
     include_specials: Mapped[bool] = mapped_column(Boolean, default=False)

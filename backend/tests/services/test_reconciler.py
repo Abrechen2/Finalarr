@@ -64,7 +64,7 @@ def test_full_sync_stores_series_without_fetching_episodes_of_unfollowed(env):
             ("Severance", "standard", "https://img/2.jpg"),
         ]
         assert [season.number for season in rows[0].seasons] == [0, 1, 2]
-    assert sonarr.calls == ["series_list"]
+    assert sonarr.calls == ["tags", "series_list"]
 
 
 def test_followed_series_gets_episodes_and_a_silent_baseline(env):
@@ -120,7 +120,7 @@ def test_single_series_reconcile_only_touches_that_series(env):
     follow(db, 2)
     sonarr.calls.clear()
     reconciler.reconcile(1, sonarr_series_id=2)
-    assert sonarr.calls == ["series:2", "episodes:2"]
+    assert sonarr.calls == ["tags", "series:2", "episodes:2"]
 
 
 def test_single_series_reconcile_adds_a_series_sonarr_just_created(env):
@@ -183,7 +183,7 @@ def test_unfollowing_keeps_state_but_stops_fetching(env):
         s.commit()
     sonarr.calls.clear()
     reconciler.reconcile(1)
-    assert sonarr.calls == ["series_list"]
+    assert sonarr.calls == ["tags", "series_list"]
 
 
 def test_policy_comes_from_settings(env):
@@ -268,3 +268,14 @@ def test_parts_flow_into_the_evaluator_and_the_payload(env):
         "Mushoku II",
         "parts",
     )
+
+
+def test_tag_labels_are_stored(env):
+    db, sonarr, reconciler, _ = env
+    sonarr.tag_labels = {1: "anime", 2: "kids"}
+    sonarr.add(make_series(1, "Slime", tags=(1, 2)))
+    sonarr.add(make_series(2, "Andor"))
+    reconciler.reconcile(1)
+    with db.session() as s:
+        tags = {r.title: json.loads(r.tags_json) for r in s.scalars(select(m.Series))}
+    assert tags == {"Slime": ["anime", "kids"], "Andor": []}

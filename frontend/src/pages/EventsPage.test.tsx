@@ -94,6 +94,7 @@ const detail = {
   respect_monitoring: true,
   anilist_id: null,
   anilist_resolution: 'none',
+  tags: [],
   sonarr_url: 'x',
   seasons: [
     {

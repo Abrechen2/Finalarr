@@ -51,7 +51,10 @@
     "loadMore": "Load more",
     "openInSonarr": "Open in Sonarr",
     "back": "Back to series",
-    "noMatch": "No series matches this filter."
+    "noMatch": "No series matches this filter.",
+    "followTag": "Follow all with tag",
+    "tagAll": "no tag filter",
+    "tag": "Sonarr tag"
   },
   "events": {
     "title": "Events",

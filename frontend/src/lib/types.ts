@@ -24,6 +24,7 @@ export interface SeriesSummary {
   respect_monitoring: boolean
   anilist_id: number | null
   anilist_resolution: 'auto' | 'manual' | 'unresolved' | 'none'
+  tags: string[]
   seasons: SeasonSummary[]
 }
 
