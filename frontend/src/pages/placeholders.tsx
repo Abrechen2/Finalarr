@@ -18,13 +18,3 @@ export function DashboardPage() {
     </>
   )
 }
-
-export function EventsPage() {
-  const { t } = useTranslation()
-  return (
-    <>
-      <PageTitle>{t('events.title')}</PageTitle>
-      <EmptyState title={t('events.emptyTitle')}>{t('events.emptyBody')}</EmptyState>
-    </>
-  )
-}

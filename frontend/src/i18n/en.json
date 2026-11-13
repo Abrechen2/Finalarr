@@ -49,7 +49,13 @@
   "events": {
     "title": "Events",
     "emptyTitle": "No events yet",
-    "emptyBody": "Every report Finalarr sends ends up here, with its delivery status per channel."
+    "emptyBody": "Every report Finalarr sends ends up here, with its delivery status per channel.",
+    "filterType": "Type",
+    "allTypes": "All types",
+    "search": "Search series",
+    "noMatch": "No events match this filter.",
+    "noDelivery": "not delivered to any channel yet",
+    "loadMore": "Load more"
   },
   "settings": {
     "title": "Settings",
@@ -107,5 +113,33 @@
   "action": {
     "follow": "Follow",
     "unfollow": "Unfollow"
+  },
+  "event": {
+    "types": {
+      "season_announced": "Announced",
+      "episodes_available": "Available",
+      "finale_available": "Finale",
+      "season_complete": "Complete",
+      "part_complete": "Part complete"
+    },
+    "announced": "{{title}}: season {{s}} announced",
+    "announcedDetail": "starts {{date}}, {{expected}} episodes",
+    "available": "{{title}} S{{s}} {{episodes}} available ({{have}}/{{expected}})",
+    "finale": "Finale: {{title}} S{{s}}E{{e}} available ({{have}}/{{expected}})",
+    "complete": "{{title}} season {{s}} complete ({{have}}/{{expected}})",
+    "partComplete": "{{title}} season {{s}} part {{part}} complete",
+    "fingerprint": "Fingerprint: {{value}}"
+  },
+  "delivery": {
+    "pending": "pending",
+    "sent": "sent",
+    "failed": "failed"
+  },
+  "check": {
+    "dryRun": "Check now",
+    "refresh": "Reload from Sonarr",
+    "refreshQueued": "Sync with Sonarr has been started.",
+    "nothing": "No report due. State: {{state}}.",
+    "would": "Would report now:"
   }
 }

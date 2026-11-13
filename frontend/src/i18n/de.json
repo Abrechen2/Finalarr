@@ -49,7 +49,13 @@
   "events": {
     "title": "Ereignisse",
     "emptyTitle": "Noch keine Ereignisse",
-    "emptyBody": "Hier landet jede Meldung, die Finalarr verschickt hat, mit dem Zustellstatus pro Kanal."
+    "emptyBody": "Hier landet jede Meldung, die Finalarr verschickt hat, mit dem Zustellstatus pro Kanal.",
+    "filterType": "Typ",
+    "allTypes": "Alle Typen",
+    "search": "Serie suchen",
+    "noMatch": "Keine Ereignisse zu diesem Filter.",
+    "noDelivery": "noch an keinen Kanal zugestellt",
+    "loadMore": "Mehr laden"
   },
   "settings": {
     "title": "Einstellungen",
@@ -107,5 +113,33 @@
   "action": {
     "follow": "Folgen",
     "unfollow": "Nicht mehr folgen"
+  },
+  "event": {
+    "types": {
+      "season_announced": "Angekündigt",
+      "episodes_available": "Verfügbar",
+      "finale_available": "Finale",
+      "season_complete": "Komplett",
+      "part_complete": "Teil komplett"
+    },
+    "announced": "{{title}}: Staffel {{s}} angekündigt",
+    "announcedDetail": "Start {{date}}, {{expected}} Folgen",
+    "available": "{{title}} S{{s}} {{episodes}} verfügbar ({{have}}/{{expected}})",
+    "finale": "Finale: {{title}} S{{s}}E{{e}} verfügbar ({{have}}/{{expected}})",
+    "complete": "{{title}} Staffel {{s}} komplett ({{have}}/{{expected}})",
+    "partComplete": "{{title}} Staffel {{s}} Teil {{part}} komplett",
+    "fingerprint": "Fingerprint: {{value}}"
+  },
+  "delivery": {
+    "pending": "wartet",
+    "sent": "gesendet",
+    "failed": "fehlgeschlagen"
+  },
+  "check": {
+    "dryRun": "Jetzt prüfen",
+    "refresh": "Von Sonarr neu laden",
+    "refreshQueued": "Abgleich mit Sonarr ist angestoßen.",
+    "nothing": "Keine neue Meldung fällig. Zustand: {{state}}.",
+    "would": "Würde jetzt melden:"
   }
 }

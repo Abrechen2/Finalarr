@@ -2,6 +2,7 @@ import { ArrowLeft, ExternalLink } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { PageTitle } from '../components/EmptyState'
+import { SeasonCheck } from '../components/SeasonCheck'
 import { EpisodeGrid } from '../components/EpisodeGrid'
 import { FollowToggle } from '../components/FollowToggle'
 import { Poster } from '../components/Poster'
@@ -41,7 +42,7 @@ function SeasonSection({ series, season }: { series: SeriesDetail; season: Seaso
       {season.episodes.length > 0 && (
         <EpisodeGrid season={season.number} episodes={season.episodes} />
       )}
-      {!series.followed && <span className="sr-only">{t('season.notFollowed')}</span>}
+      {series.followed && <SeasonCheck seasonId={season.id} title={series.title} />}
     </section>
   )
 }

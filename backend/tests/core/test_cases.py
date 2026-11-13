@@ -71,3 +71,16 @@ def test_renotify_after_file_loss_gets_a_new_fingerprint() -> None:
         memory = result.memory
     assert len(fingerprints) == 2
     assert len(set(fingerprints)) == 2
+
+
+def test_finale_payload_carries_the_episode_number() -> None:
+    case = dict(load_cases())["finale_before_missing_files"]
+    memory = SeasonMemory.initial()
+    payloads = []
+    for run in case["runs"]:
+        result = evaluate(
+            build_input(case, run), memory, as_datetime(run["now"]), build_policy(case)
+        )
+        payloads += [e.payload for e in result.events]
+        memory = result.memory
+    assert payloads[0]["finale_number"] == 4

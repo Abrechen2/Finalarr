@@ -163,6 +163,9 @@ def _library_event(
     payload = _payload(snap, new_ids)
     if new_finales:
         payload["finale"] = min(new_finales)
+        payload["finale_number"] = next(
+            e.number for e in snap.counted if e.sonarr_id == payload["finale"]
+        )
     if fires_complete:
         return (_event("season_complete", season, str(snap.expected), payload),)
     if new_finales:
