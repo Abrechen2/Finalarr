@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass, replace
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Any
 
 from finalarr.core.fingerprint import fingerprint
@@ -33,6 +33,7 @@ from finalarr.core.model import (
 )
 
 SPECIALS_SEASON = 0
+ANILIST_NEWS_WINDOW = timedelta(days=30)
 
 
 @dataclass(frozen=True)
@@ -45,6 +46,7 @@ class _Snapshot:
     with_file: frozenset[int]
     stable_runs: int
     state: State
+    today: date
 
 
 def evaluate(
@@ -84,7 +86,7 @@ def _snapshot(
     stable_runs = memory.stable_runs + 1 if unchanged else 1
     stable = not memory.initialized or stable_runs >= policy.stable_runs
     state = _state(counted, expected, with_file, now, stable and not disputed)
-    return _Snapshot(counted, expected, disputed, with_file, stable_runs, state)
+    return _Snapshot(counted, expected, disputed, with_file, stable_runs, state, now.date())
 
 
 def _expected_count(season: SeasonInput, counted: int) -> tuple[int | None, bool]:
@@ -149,9 +151,18 @@ def _complete_is_due(memory: SeasonMemory, snap: _Snapshot, policy: Policy) -> b
     return policy.renotify_on_growth and grown
 
 
+def _anilist_news(season: SeasonInput, today: date) -> bool:
+    """An AniList-only season is news only if it has not started long ago; an old
+    season Sonarr simply numbers differently must not be "announced"."""
+    start = season.anilist_start
+    return start is None or start >= today - ANILIST_NEWS_WINDOW
+
+
 def _announce_is_due(memory: SeasonMemory, snap: _Snapshot, season: SeasonInput) -> bool:
     """Sonarr lists a season for the first time, or AniList knows one Sonarr does not."""
-    known = snap.state != "unknown" or (not snap.counted and bool(season.anilist_count))
+    known = snap.state != "unknown" or (
+        not snap.counted and bool(season.anilist_count) and _anilist_news(season, snap.today)
+    )
     return (
         not memory.season_announced and memory.state == "unknown" and known and not snap.with_file
     )

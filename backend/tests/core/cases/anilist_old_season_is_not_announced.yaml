@@ -1,0 +1,7 @@
+# Sonarr lists no episodes for an old season (numbering differs), AniList knows it
+# from 2021: that is not news, so no announcement.
+season: {number: 1, anilist_start: 2021-01-11}
+episodes: {count: 0}
+runs:
+  - {now: 2026-11-01, files: "", expect: {state: unknown, events: []}}
+  - {now: 2026-11-02, anilist_count: 23, files: "", expect: {state: unknown, events: []}}

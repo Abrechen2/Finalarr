@@ -1,0 +1,5 @@
+season: {number: 3, anilist_start: 2026-10-20}
+episodes: {count: 0}
+runs:
+  - {now: 2026-11-01, files: "", expect: {state: unknown, events: []}}
+  - {now: 2026-11-02, anilist_count: 12, files: "", expect: {state: unknown, events: [{type: season_announced, expected: 12}]}}
