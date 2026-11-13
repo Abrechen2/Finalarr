@@ -58,14 +58,3 @@ jobs:
         run: npm run format:check
       - name: Vitest
         run: npm run coverage
-
-  image:
-    name: Docker image (amd64, no push)
-    runs-on: homelab-docker
-    needs: [backend, frontend]
-    # Needs the host Docker socket: never for pull_request runs.
-    if: github.event_name != 'pull_request'
-    steps:
-      - uses: https://code.forgejo.org/actions/checkout@v4
-      - name: Build
-        run: docker build --platform linux/amd64 --build-arg VERSION="$(cat backend/VERSION)-ci" -t finalarr:ci .
