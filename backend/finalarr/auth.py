@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import ipaddress
 
 from flask import Blueprint, Flask, current_app, request, session
 from flask.typing import ResponseReturnValue
@@ -25,6 +26,21 @@ CSRF_VALUE = "finalarr"
 SAFE_METHODS = frozenset({"GET", "HEAD", "OPTIONS"})
 LOGIN_FAILURES_PER_MINUTE = 5
 
+# Home networks only; ipaddress' own is_private also counts documentation ranges.
+LOCAL_NETWORKS = tuple(
+    ipaddress.ip_network(n)
+    for n in (
+        "10.0.0.0/8",
+        "172.16.0.0/12",
+        "192.168.0.0/16",
+        "127.0.0.0/8",
+        "169.254.0.0/16",
+        "::1/128",
+        "fc00::/7",
+        "fe80::/10",
+    )
+)
+
 bp = Blueprint("auth", __name__, url_prefix="/api/v1/auth")
 
 
@@ -39,6 +55,7 @@ def init_auth(app: Flask, settings: Settings) -> None:
         SESSION_COOKIE_SECURE=settings.cookie_secure,
     )
     app.extensions["finalarr.api_key"] = api_key
+    app.extensions["finalarr.auth_mode"] = settings.auth
     app.extensions["finalarr.login_limiter"] = RateLimiter(LOGIN_FAILURES_PER_MINUTE, 60)
 
     @app.before_request
@@ -52,9 +69,26 @@ def init_auth(app: Flask, settings: Settings) -> None:
             return api_error(403, "csrf", "Missing X-Requested-With header")
         if request.endpoint in PUBLIC_ENDPOINTS or _has_valid_session(api_key):
             return None
+        if _local_client_allowed():
+            return None
         return api_error(401, "unauthorized", "API key required")
 
     app.register_blueprint(bp)
+
+
+def _local_client_allowed() -> bool:
+    """FINALARR_AUTH=local: no login for clients on private networks (like Sonarr's
+    "disabled for local addresses"). Behind a reverse proxy this relies on
+    FINALARR_TRUSTED_PROXIES, otherwise every request looks like the proxy's LAN IP."""
+    if current_app.extensions.get("finalarr.auth_mode") != "local":
+        return False
+    try:
+        peer = ipaddress.ip_address(request.remote_addr or "")
+    except ValueError:
+        return False
+    if isinstance(peer, ipaddress.IPv6Address) and peer.ipv4_mapped:
+        peer = peer.ipv4_mapped
+    return any(peer in network for network in LOCAL_NETWORKS)
 
 
 def _key_digest(api_key: str) -> str:
@@ -105,7 +139,10 @@ def logout() -> ResponseReturnValue:
 
 @bp.get("/status")
 def status() -> ResponseReturnValue:
-    return {"authenticated": _has_valid_session(_api_key()) or _has_valid_header(_api_key())}
+    authenticated = (
+        _has_valid_session(_api_key()) or _has_valid_header(_api_key()) or _local_client_allowed()
+    )
+    return {"authenticated": authenticated, "mode": current_app.extensions["finalarr.auth_mode"]}
 
 
 @bp.get("/check")

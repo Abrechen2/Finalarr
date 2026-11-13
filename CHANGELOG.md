@@ -26,5 +26,7 @@ landed and when a season is complete.
   retried twice and then shown with the reason; resend from the event log.
 - **UI** (German, English switchable): overview, series, events, settings, setup wizard,
   dark and light theme.
+- `FINALARR_AUTH=local`: no login from your home network; the API key is still needed from
+  anywhere else.
 - Runs as one Docker container (non-root, PUID/PGID, healthcheck, data in `/config`);
   refuses to start without `FINALARR_API_KEY` and `FINALARR_SECRET_KEY`.

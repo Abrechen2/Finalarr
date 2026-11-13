@@ -1,3 +1,5 @@
+import pytest
+
 from .conftest import API_KEY
 
 CSRF = {"X-Requested-With": "finalarr"}
@@ -23,7 +25,7 @@ def test_health_stays_unauthenticated(client):
 
 
 def test_status_reports_session_state(client):
-    assert client.get("/api/v1/auth/status").get_json() == {"authenticated": False}
+    assert client.get("/api/v1/auth/status").get_json()["authenticated"] is False
 
 
 def test_login_with_wrong_key_is_401(client):
@@ -44,7 +46,7 @@ def test_login_sets_httponly_cookie_and_authenticates(client):
     assert "HttpOnly" in cookie
     assert "SameSite=Lax" in cookie
     assert client.get("/api/v1/auth/check").status_code == 200
-    assert client.get("/api/v1/auth/status").get_json() == {"authenticated": True}
+    assert client.get("/api/v1/auth/status").get_json()["authenticated"] is True
 
 
 def test_cookie_session_needs_csrf_header_for_writes(client):
@@ -112,3 +114,65 @@ def test_forwarded_header_is_ignored_without_trusted_proxies(client):
         )
     response = client.post("/api/v1/auth/login", json={"api_key": API_KEY}, headers=CSRF)
     assert response.status_code == 429
+
+
+def _local_app(settings, tmp_path, **extra):
+    from finalarr.app import create_app
+
+    return create_app(
+        settings=settings.model_copy(update={"auth": "local", **extra}), static_dir=tmp_path
+    ).test_client()
+
+
+@pytest.mark.parametrize("address", ["192.168.1.50", "172.17.0.1", "::ffff:10.1.2.3", "fd00::5"])
+def test_local_mode_lets_lan_clients_in_without_a_key(settings, tmp_path, address):
+    client = _local_app(settings, tmp_path)
+    lan = {"REMOTE_ADDR": address}
+    assert client.get("/api/v1/auth/check", environ_base=lan).status_code == 200
+    assert client.get("/api/v1/auth/status", environ_base=lan).get_json() == {
+        "authenticated": True,
+        "mode": "local",
+    }
+
+
+@pytest.mark.parametrize("address", ["203.0.113.9", "8.8.8.8", "2001:db8::1", "not-an-ip"])
+def test_local_mode_still_needs_the_key_from_outside(settings, tmp_path, address):
+    client = _local_app(settings, tmp_path)
+    public = {"REMOTE_ADDR": address}
+    assert client.get("/api/v1/auth/check", environ_base=public).status_code == 401
+    assert (
+        client.get(
+            "/api/v1/auth/check", headers={"X-Api-Key": API_KEY}, environ_base=public
+        ).status_code
+        == 200
+    )
+
+
+def test_local_mode_keeps_the_csrf_guard_for_writes(settings, tmp_path):
+    client = _local_app(settings, tmp_path)
+    lan = {"REMOTE_ADDR": "10.0.0.5"}
+    assert client.post("/api/v1/auth/logout", environ_base=lan).status_code == 403
+    assert client.post("/api/v1/auth/logout", headers=CSRF, environ_base=lan).status_code == 200
+
+
+def test_required_mode_is_the_default(client):
+    assert client.get("/api/v1/auth/status").get_json() == {
+        "authenticated": False,
+        "mode": "required",
+    }
+
+
+def test_invalid_auth_mode_refuses_to_start():
+    import pytest
+    from cryptography.fernet import Fernet
+
+    from finalarr.config import ConfigError, load_settings
+
+    with pytest.raises(ConfigError, match="FINALARR_AUTH"):
+        load_settings(
+            {
+                "FINALARR_API_KEY": "k" * 32,
+                "FINALARR_SECRET_KEY": Fernet.generate_key().decode(),
+                "FINALARR_AUTH": "none",
+            }
+        )

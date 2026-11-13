@@ -11,7 +11,9 @@
     `python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())'`.
     It encrypts stored Sonarr keys and channel URLs; changing it makes them unreadable.
 
-Optional: `FINALARR_PUBLIC_URL` (adds "Finalarr" links to messages),
+Optional: `FINALARR_AUTH=local` (no login from home networks, like Sonarr's "disabled for
+local addresses"; behind a reverse proxy also set `FINALARR_TRUSTED_PROXIES`, or every
+request looks local), `FINALARR_PUBLIC_URL` (adds "Finalarr" links to messages),
 `FINALARR_TRUSTED_PROXIES` (number of reverse proxies in front),
 `FINALARR_WEBHOOK_ALLOW` (IPs/CIDRs allowed to call the webhook), `PUID`/`PGID`, `TZ`.
 See `.env.example`.
