@@ -69,5 +69,16 @@ matter which one knows first. News hints can be switched off under *Einstellunge
 
 *Einstellungen → Kalender* switches on an iCal feed at `/ical/<token>.ics` (add `?lang=en`
 for English titles). Subscribe to it in any calendar app. The token is the only
-protection: keep the address private, renew it to revoke old subscriptions. If Finalarr is
-reachable from outside your network, the feed is too — that is how calendar apps fetch it.
+protection: keep the address private, renew it to revoke old subscriptions. Google and Outlook fetch
+the feed from their own servers, so it must be reachable from the internet. Expose **only**
+`/ical/` through your reverse proxy (everything else 404), set `FINALARR_FEED_URL` to that
+public base so the settings show the right address, and set `FINALARR_TRUSTED_PROXIES` so
+proxied requests never count as local. Example for nginx:
+
+```nginx
+location / { return 404; }
+location /ical/ {
+    limit_except GET HEAD { deny all; }
+    proxy_pass http://finalarr:5790;
+}
+```

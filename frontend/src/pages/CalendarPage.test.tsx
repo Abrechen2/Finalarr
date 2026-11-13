@@ -98,9 +98,11 @@ test('calendar settings save the scope and the feed can be switched on, copied a
   const calls = mockFetch({
     'GET /api/v1/settings': { body: RULES },
     'PATCH /api/v1/settings': { body: { ...RULES, calendar_scope: 'finales' } },
-    'GET /api/v1/calendar/feed': { body: { enabled: false, path: null } },
-    'PUT /api/v1/calendar/feed': { body: { enabled: true, path: '/ical/abc.ics' } },
-    'POST /api/v1/calendar/feed/rotate': { body: { enabled: true, path: '/ical/def.ics' } },
+    'GET /api/v1/calendar/feed': { body: { enabled: false, path: null, url: null } },
+    'PUT /api/v1/calendar/feed': { body: { enabled: true, path: '/ical/abc.ics', url: null } },
+    'POST /api/v1/calendar/feed/rotate': {
+      body: { enabled: true, path: '/ical/def.ics', url: 'https://cal.example.org/ical/def.ics' },
+    },
   })
   renderWithProviders(<CalendarSettings />)
   fireEvent.click(await screen.findByLabelText('Nur Staffelfinals'))

@@ -65,7 +65,11 @@ def test_series_calendar_switch(api, show):
 
 
 def test_feed_is_off_until_enabled(api, client):
-    assert api.get("/api/v1/calendar/feed").get_json() == {"enabled": False, "path": None}
+    assert api.get("/api/v1/calendar/feed").get_json() == {
+        "enabled": False,
+        "path": None,
+        "url": None,
+    }
     assert api.post("/api/v1/calendar/feed/rotate").status_code == 409
 
 
@@ -103,3 +107,25 @@ def test_feed_is_rate_limited(api, client):
     path = api.put("/api/v1/calendar/feed", json={"enabled": True}).get_json()["path"]
     codes = [client.get(path).status_code for _ in range(31)]
     assert codes[-1] == 429
+
+
+def test_feed_url_uses_the_public_base_when_configured(settings, tmp_path):
+    from finalarr.app import create_app
+
+    from ..conftest import API_KEY
+
+    app = create_app(
+        settings=settings.model_copy(update={"feed_url": "https://finalarr.example.org"}),
+        static_dir=tmp_path,
+    )
+    client = app.test_client()
+    body = client.put(
+        "/api/v1/calendar/feed",
+        json={"enabled": True},
+        headers={"X-Api-Key": API_KEY, "X-Requested-With": "finalarr"},
+    ).get_json()
+    assert body["url"] == f"https://finalarr.example.org{body['path']}"
+
+
+def test_feed_url_is_null_without_a_public_base(api):
+    assert api.put("/api/v1/calendar/feed", json={"enabled": True}).get_json()["url"] is None

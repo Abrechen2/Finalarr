@@ -44,10 +44,13 @@ class Settings(BaseSettings):
     trakt_client_id: SecretStr | None = None
     # Base URL users open Finalarr at; enables "open in Finalarr" links in messages.
     public_url: str | None = None
+    # Public base URL that serves only /ical/ (e.g. through a reverse proxy), shown as
+    # the subscription address so Google/Outlook can reach the feed.
+    feed_url: str | None = None
     # Optional comma list of IPs/CIDRs allowed to call the Sonarr webhook.
     webhook_allow: str = ""
 
-    @field_validator("public_url")
+    @field_validator("public_url", "feed_url")
     @classmethod
     def _public_url_is_http(cls, value: str | None) -> str | None:
         if value and not value.startswith(("http://", "https://")):

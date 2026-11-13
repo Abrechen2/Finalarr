@@ -60,7 +60,13 @@ def _token(s: Session) -> str | None:
 
 
 def _feed_view(token: str | None) -> dict[str, object]:
-    return {"enabled": token is not None, "path": f"/ical/{token}.ics" if token else None}
+    path = f"/ical/{token}.ics" if token else None
+    base = current_app.extensions["finalarr.settings"].feed_url
+    return {
+        "enabled": token is not None,
+        "path": path,
+        "url": f"{base}{path}" if base and path else None,
+    }
 
 
 def _day(name: str) -> date:
