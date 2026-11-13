@@ -1,0 +1,34 @@
+[
+  {
+    "id": 101,
+    "title": "That Time I Got Reincarnated as a Slime",
+    "sortTitle": "that time i got reincarnated as slime",
+    "titleSlug": "that-time-i-got-reincarnated-as-a-slime",
+    "year": 2018,
+    "tvdbId": 353712,
+    "seriesType": "anime",
+    "status": "continuing",
+    "monitored": true,
+    "images": [
+      {"coverType": "banner", "url": "/MediaCover/101/banner.jpg", "remoteUrl": "https://artworks.thetvdb.com/banners/b.jpg"},
+      {"coverType": "poster", "url": "/MediaCover/101/poster.jpg?lastWrite=1", "remoteUrl": "https://artworks.thetvdb.com/banners/p.jpg"}
+    ],
+    "seasons": [
+      {"seasonNumber": 0, "monitored": false, "statistics": {"episodeCount": 0, "episodeFileCount": 2, "totalEpisodeCount": 9}},
+      {"seasonNumber": 3, "monitored": true, "statistics": {"episodeCount": 24, "episodeFileCount": 24, "totalEpisodeCount": 24}}
+    ]
+  },
+  {
+    "id": 102,
+    "title": "Severance",
+    "sortTitle": "severance",
+    "titleSlug": "severance",
+    "year": 2022,
+    "tvdbId": 371980,
+    "seriesType": "standard",
+    "status": "continuing",
+    "monitored": true,
+    "images": [],
+    "seasons": [{"seasonNumber": 1, "monitored": true}]
+  }
+]

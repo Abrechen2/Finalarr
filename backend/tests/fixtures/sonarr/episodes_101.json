@@ -1,0 +1,6 @@
+[
+  {"id": 9001, "seriesId": 101, "seasonNumber": 3, "episodeNumber": 1, "absoluteEpisodeNumber": 49, "title": "Ep 1", "airDateUtc": "2024-04-05T15:00:00Z", "monitored": true, "hasFile": true},
+  {"id": 9002, "seriesId": 101, "seasonNumber": 3, "episodeNumber": 2, "title": "Ep 2", "airDateUtc": "2024-04-12T15:00:00Z", "monitored": true, "hasFile": false},
+  {"id": 9024, "seriesId": 101, "seasonNumber": 3, "episodeNumber": 24, "title": "Finale", "airDateUtc": "2024-09-27T15:00:00Z", "monitored": true, "hasFile": true, "finaleType": "season"},
+  {"id": 9100, "seriesId": 101, "seasonNumber": 0, "episodeNumber": 1, "title": "OVA", "monitored": false, "hasFile": true}
+]
