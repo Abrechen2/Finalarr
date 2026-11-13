@@ -4,7 +4,25 @@ Season-finale and season-complete notifier for Sonarr. Finalarr tells you when a
 followed series or anime has new episodes in your library, when its season finale
 has landed, and when a season is complete — once, on Telegram (more channels later).
 
-**Status:** early development (0.0.x). Not usable yet.
+**Status:** 0.3.0, feature-complete MVP, not released yet. Expect changes.
+
+## What it does
+
+- Watches one or more Sonarr v4 instances (webhook + periodic sync).
+- Keeps an expected episode count per season — from Sonarr, cross-checked with AniList for
+  anime, split cours included — and tells you when the two disagree instead of guessing.
+- Reports, each exactly once: new episodes on disk (as ranges), the season finale, a
+  completed split-cour part, a complete season, and seasons announced before Sonarr knows
+  them.
+- Sends to Telegram, Discord, Pushover, a webhook or any [Apprise](https://github.com/caronc/apprise)
+  URL, in German or English, with quiet hours.
+- Small web UI (German default, English), one Docker container, SQLite.
+
+## Is it for you?
+
+Yes, if you use Sonarr and want to know when a season is *done* — especially for anime with
+split cours or Netflix-style batch releases. No, if you want a calendar, a downloader or
+movie support (Radarr is not supported).
 
 ## Why
 
@@ -13,12 +31,18 @@ how many episodes a season will have. Finalarr keeps an expected-episode model p
 season (Sonarr, plus AniList for anime), a state machine with memory, and idempotent
 notifications.
 
-## Quick start (development)
+## Quick start
+
+See [docs/DEPLOY.md](docs/DEPLOY.md). In short: set `FINALARR_API_KEY` and
+`FINALARR_SECRET_KEY`, run the container on port 5790, open it, follow the setup.
+
+## Development
 
 ```sh
 cd backend && uv venv -p 3.12 .venv && . .venv/bin/activate && uv pip install -e '.[dev]' && pytest
 cd frontend && npm ci && npm test
 docker compose up --build   # http://localhost:5790
+e2e/run.sh                  # end-to-end smoke test with a demo Sonarr
 ```
 
 ## Privacy
