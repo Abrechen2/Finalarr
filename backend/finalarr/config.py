@@ -37,6 +37,20 @@ class Settings(BaseSettings):
     # Reverse proxies in front of Finalarr (e.g. 1 behind NPM). Only then is
     # X-Forwarded-For trusted for the client address.
     trusted_proxies: int = Field(default=0, ge=0, le=5)
+    # Optional comma list of IPs/CIDRs allowed to call the Sonarr webhook.
+    webhook_allow: str = ""
+
+    @field_validator("webhook_allow")
+    @classmethod
+    def _allowlist_parses(cls, value: str) -> str:
+        import ipaddress
+
+        for part in filter(None, (p.strip() for p in value.split(","))):
+            try:
+                ipaddress.ip_network(part, strict=False)
+            except ValueError:
+                raise ValueError(f"not an IP address or network: {part}") from None
+        return value
 
     @field_validator("api_key")
     @classmethod

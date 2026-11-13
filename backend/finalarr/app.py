@@ -9,9 +9,13 @@ from werkzeug.exceptions import NotFound
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import safe_join
 
+from finalarr.api import instances, webhook
+from finalarr.api.common import register_error_handler
 from finalarr.auth import init_auth
 from finalarr.config import Settings, load_settings
+from finalarr.crypto import SecretBox
 from finalarr.db.session import Database
+from finalarr.ratelimit import RateLimiter
 from finalarr.version import get_version
 
 _DEFAULT_STATIC_DIR = Path("/app/static")
@@ -30,6 +34,12 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
     database = Database(settings.data / "finalarr.db")
     database.migrate()
     app.extensions["finalarr.db"] = database
+    app.extensions["finalarr.secrets"] = SecretBox(settings.secret_key.get_secret_value())
+    app.extensions["finalarr.webhook_allow"] = webhook.parse_allowlist(settings.webhook_allow)
+    app.extensions["finalarr.webhook_limiter"] = RateLimiter(webhook.TRIGGERS_PER_MINUTE, 60)
+    register_error_handler(app)
+    app.register_blueprint(instances.bp)
+    app.register_blueprint(webhook.bp)
     spa_dir = static_dir or Path(os.environ.get("FINALARR_STATIC_DIR", _DEFAULT_STATIC_DIR))
 
     @app.get("/health")
