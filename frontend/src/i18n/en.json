@@ -84,13 +84,20 @@
     "tabChannels": "Channels",
     "tabSonarr": "Sonarr",
     "tabSystem": "System",
-    "tabCalendar": "Calendar"
+    "tabCalendar": "Calendar",
+    "tabSources": "Data sources"
   },
   "about": {
     "title": "About Finalarr",
     "version": "Version",
     "licence": "Licence",
-    "source": "Source code"
+    "source": "Source code",
+    "credits": "Data from",
+    "creditsIntro": "Finalarr shows data from these services; which ones are active is under Settings → Data sources.",
+    "tmdbNotice": "This product uses the TMDB API but is not endorsed or certified by TMDB.",
+    "justwatch": "Streaming offers: JustWatch",
+    "tvmaze": "TVmaze (data under CC BY-SA 4.0)",
+    "licences": "Licences of the bundled software and fonts"
   },
   "state": {
     "unknown": "unknown",
@@ -283,7 +290,12 @@
     "s2Count": "You follow {{count}} series.",
     "s2Pick": "Pick one by one",
     "s3Title": "Set up a channel",
-    "s3Body": "Where should the reports go? Send a test message first."
+    "s3Body": "Where should the reports go? Send a test message first.",
+    "syncRunning": "First sync with Sonarr is running …",
+    "syncDone": "Sync with Sonarr finished ({{time}}).",
+    "syncFailed": "Sync with Sonarr failed: {{error}}",
+    "webhookWaiting": "No webhook call yet. Save the webhook in Sonarr and click “Test”.",
+    "webhookOk": "Webhook call from Sonarr arrived ({{time}})."
   },
   "instance": {
     "title": "Sonarr instances",
@@ -407,6 +419,70 @@
     "dubPremiere": "starts {{when}}",
     "dubDelayed": "postponed until {{when}}",
     "dubSource": "Data: AnimeSchedule.net",
-    "errors": "Some sources could not be reached."
+    "errors": "Some sources could not be reached.",
+    "onSource": "Open on {{source}}"
+  },
+  "sources": {
+    "intro": "These are the services Finalarr asks. Each one can be switched off; Finalarr only sends them ids or titles, never your Sonarr address, keys or library.",
+    "terms": "Terms",
+    "needsKey": "Key missing",
+    "needsKeyHint": "Without a key this source is off. Keys come as environment variables (see the docs).",
+    "core": "Core",
+    "coreHint": "Without this source, anime episode counts and split cours are missing.",
+    "toggle": "Use {{name}}",
+    "items": {
+      "anilist": {
+        "use": "Episode counts, split cours and sequels for anime; next episode, trailer, streaming links.",
+        "terms": "Free for non-commercial use; no bulk harvesting."
+      },
+      "fribb": {
+        "use": "Maps Sonarr seasons (TVDB) to AniList entries; downloaded weekly.",
+        "terms": "No licence stated; Finalarr only downloads the list and does not redistribute it."
+      },
+      "jikan": {
+        "use": "Second source for announced anime sequels.",
+        "terms": "Unofficial MyAnimeList API (Jikan, MIT); data from MyAnimeList."
+      },
+      "tvmaze": {
+        "use": "Spots renewed series early; channel and next episode.",
+        "terms": "Data under CC BY-SA 4.0; Finalarr links back to TVmaze as the source."
+      },
+      "tmdb": {
+        "use": "Another source for season announcements; where to watch (per country) and trailers.",
+        "terms": "TMDB API terms with logo and notice; streaming offers by JustWatch."
+      },
+      "trakt": {
+        "use": "Third source for season announcements.",
+        "terms": "Trakt API terms."
+      },
+      "animeschedule": {
+        "use": "English dub dates and delay notes.",
+        "terms": "Visible link to AnimeSchedule.net; no commercial use, no AI training."
+      },
+      "livechart": {
+        "use": "Anime headlines that name a followed series.",
+        "terms": "RSS feed: headline with a link to the article."
+      },
+      "animenewsnetwork": {
+        "use": "Anime headlines that name a followed series.",
+        "terms": "RSS feed: headline with a link to the article."
+      },
+      "anime2you": {
+        "use": "German anime headlines that name a followed series.",
+        "terms": "RSS feed: headline with a link to the article."
+      },
+      "crunchyroll": {
+        "use": "English anime headlines that name a followed series.",
+        "terms": "RSS feed: headline with a link to the article."
+      },
+      "google_news": {
+        "use": "News box on the series page: searches for the series title.",
+        "terms": "RSS search; Finalarr only sends the title."
+      },
+      "youtube": {
+        "use": "Trailer on the series page, loaded only after a click (youtube-nocookie.com).",
+        "terms": "Embedded player under YouTube's terms."
+      }
+    }
   }
 }

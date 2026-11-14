@@ -59,6 +59,8 @@ class SonarrInstance(Base):
     basic_pass_enc: Mapped[str | None] = mapped_column(Text)
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     last_sync_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Last accepted webhook call (Sonarr's "Test" included): the setup shows it works.
+    last_webhook_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     last_error: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 

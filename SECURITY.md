@@ -6,6 +6,11 @@ Do not open a public issue. You get a first answer within a week.
 
 Only the latest release (and the current release candidate) gets fixes.
 
+## Before you expose anything
+
+Finalarr is built for your home network. Never forward its port to the internet; use a
+VPN or a reverse proxy with HTTPS and `FINALARR_COOKIE_SECURE=true`.
+
 ## Scope notes
 
 - Finalarr is meant for your home network. The API key is the only credential; anyone

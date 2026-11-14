@@ -2,21 +2,31 @@ name: Release
 
 # vX.Y.Z-rc.N → amd64 image, GitHub pre-release.
 # vX.Y.Z      → amd64 + arm64 image tagged X.Y.Z, X.Y and latest, GitHub release.
+# Nothing is published unless CI passes on the tagged commit and the image starts
+# and answers /health. Images carry an SBOM and provenance and are signed (cosign,
+# keyless).
 
 on:
   push:
     tags: ["v*"]
 
 permissions:
-  contents: write
-  packages: write
+  contents: read
 
 env:
   REGISTRY: ghcr.io
 
 jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
   image:
+    needs: ci
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      id-token: write  # keyless signing
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Version
@@ -42,6 +52,25 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Smoke test (amd64 image starts and answers /health)
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          platforms: linux/amd64
+          load: true
+          tags: finalarr:smoke
+          build-args: VERSION=${{ steps.v.outputs.version }}
+          cache-from: type=gha
+      - name: Run smoke test
+        run: |
+          docker run -d --name smoke -p 5790:5790 \
+            -e FINALARR_API_KEY="$(openssl rand -hex 32)" \
+            -e FINALARR_SECRET_KEY="$(openssl rand -base64 32 | tr '+/' '-_')" finalarr:smoke
+          for _ in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:5790/health; then docker rm -f smoke; exit 0; fi
+            sleep 2
+          done
+          docker logs smoke; exit 1
       - id: meta
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
@@ -51,7 +80,8 @@ jobs:
             type=semver,pattern={{major}}.{{minor}},value=${{ steps.v.outputs.version }},enable=${{ steps.v.outputs.prerelease == 'false' }}
             type=raw,value=latest,enable=${{ steps.v.outputs.prerelease == 'false' }}
             type=raw,value=rc-latest,enable=${{ steps.v.outputs.prerelease == 'true' }}
-      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+      - id: build
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           platforms: ${{ steps.v.outputs.platforms }}
@@ -61,7 +91,11 @@ jobs:
           build-args: VERSION=${{ steps.v.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          provenance: false
+          provenance: mode=max
+          sbom: true
+      - uses: sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532 # v4.1.3
+      - name: Sign image
+        run: cosign sign --yes "${{ steps.v.outputs.image }}@${{ steps.build.outputs.digest }}"
       - name: Release notes from CHANGELOG
         run: |
           version="$(cat backend/VERSION)"

@@ -12,6 +12,7 @@ import binascii
 import hmac
 import ipaddress
 import json
+from datetime import UTC, datetime
 from typing import Any
 
 from flask import Blueprint, current_app, request
@@ -102,7 +103,9 @@ def sonarr(token: str) -> ResponseReturnValue:
         if len(raw) > MAX_BODY_BYTES:
             return api_error(413, "too_large", "Body too large")
         body = _json_or_none(raw)
+        instance.last_webhook_at = datetime.now(UTC)
         if isinstance(body, dict) and body.get("eventType") == "Test":
+            s.commit()
             return {"ok": True}
         enqueue(s, instance.id, _series_id(body))
         s.commit()

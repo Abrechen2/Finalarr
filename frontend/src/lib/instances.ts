@@ -9,12 +9,16 @@ export interface InstanceView {
   enabled: boolean
   webhook_path: string
   last_sync_at: string | null
+  last_webhook_at?: string | null
   last_error: string | null
 }
 
-export function useInstances() {
+export function useInstances(
+  refetchInterval?: (data: InstanceView[] | undefined) => number | false,
+) {
   return useQuery({
     queryKey: ['instances'],
     queryFn: () => apiFetch<InstanceView[]>('/api/v1/instances'),
+    refetchInterval: refetchInterval ? (query) => refetchInterval(query.state.data) : undefined,
   })
 }

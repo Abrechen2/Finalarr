@@ -65,6 +65,9 @@ def serialize(instance: SonarrInstance) -> dict[str, Any]:
         "webhook_token": instance.webhook_token,
         "webhook_path": f"/webhook/sonarr/{instance.webhook_token}",
         "last_sync_at": instance.last_sync_at.isoformat() if instance.last_sync_at else None,
+        "last_webhook_at": (
+            instance.last_webhook_at.isoformat() if instance.last_webhook_at else None
+        ),
         "last_error": instance.last_error,
     }
 

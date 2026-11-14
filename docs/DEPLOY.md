@@ -1,5 +1,10 @@
 # Deploying Finalarr
 
+> **Keep Finalarr inside your home network.** Do not forward port 5790 to the internet.
+> For access from outside use a VPN, or a reverse proxy with HTTPS (see *Remote access*
+> below). With `FINALARR_AUTH=local`, anyone on your network can use Finalarr without
+> logging in.
+
 ## Requirements
 
 - Docker, amd64 or arm64 (release candidates are amd64 only). Image:
@@ -33,9 +38,19 @@ Data lives in `/config` (SQLite database, log, scheduler lock).
 ## Updates and backups
 
 Pull the new image and recreate the container (`docker compose pull && docker compose up
--d`); database migrations run on start. Back up `/config` and keep both keys: without the
-same `FINALARR_SECRET_KEY` a restored database cannot decrypt the stored Sonarr keys and
-channel URLs.
+-d`); database migrations run on start and are not reversible, so take a backup first.
+
+Backup while Finalarr runs (a plain `cp` of `finalarr.db` can catch it mid-write):
+
+```sh
+docker exec finalarr python -m finalarr.backup        # → /config/backups/finalarr-<time>.db
+```
+
+Or stop the container and copy the whole `/config` folder. Keep both keys with the
+backup: without the same `FINALARR_SECRET_KEY` a restored database cannot decrypt the
+stored Sonarr keys and channel URLs. To restore, stop the container, put the backup in
+place as `/config/finalarr.db` (delete `finalarr.db-wal` and `finalarr.db-shm` next to
+it) and start again.
 
 ## Remote access and HTTPS
 

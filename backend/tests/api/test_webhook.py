@@ -162,3 +162,9 @@ def test_chunked_body_without_length_is_capped_too(client, app, instance):
     )
     assert response.status_code == 413
     assert requests_in(app) == []
+
+
+def test_any_accepted_call_records_when_sonarr_last_reached_finalarr(client, api, instance):
+    assert api.get("/api/v1/instances").get_json()[0]["last_webhook_at"] is None
+    client.post(instance["webhook_path"], json={"eventType": "Test"})
+    assert api.get("/api/v1/instances").get_json()[0]["last_webhook_at"] is not None

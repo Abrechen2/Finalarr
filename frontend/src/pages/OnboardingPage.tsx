@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 import { PageTitle } from '../components/EmptyState'
 import { apiFetch } from '../lib/api'
+import { formatDate } from '../lib/format'
 import { useFollowMonitored } from '../lib/series'
 import type { Page, SeriesSummary } from '../lib/types'
 import { ChannelForm } from './ChannelsSettings'
@@ -12,9 +13,40 @@ import { InstanceForm, WebhookUrl } from './InstancesSettings'
 
 const button = 'rounded-card border border-line px-3 py-1.5 text-sm text-muted hover:text-ink'
 
+const POLL_MS = 3000
+
+/** First sync and webhook: shows when the connection to Sonarr really works. */
+function SetupStatus({ instance }: { instance: InstanceView }) {
+  const { t, i18n } = useTranslation()
+  const time = (iso: string) => formatDate(iso, i18n.language, true)
+  return (
+    <ul className="mt-3 flex flex-col gap-1 text-sm" aria-live="polite">
+      <li
+        className={
+          instance.last_error ? 'text-bad' : instance.last_sync_at ? 'text-ok' : 'text-muted'
+        }
+      >
+        {instance.last_error
+          ? t('onboarding.syncFailed', { error: instance.last_error })
+          : instance.last_sync_at
+            ? t('onboarding.syncDone', { time: time(instance.last_sync_at) })
+            : t('onboarding.syncRunning')}
+      </li>
+      <li className={instance.last_webhook_at ? 'text-ok' : 'text-muted'}>
+        {instance.last_webhook_at
+          ? t('onboarding.webhookOk', { time: time(instance.last_webhook_at) })
+          : t('onboarding.webhookWaiting')}
+      </li>
+    </ul>
+  )
+}
+
 function StepSonarr({ onNext }: { onNext: () => void }) {
   const { t } = useTranslation()
-  const instances = useInstances()
+  // Poll until the first sync and a webhook call have both arrived.
+  const instances = useInstances((data) =>
+    data?.[0] && (!data[0].last_sync_at || !data[0].last_webhook_at) ? POLL_MS : false,
+  )
   const [created, setCreated] = useState<InstanceView | null>(null)
   const instance = created ?? instances.data?.[0] ?? null
   return (
@@ -26,6 +58,7 @@ function StepSonarr({ onNext }: { onNext: () => void }) {
             {instance.name} · {instance.url}
           </p>
           <WebhookUrl path={instance.webhook_path} />
+          <SetupStatus instance={instances.data?.find((i) => i.id === instance.id) ?? instance} />
         </div>
       ) : (
         <InstanceForm onSaved={setCreated} />

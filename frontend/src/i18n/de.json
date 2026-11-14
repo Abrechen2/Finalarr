@@ -84,13 +84,20 @@
     "tabChannels": "Kanäle",
     "tabSonarr": "Sonarr",
     "tabSystem": "System",
-    "tabCalendar": "Kalender"
+    "tabCalendar": "Kalender",
+    "tabSources": "Datenquellen"
   },
   "about": {
     "title": "Über Finalarr",
     "version": "Version",
     "licence": "Lizenz",
-    "source": "Quellcode"
+    "source": "Quellcode",
+    "credits": "Daten von",
+    "creditsIntro": "Finalarr zeigt Daten dieser Dienste an; welche aktiv sind, steht unter Einstellungen → Datenquellen.",
+    "tmdbNotice": "Dieses Produkt nutzt die TMDB-API, ist aber nicht von TMDB unterstützt oder zertifiziert.",
+    "justwatch": "Streaming-Angebote: JustWatch",
+    "tvmaze": "TVmaze (Daten unter CC BY-SA 4.0)",
+    "licences": "Lizenzen der mitgelieferten Software und Schriften"
   },
   "state": {
     "unknown": "unbekannt",
@@ -283,7 +290,12 @@
     "s2Count": "Du folgst {{count}} Serien.",
     "s2Pick": "Einzeln auswählen",
     "s3Title": "Kanal einrichten",
-    "s3Body": "Wohin sollen die Meldungen gehen? Schick zuerst eine Testnachricht."
+    "s3Body": "Wohin sollen die Meldungen gehen? Schick zuerst eine Testnachricht.",
+    "syncRunning": "Erster Abgleich mit Sonarr läuft …",
+    "syncDone": "Abgleich mit Sonarr fertig ({{time}}).",
+    "syncFailed": "Abgleich mit Sonarr fehlgeschlagen: {{error}}",
+    "webhookWaiting": "Noch kein Webhook angekommen. In Sonarr den Webhook speichern und auf „Test“ klicken.",
+    "webhookOk": "Webhook von Sonarr angekommen ({{time}})."
   },
   "instance": {
     "title": "Sonarr-Instanzen",
@@ -407,6 +419,70 @@
     "dubPremiere": "Start {{when}}",
     "dubDelayed": "verschoben bis {{when}}",
     "dubSource": "Daten: AnimeSchedule.net",
-    "errors": "Nicht alle Quellen waren erreichbar."
+    "errors": "Nicht alle Quellen waren erreichbar.",
+    "onSource": "{{source}} öffnen"
+  },
+  "sources": {
+    "intro": "Diese Dienste fragt Finalarr an. Jeder lässt sich abschalten; Finalarr schickt ihnen nur IDs oder Titel, nie deine Sonarr-Adresse, Schlüssel oder Bibliothek.",
+    "terms": "Bedingungen",
+    "needsKey": "Schlüssel fehlt",
+    "needsKeyHint": "Ohne Schlüssel ist diese Quelle aus. Schlüssel kommen als Umgebungsvariable (siehe Doku).",
+    "core": "Grundfunktion",
+    "coreHint": "Ohne diese Quelle fehlen Anime-Folgenzahlen und geteilte Staffeln.",
+    "toggle": "{{name}} verwenden",
+    "items": {
+      "anilist": {
+        "use": "Folgenzahlen, geteilte Staffeln und Fortsetzungen für Anime; nächste Folge, Trailer, Streaming-Links.",
+        "terms": "Kostenlos für nicht-kommerzielle Nutzung; keine Massenabfragen."
+      },
+      "fribb": {
+        "use": "Ordnet Sonarr-Staffeln (TVDB) den AniList-Einträgen zu; wöchentlich geladen.",
+        "terms": "Keine Lizenz angegeben; Finalarr lädt die Liste nur, verteilt sie nicht weiter."
+      },
+      "jikan": {
+        "use": "Zweite Quelle für angekündigte Anime-Fortsetzungen.",
+        "terms": "Inoffizielle MyAnimeList-API (Jikan, MIT); Daten von MyAnimeList."
+      },
+      "tvmaze": {
+        "use": "Verlängerte Serien früh erkennen; Sender und nächste Folge.",
+        "terms": "Daten unter CC BY-SA 4.0; Finalarr verlinkt TVmaze als Quelle."
+      },
+      "tmdb": {
+        "use": "Weitere Quelle für Staffel-Ankündigungen; wo es läuft (pro Land) und Trailer.",
+        "terms": "TMDB-API-Bedingungen mit Logo und Hinweis; Streaming-Angebote von JustWatch."
+      },
+      "trakt": {
+        "use": "Dritte Quelle für Staffel-Ankündigungen.",
+        "terms": "Trakt-API-Bedingungen."
+      },
+      "animeschedule": {
+        "use": "Termine der englischen Synchro und Hinweise zu Verschiebungen.",
+        "terms": "Sichtbarer Link zu AnimeSchedule.net; keine kommerzielle Nutzung, kein KI-Training."
+      },
+      "livechart": {
+        "use": "Anime-Schlagzeilen, die eine gefolgte Serie nennen.",
+        "terms": "RSS-Feed: Schlagzeile mit Link zum Artikel."
+      },
+      "animenewsnetwork": {
+        "use": "Anime-Schlagzeilen, die eine gefolgte Serie nennen.",
+        "terms": "RSS-Feed: Schlagzeile mit Link zum Artikel."
+      },
+      "anime2you": {
+        "use": "Deutsche Anime-Schlagzeilen, die eine gefolgte Serie nennen.",
+        "terms": "RSS-Feed: Schlagzeile mit Link zum Artikel."
+      },
+      "crunchyroll": {
+        "use": "Englische Anime-Schlagzeilen, die eine gefolgte Serie nennen.",
+        "terms": "RSS-Feed: Schlagzeile mit Link zum Artikel."
+      },
+      "google_news": {
+        "use": "News-Box auf der Serienseite: sucht nach dem Serientitel.",
+        "terms": "RSS-Suche; Finalarr sendet nur den Titel."
+      },
+      "youtube": {
+        "use": "Trailer auf der Serienseite, erst nach Klick geladen (youtube-nocookie.com).",
+        "terms": "Eingebetteter Player nach den YouTube-Bedingungen."
+      }
+    }
   }
 }

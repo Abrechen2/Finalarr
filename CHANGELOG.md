@@ -59,8 +59,16 @@ landed and when a season is complete.
   (`FINALARR_ANIMESCHEDULE_TOKEN`).
 - `FINALARR_AUTH=local`: no login from your home network; the API key is still needed from
   anywhere else.
+- **Data sources page** (*Einstellungen → Datenquellen*): every outside service Finalarr
+  asks, what for and under which terms, each with an on/off switch. The About page credits
+  the sources (TMDB logo and notice, TVmaze under CC BY-SA, JustWatch), and the series page
+  links back to the source of each piece of data.
+- **Setup shows that it works**: the first sync with Sonarr and the first webhook call
+  (Sonarr's "Test" button) are confirmed live.
+- **Backups while running**: `docker exec finalarr python -m finalarr.backup`.
 - **Open source** on GitHub: CI, release images on GHCR (amd64; arm64 too for final
-  releases), Unraid Community Applications template, issue templates, private security
+  releases; published only after CI and a start test, with SBOM, provenance and a cosign
+  signature), Unraid Community Applications template, issue templates, private security
   reporting, licence notices in the image (`/licenses/INDEX.txt`).
 - Runs as one Docker container (non-root, PUID/PGID, healthcheck, data in `/config`);
   refuses to start without `FINALARR_API_KEY` and `FINALARR_SECRET_KEY`.

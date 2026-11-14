@@ -78,12 +78,15 @@ Until 0.3.0 is final, only release candidates exist: use `ghcr.io/abrechen2/fina
 Search for **Finalarr** in Community Applications, or use the template in
 [`unraid/my-finalarr.xml`](unraid/my-finalarr.xml).
 
+Keep it inside your home network: don't forward port 5790; for remote access use a VPN or
+a reverse proxy with HTTPS (see [docs/DEPLOY.md](docs/DEPLOY.md)).
+
 ### Setup
 
 The setup page walks you through it: add your Sonarr (URL and API key), paste the
 webhook URL Finalarr shows into *Sonarr → Settings → Connect → Webhook*, choose the series
 to follow and add a notification channel. All other options, optional keys (TMDB, Trakt,
-AnimeSchedule.net) and reverse-proxy notes: [docs/DEPLOY.md](docs/DEPLOY.md).
+AnimeSchedule.net), backups, updates and reverse-proxy notes: [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ## Privacy
 
@@ -91,7 +94,8 @@ Finalarr talks to your Sonarr, the notification channels you configure, and publ
 metadata sources: AniList and Fribb's anime-lists (GitHub), MyAnimeList via Jikan, TVmaze,
 the news feeds of LiveChart.me, Anime News Network, Anime2You and Crunchyroll, Google News
 (the series title, for the news box; can be switched off), plus TMDB, Trakt and
-AnimeSchedule.net only if you add their keys. A trailer is loaded from YouTube
+AnimeSchedule.net only if you add their keys. Every source can be switched off under
+*Settings → Data sources*, which also lists each one's terms. A trailer is loaded from YouTube
 (youtube-nocookie.com) only when you click it. It sends TVDB/AniList ids or plain search
 terms — never your Sonarr address, keys or library contents. No telemetry.
 
