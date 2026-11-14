@@ -32,6 +32,9 @@ EVENT_TYPES = (
 )
 SERIES_TYPES = ("standard", "anime", "daily")
 CHANNEL_KINDS = ("telegram", "discord", "pushover", "webhook", "apprise")
+MEDIA_SERVER_KINDS = ("emby", "jellyfin", "plex")
+# auto: followed once someone watches it; always/never: the user decided.
+FOLLOW_MODES = ("auto", "always", "never")
 DELIVERY_STATES = ("pending", "sent", "failed")
 
 
@@ -74,6 +77,7 @@ class Series(Base):
     __table_args__ = (
         UniqueConstraint("instance_id", "sonarr_id"),
         CheckConstraint(_in("series_type", SERIES_TYPES), name="ck_series_type"),
+        CheckConstraint(_in("follow_mode", FOLLOW_MODES), name="ck_series_follow_mode"),
         CheckConstraint(
             _in("anilist_resolution", ("auto", "manual", "unresolved", "none")),
             name="ck_series_anilist",
@@ -100,6 +104,7 @@ class Series(Base):
     tags_json: Mapped[str] = mapped_column(Text, default="[]", server_default="[]")
     monitored: Mapped[bool] = mapped_column(Boolean, default=True)
     followed: Mapped[bool] = mapped_column(Boolean, default=False)
+    follow_mode: Mapped[str] = mapped_column(String(10), default="auto", server_default="auto")
     include_specials: Mapped[bool] = mapped_column(Boolean, default=False)
     respect_monitoring: Mapped[bool] = mapped_column(Boolean, default=True)
     # Shown in the calendar and the iCal feed (when followed).
@@ -317,3 +322,62 @@ class AnilistCache(Base):
     key: Mapped[str] = mapped_column(String(200), primary_key=True)
     body_json: Mapped[str] = mapped_column(Text)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class MediaServer(Base):
+    """An Emby, Jellyfin or Plex server whose watch history drives automatic following."""
+
+    __tablename__ = "media_servers"
+    __table_args__ = (CheckConstraint(_in("kind", MEDIA_SERVER_KINDS), name="ck_media_kind"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    kind: Mapped[str] = mapped_column(String(10))
+    name: Mapped[str] = mapped_column(String(100), unique=True)
+    url: Mapped[str] = mapped_column(String(500))
+    token_enc: Mapped[str] = mapped_column(Text)
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    last_sync_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_error: Mapped[str | None] = mapped_column(Text)
+    # Titles of watched series that match no Sonarr series (JSON list), shown in the UI.
+    unmatched_json: Mapped[str] = mapped_column(Text, default="[]", server_default="[]")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    users: Mapped[list[MediaUser]] = relationship(
+        back_populates="server", cascade="all, delete-orphan"
+    )
+
+
+class MediaUser(Base):
+    __tablename__ = "media_users"
+    __table_args__ = (UniqueConstraint("server_id", "remote_id"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    server_id: Mapped[int] = mapped_column(ForeignKey("media_servers.id", ondelete="CASCADE"))
+    remote_id: Mapped[str] = mapped_column(String(100))
+    name: Mapped[str] = mapped_column(String(200))
+    # Only selected users count; nothing is stored for the others.
+    selected: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    server: Mapped[MediaServer] = relationship(back_populates="users")
+    watched: Mapped[list[WatchedEpisode]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+
+
+class WatchedEpisode(Base):
+    """One episode a selected user has watched: by season/episode number, because
+    Finalarr keeps episode rows only for followed series. Day precision, no history."""
+
+    __tablename__ = "watched_episodes"
+
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("media_users.id", ondelete="CASCADE"), primary_key=True
+    )
+    series_id: Mapped[int] = mapped_column(
+        ForeignKey("series.id", ondelete="CASCADE"), primary_key=True, index=True
+    )
+    season_number: Mapped[int] = mapped_column(Integer, primary_key=True)
+    episode_number: Mapped[int] = mapped_column(Integer, primary_key=True)
+    watched_on: Mapped[date | None] = mapped_column(Date)
+
+    user: Mapped[MediaUser] = relationship(back_populates="watched")

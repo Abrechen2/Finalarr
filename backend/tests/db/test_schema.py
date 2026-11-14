@@ -156,3 +156,30 @@ def test_sequel_announced_is_an_allowed_event_type(db):
         s.add(m.Event(type="nonsense", fingerprint="bad", payload_json="{}"))
         with pytest.raises(IntegrityError):
             s.flush()
+
+
+def test_followed_series_keep_being_followed_as_always(db):
+    db.downgrade("0009")
+    with db.engine.begin() as c:
+        c.execute(
+            text(
+                "INSERT INTO sonarr_instances (id, name, url, api_key_enc, webhook_token, enabled,"
+                " created_at) VALUES (1, 'Home', 'http://s', 'x', 't', 1, '2026-01-01')"
+            )
+        )
+        for sid, followed in ((1, 1), (2, 0)):
+            c.execute(
+                text(
+                    "INSERT INTO series (instance_id, sonarr_id, title, sort_title, title_slug,"
+                    " series_type, status, tags_json, monitored, followed, include_specials,"
+                    " respect_monitoring, calendar, anilist_resolution, overview, network,"
+                    " genres_json, updated_at) VALUES (1, :sid, :title, '', '',"
+                    " 'standard', '', '[]', 1, :followed, 0, 1, 1, 'none', '', '', '[]',"
+                    " '2026-01-01')"
+                ),
+                {"sid": sid, "title": f"S{sid}", "followed": followed},
+            )
+    db.migrate()
+    with db.engine.connect() as c:
+        modes = dict(c.execute(text("SELECT sonarr_id, follow_mode FROM series")).all())
+    assert modes == {1: "always", 2: "auto"}
