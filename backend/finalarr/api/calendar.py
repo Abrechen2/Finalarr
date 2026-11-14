@@ -83,7 +83,16 @@ def calendar_range() -> ResponseReturnValue:
         raise ApiProblem(400, "bad_request", f"end must be 0..{MAX_RANGE_DAYS} days after start")
     with database().session() as s:
         entries = build_entries(s, start, end, options_from(load_settings(s)))
-    return {"entries": [{**asdict(e), "start": e.start.isoformat()} for e in entries]}
+    return {
+        "entries": [
+            {
+                **asdict(e),
+                "start": e.start.isoformat(),
+                "delayed_from": e.delayed_from.isoformat() if e.delayed_from else None,
+            }
+            for e in entries
+        ]
+    }
 
 
 @bp.get("/api/v1/calendar/feed")

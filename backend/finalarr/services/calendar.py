@@ -46,6 +46,7 @@ class CalendarEntry:
     series_id: int | None
     has_file: bool = False
     sequel_title: str | None = None
+    delayed_from: datetime | None = None
 
 
 def _aware(value: datetime) -> datetime:
@@ -112,6 +113,9 @@ def _episode_entries(
                             all_day=False,
                             series_id=series.id,
                             has_file=episode.has_file,
+                            delayed_from=_aware(episode.delayed_from)
+                            if episode.delayed_from
+                            else None,
                         )
                     )
     return found
@@ -173,6 +177,8 @@ _LABELS = {
         "season": "Staffel {n}",
         "announced": "Start angekündigt",
         "on_disk": "bereits vorhanden",
+        "delayed": "verschoben (vorher {day})",
+        "day": "%d.%m.",
     },
     "en": {
         "finale": "Finale",
@@ -180,6 +186,8 @@ _LABELS = {
         "season": "Season {n}",
         "announced": "start announced",
         "on_disk": "already on disk",
+        "delayed": "postponed (was {day})",
+        "day": "%d/%m",
     },
 }
 
@@ -192,6 +200,8 @@ def summary(entry: CalendarEntry, language: str) -> str:
     text = f"{entry.title} S{entry.season:02d}E{(entry.episode or 0):02d}"
     if entry.kind in ("finale", "premiere"):
         text += f" – {labels[entry.kind]}"
+    if entry.delayed_from:
+        text += " – " + labels["delayed"].format(day=entry.delayed_from.strftime(labels["day"]))
     return text
 
 

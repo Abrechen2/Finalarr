@@ -11,7 +11,7 @@ import json
 import logging
 from collections.abc import Callable, Iterable
 from dataclasses import replace
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from sqlalchemy import select
@@ -20,6 +20,7 @@ from sqlalchemy.orm import Session, object_session
 
 from finalarr.core.codec import dump_memory, load_memory
 from finalarr.core.evaluator import evaluate
+from finalarr.core.fingerprint import fingerprint
 from finalarr.core.model import Episode as CoreEpisode
 from finalarr.core.model import Evaluation, Part, Policy, SeasonInput, SeasonMemory
 from finalarr.crypto import SecretBox
@@ -33,6 +34,9 @@ log = logging.getLogger(__name__)
 
 ClientFactory = Callable[[m.SonarrInstance], Any]
 EventHook = Callable[[Session, list[m.Event]], None]
+
+# Sonarr nudges air times by an hour or two; a postponement moves a date by days.
+DELAY_THRESHOLD = timedelta(hours=20)
 
 
 def default_client_factory(box: SecretBox) -> ClientFactory:
@@ -148,6 +152,11 @@ class Reconciler:
         row.status = series.status
         row.monitored = series.monitored
         row.poster_url = series.poster_url
+        row.fanart_url = series.fanart_url
+        row.overview = series.overview
+        row.network = series.network
+        row.runtime = series.runtime or None
+        row.genres_json = json.dumps(list(series.genres))
         row.tags_json = json.dumps(sorted(labels[t] for t in series.tags if t in labels))
         seasons = {season.number: season for season in row.seasons}
         for remote in series.seasons:
@@ -179,8 +188,11 @@ class Reconciler:
             watched = series_watched(series)
             created: list[m.Event] = []
             for number, season in seasons.items():
-                _sync_episodes(season, by_season.get(number, []))
+                delays = _sync_episodes(season, by_season.get(number, []), now)
                 s.flush()
+                if watched:
+                    recorded = (record_delay(s, series, season, *delay) for delay in delays)
+                    created += [event for event in recorded if event is not None]
                 created += self._evaluate(s, series, season, policy, now, watched)
             if created and self._on_events:
                 self._on_events(s, created)
@@ -244,7 +256,21 @@ def season_input(series: m.Series, season: m.Season) -> SeasonInput:
     )
 
 
-def _sync_episodes(season: m.Season, remote: Iterable[SonarrEpisode]) -> None:
+Delay = tuple[m.Episode, datetime, datetime | None]
+
+
+def _postponed_from(row: m.Episode, new: datetime | None, now: datetime) -> datetime | None:
+    """Old date of an upcoming episode without a file whose date moved back by days or
+    vanished; None when it was not postponed."""
+    old = _utc(row.air_date_utc)
+    if old is None or old <= now or row.has_file:
+        return None
+    return old if new is None or new - old >= DELAY_THRESHOLD else None
+
+
+def _sync_episodes(season: m.Season, remote: Iterable[SonarrEpisode], now: datetime) -> list[Delay]:
+    """Mirror Sonarr's episodes; returns the postponed ones (episode, old, new)."""
+    delays: list[Delay] = []
     current = {e.sonarr_episode_id: e for e in season.episodes}
     incoming = {e.id: e for e in remote}
     gone_ids = current.keys() - incoming.keys()
@@ -259,6 +285,11 @@ def _sync_episodes(season: m.Season, remote: Iterable[SonarrEpisode]) -> None:
         if row is None:
             row = m.Episode(sonarr_episode_id=sonarr_id, number=episode.episode_number)
             season.episodes.append(row)
+        elif (old := _postponed_from(row, episode.air_date_utc, now)) is not None:
+            delays.append((row, old, episode.air_date_utc))
+            row.delayed_from = row.delayed_from or old
+        if episode.air_date_utc is not None and episode.air_date_utc <= now:
+            row.delayed_from = None
         row.number = episode.episode_number
         row.absolute_number = episode.absolute_episode_number
         row.title = episode.title
@@ -266,6 +297,7 @@ def _sync_episodes(season: m.Season, remote: Iterable[SonarrEpisode]) -> None:
         row.monitored = episode.monitored
         row.has_file = episode.has_file
         row.finale_type = episode.finale_type
+    return delays
 
 
 def _store_result(season: m.Season, result: Evaluation, now: datetime) -> None:
@@ -302,20 +334,63 @@ def record_events(
         if event.type == "part_complete":
             part = next(p for p in season.parts if p.part_index == event.payload["part"])
             payload |= {"part_title": part.title, "parts_mode": season.parts_mode}
-        inserted = s.execute(
-            insert(m.Event)
-            .values(
-                type=event.type,
-                instance_id=series.instance_id,
-                series_id=series.id,
-                season_id=season.id,
-                fingerprint=event.fingerprint,
-                payload_json=json.dumps(payload),
-                created_at=datetime.now(UTC),
-            )
-            .on_conflict_do_nothing(index_elements=["fingerprint"])
-            .returning(m.Event.id)
-        ).scalar()
-        if inserted is not None:
-            created.append(s.get_one(m.Event, inserted))
+        row = _insert_event(s, series, season, event.type, event.fingerprint, payload)
+        if row is not None:
+            created.append(row)
     return created
+
+
+def record_delay(
+    s: Session,
+    series: m.Series,
+    season: m.Season,
+    episode: m.Episode,
+    old: datetime,
+    new: datetime | None,
+) -> m.Event | None:
+    """``episode_delayed`` once per episode and new date."""
+    key = f"{episode.number}|{new.isoformat() if new else 'open'}"
+    payload = {
+        "season": season.number,
+        "episode": episode.number,
+        "episode_title": episode.title,
+        "old": old.isoformat(),
+        "new": new.isoformat() if new else None,
+        "title": series.title,
+        "series_type": series.series_type,
+        "sonarr_url": f"{series.instance.url}/series/{series.title_slug}",
+    }
+    return _insert_event(
+        s,
+        series,
+        season,
+        "episode_delayed",
+        fingerprint("episode_delayed", series.instance_id, series.sonarr_id, season.number, key),
+        payload,
+    )
+
+
+def _insert_event(
+    s: Session,
+    series: m.Series,
+    season: m.Season,
+    event_type: str,
+    key: str,
+    payload: dict[str, Any],
+) -> m.Event | None:
+    """Insert one event; an existing fingerprint is a no-op."""
+    inserted = s.execute(
+        insert(m.Event)
+        .values(
+            type=event_type,
+            instance_id=series.instance_id,
+            series_id=series.id,
+            season_id=season.id,
+            fingerprint=key,
+            payload_json=json.dumps(payload),
+            created_at=datetime.now(UTC),
+        )
+        .on_conflict_do_nothing(index_elements=["fingerprint"])
+        .returning(m.Event.id)
+    ).scalar()
+    return s.get_one(m.Event, inserted) if inserted is not None else None

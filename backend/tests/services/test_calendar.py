@@ -151,3 +151,16 @@ def test_ics_feed(db):
     assert all(len(line.encode()) <= 75 for line in text.split("\r\n"))
     english = render_ics(found, language="en", public_url=None).decode()
     assert "SUMMARY:Andor S02E11 – Season premiere" in english
+
+
+def test_postponed_episodes_are_marked(db):
+    with db.session() as s:
+        finale = s.query(m.Episode).filter_by(number=4).one()
+        finale.delayed_from = NOW + timedelta(days=11)
+        s.commit()
+    [entry] = [e for e in entries(db) if e.episode == 4]
+    assert entry.delayed_from == NOW + timedelta(days=11)
+    text = render_ics([entry], language="de", public_url=None).decode()
+    assert "SUMMARY:Slime S03E04 – Finale – verschoben (vorher 24.11.)" in text
+    english = render_ics([entry], language="en", public_url=None).decode()
+    assert "postponed (was 24/11)" in english

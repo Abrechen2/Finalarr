@@ -88,6 +88,7 @@ def episode_detail(episode: Episode) -> dict[str, Any]:
         "monitored": episode.monitored,
         "has_file": episode.has_file,
         "finale_type": episode.finale_type,
+        "delayed_from": episode.delayed_from.isoformat() if episode.delayed_from else None,
     }
 
 
@@ -112,6 +113,13 @@ def series_detail(series: Series) -> dict[str, Any]:
     body = series_summary(series)
     anilist = _anilist_by_season(series)
     body["sonarr_url"] = f"{series.instance.url}/series/{series.title_slug}"
+    body["details"] = {
+        "overview": series.overview,
+        "network": series.network,
+        "runtime": series.runtime,
+        "genres": json.loads(series.genres_json or "[]"),
+        "fanart_url": series.fanart_url,
+    }
     body["seasons"] = [
         {
             **season_summary(series, season),

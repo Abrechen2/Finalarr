@@ -22,6 +22,8 @@ _TEXT = {
         "announced_detail": " (Start {date}, {expected} Folgen)",
         "sequel_detail": " (Start {date})",
         "news_mention": "📰 <b>{title}</b> in den News: {headline}",
+        "episode_delayed": "⏸️ <b>{title}</b> S{s:02d}E{n:02d} verschoben: {old} → {new}",
+        "open": "offen",
         "article": "Artikel",
         "date": "%d.%m.%Y",
         "test": "✅ Finalarr: Testnachricht – dieser Kanal funktioniert.",
@@ -39,6 +41,8 @@ _TEXT = {
         "announced_detail": " (starts {date}, {expected} episodes)",
         "sequel_detail": " (starts {date})",
         "news_mention": "📰 <b>{title}</b> in the news: {headline}",
+        "episode_delayed": "⏸️ <b>{title}</b> S{s:02d}E{n:02d} postponed: {old} → {new}",
+        "open": "open",
         "article": "Article",
         "date": "%d/%m/%Y",
         "test": "✅ Finalarr: test message – this channel works.",
@@ -83,6 +87,9 @@ def render(
         "part_title": escape(str(payload.get("part_title", ""))),
         "sequel_title": escape(str(payload.get("sequel_title", ""))),
         "headline": escape(str(payload.get("headline", ""))),
+        "n": int(payload.get("episode") or 0),
+        "old": _day(payload.get("old"), texts),
+        "new": _day(payload.get("new"), texts),
     }
     key = event_type
     if (
@@ -99,6 +106,10 @@ def render(
     if event_type == "news_mention":
         return text + _links([(texts["article"], payload.get("link")), ("Finalarr", finalarr_url)])
     return text + _links([("Finalarr", finalarr_url), ("Sonarr", payload.get("sonarr_url"))])
+
+
+def _day(value: Any, texts: dict[str, str]) -> str:
+    return date.fromisoformat(str(value)[:10]).strftime(texts["date"]) if value else texts["open"]
 
 
 def _when(first_air: str, day_format: str) -> str:

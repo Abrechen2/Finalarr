@@ -61,10 +61,21 @@ class SonarrSeries(_Model):
     images: tuple[SonarrImage, ...] = ()
     seasons: tuple[SonarrSeason, ...] = ()
     tags: tuple[int, ...] = ()
+    overview: str = ""
+    network: str = ""
+    runtime: int | None = None
+    genres: tuple[str, ...] = ()
 
     @property
     def poster_url(self) -> str | None:
-        return next((i.remote_url for i in self.images if i.cover_type == "poster"), None)
+        return self._image("poster")
+
+    @property
+    def fanart_url(self) -> str | None:
+        return self._image("fanart")
+
+    def _image(self, cover_type: str) -> str | None:
+        return next((i.remote_url for i in self.images if i.cover_type == cover_type), None)
 
 
 class SonarrEpisode(_Model):

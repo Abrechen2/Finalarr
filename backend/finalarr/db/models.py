@@ -28,6 +28,7 @@ EVENT_TYPES = (
     "part_complete",
     "sequel_announced",
     "news_mention",
+    "episode_delayed",
 )
 SERIES_TYPES = ("standard", "anime", "daily")
 CHANNEL_KINDS = ("telegram", "discord", "pushover", "webhook", "apprise")
@@ -88,6 +89,11 @@ class Series(Base):
     series_type: Mapped[str] = mapped_column(String(20), default="standard")
     status: Mapped[str] = mapped_column(String(20), default="")
     poster_url: Mapped[str | None] = mapped_column(String(1000))
+    fanart_url: Mapped[str | None] = mapped_column(String(1000))
+    overview: Mapped[str] = mapped_column(Text, default="", server_default="")
+    network: Mapped[str] = mapped_column(String(200), default="", server_default="")
+    runtime: Mapped[int | None] = mapped_column(Integer)
+    genres_json: Mapped[str] = mapped_column(Text, default="[]", server_default="[]")
     # Sonarr tag labels, JSON list; used for "follow all with tag".
     tags_json: Mapped[str] = mapped_column(Text, default="[]", server_default="[]")
     monitored: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -164,6 +170,8 @@ class Episode(Base):
     monitored: Mapped[bool] = mapped_column(Boolean, default=True)
     has_file: Mapped[bool] = mapped_column(Boolean, default=False)
     finale_type: Mapped[str | None] = mapped_column(String(20))
+    # Air date before the last postponement; cleared when the episode airs.
+    delayed_from: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     season: Mapped[Season] = relationship(back_populates="episodes")
 

@@ -205,3 +205,23 @@ def test_series_news_endpoint(api, app, library):
     }
     assert api.get("/api/v1/series/999/news").status_code == 404
     assert api.get(f"/api/v1/series/{library['slime']}/news?lang=xx").status_code == 400
+
+
+def test_detail_carries_sonarr_details_and_delays(api, app, library):
+    with app.extensions["finalarr.db"].session() as s:
+        slime = s.get(m.Series, library["slime"])
+        slime.overview, slime.network, slime.runtime = "Slime story", "Tokyo MX", 24
+        slime.genres_json, slime.fanart_url = '["Anime"]', "https://img/fanart.jpg"
+        slime.seasons[0].episodes[2].delayed_from = datetime(2026, 1, 14, tzinfo=UTC)
+        s.commit()
+    body = api.get(f"/api/v1/series/{library['slime']}").get_json()
+    assert body["details"] == {
+        "overview": "Slime story",
+        "network": "Tokyo MX",
+        "runtime": 24,
+        "genres": ["Anime"],
+        "fanart_url": "https://img/fanart.jpg",
+    }
+    episodes = body["seasons"][0]["episodes"]
+    assert episodes[2]["delayed_from"].startswith("2026-01-14")
+    assert episodes[0]["delayed_from"] is None

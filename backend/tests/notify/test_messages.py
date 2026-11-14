@@ -89,3 +89,21 @@ def test_news_mention_links_the_article():
         in text
     )
     assert "in the news" in render("news_mention", payload, "en", None)
+
+
+def test_episode_delayed_names_old_and_new_date():
+    payload = {
+        "title": "Slime",
+        "season": 4,
+        "episode": 7,
+        "old": "2026-11-20T15:00:00+00:00",
+        "new": "2026-12-04T15:00:00+00:00",
+    }
+    assert "<b>Slime</b> S04E07 verschoben: 20.11.2026 → 04.12.2026" in render(
+        "episode_delayed", payload, "de", None
+    )
+    assert "S04E07 postponed: 20/11/2026 → 04/12/2026" in render(
+        "episode_delayed", payload, "en", None
+    )
+    open_end = render("episode_delayed", payload | {"new": None}, "de", None)
+    assert "20.11.2026 → offen" in open_end

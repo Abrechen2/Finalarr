@@ -297,3 +297,86 @@ def test_sonarr_replacing_an_episode_id_keeps_the_number(env):
         assert s.get(m.SonarrInstance, 1).last_error is None
         ids = sorted(s.scalars(select(m.Episode.sonarr_episode_id)))
     assert ids == [1101, 1602]
+
+
+def test_series_details_from_sonarr_are_stored(env):
+    db, sonarr, reconciler, _ = env
+    series = make_series(1, "Slime").model_copy(
+        update={
+            "overview": "A slime story.",
+            "network": "Tokyo MX",
+            "runtime": 24,
+            "genres": ("Anime", "Fantasy"),
+        }
+    )
+    sonarr.add(series)
+    reconciler.reconcile(1)
+    with db.session() as s:
+        row = s.scalar(select(m.Series))
+        assert (row.overview, row.network, row.runtime, json.loads(row.genres_json)) == (
+            "A slime story.",
+            "Tokyo MX",
+            24,
+            ["Anime", "Fantasy"],
+        )
+
+
+def _watched(env, episodes):
+    db, sonarr, reconciler, clock = env
+    sonarr.add(make_series(1, "Slime"), episodes)
+    reconciler.reconcile(1)
+    follow(db, 1)
+    reconciler.reconcile(1)
+    return db, sonarr, reconciler, clock
+
+
+def test_a_moved_air_date_is_reported_as_a_delay(env):
+    future = [
+        e.model_copy(update={"air_date_utc": NOW + timedelta(days=7 * e.episode_number)})
+        for e in make_episodes(1, 1, 3, set())
+    ]
+    db, sonarr, reconciler, _clock = _watched(env, future)
+    moved = [
+        e.model_copy(update={"air_date_utc": e.air_date_utc + timedelta(days=14)})
+        if e.episode_number == 2
+        else e
+        for e in future
+    ]
+    sonarr.episodes_by_series[1] = moved
+    reconciler.reconcile(1)
+    reconciler.reconcile(1)
+    delays = [(t, p) for t, p in events(db) if t == "episode_delayed"]
+    assert len(delays) == 1
+    payload = delays[0][1]
+    assert (payload["season"], payload["episode"]) == (1, 2)
+    assert payload["old"][:10] == (NOW + timedelta(days=14)).date().isoformat()
+    assert payload["new"][:10] == (NOW + timedelta(days=28)).date().isoformat()
+    with db.session() as s:
+        row = s.scalar(select(m.Episode).where(m.Episode.number == 2))
+        assert row.delayed_from is not None
+
+
+def test_small_shifts_downloaded_episodes_and_unwatched_series_are_not_delays(env):
+    future = [
+        e.model_copy(update={"air_date_utc": NOW + timedelta(days=7 * e.episode_number)})
+        for e in make_episodes(1, 1, 2, set())
+    ]
+    db, sonarr, reconciler, _clock = _watched(env, future)
+    shifted = [
+        e.model_copy(update={"air_date_utc": e.air_date_utc + timedelta(hours=2)}) for e in future
+    ]
+    sonarr.episodes_by_series[1] = shifted
+    reconciler.reconcile(1)
+    assert [t for t, _ in events(db) if t == "episode_delayed"] == []
+
+
+def test_a_removed_date_is_a_delay_to_unknown(env):
+    future = [
+        e.model_copy(update={"air_date_utc": NOW + timedelta(days=7)})
+        for e in make_episodes(1, 1, 1, set())
+    ]
+    db, sonarr, reconciler, _clock = _watched(env, future)
+    sonarr.episodes_by_series[1] = [future[0].model_copy(update={"air_date_utc": None})]
+    reconciler.reconcile(1)
+    [(_kind, payload)] = [(t, p) for t, p in events(db) if t == "episode_delayed"]
+    assert payload["new"] is None
