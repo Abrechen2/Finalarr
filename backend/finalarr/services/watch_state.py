@@ -1,7 +1,8 @@
 """Watched state for the UI: who saw what of a series, what is still unwatched on disk.
 
-"Unwatched" means: a regular episode with a file that no selected user has watched.
-Specials (season 0) never count.
+"Unwatched" means: a regular episode with a file that comes after the furthest episode
+any selected user has watched (season, then episode) and that nobody has watched.
+Episodes skipped before that point and specials (season 0) never count.
 """
 
 from __future__ import annotations
@@ -14,6 +15,8 @@ from sqlalchemy.orm import Session
 from finalarr.db import models as m
 
 CONTINUE_LIMIT = 10
+# Orders (season, episode) as one number: season 3 episode 12 → 3_00012.
+EPISODE_ORDER = 100_000
 
 
 def _seen_by_anyone() -> Any:
@@ -25,6 +28,19 @@ def _seen_by_anyone() -> Any:
     )
 
 
+def _furthest(series_id: Any) -> Any:
+    """Correlated scalar: position of the furthest regular episode anyone watched."""
+    return (
+        select(
+            func.max(
+                m.WatchedEpisode.season_number * EPISODE_ORDER + m.WatchedEpisode.episode_number
+            )
+        )
+        .where(m.WatchedEpisode.series_id == series_id, m.WatchedEpisode.season_number > 0)
+        .scalar_subquery()
+    )
+
+
 def _unwatched_on_disk(series_id: Any) -> Select[Any]:
     return (
         select(m.Episode.id)
@@ -33,6 +49,7 @@ def _unwatched_on_disk(series_id: Any) -> Select[Any]:
             m.Season.series_id == series_id,
             m.Season.number > 0,
             m.Episode.has_file.is_(True),
+            m.Season.number * EPISODE_ORDER + m.Episode.number > _furthest(series_id),
             ~_seen_by_anyone(),
         )
     )

@@ -357,6 +357,9 @@ class MediaUser(Base):
     name: Mapped[str] = mapped_column(String(200))
     # Only selected users count; nothing is stored for the others.
     selected: Mapped[bool] = mapped_column(Boolean, default=False)
+    # First sync after selection. Episodes a server reports without a play date get the
+    # day Finalarr first sees them - except in this baseline, which says nothing recent.
+    baseline_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     server: Mapped[MediaServer] = relationship(back_populates="users")
     watched: Mapped[list[WatchedEpisode]] = relationship(

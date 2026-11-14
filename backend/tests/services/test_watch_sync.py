@@ -176,3 +176,35 @@ def test_users_gone_from_the_server_are_removed(env):
     run(env, FakeClient([MediaUserInfo("u1", "Dennis")], {"u1": []}))
     with db.session() as s:
         assert [u.remote_id for u in s.scalars(select(m.MediaUser))] == ["u1"]
+
+
+def test_servers_without_play_dates_use_the_day_finalarr_first_sees_an_episode(env):
+    # Emby often reports Played without LastPlayedDate (e.g. marked as watched by a sync
+    # tool). The first sync is the baseline: nothing in it counts as recent.
+    db, _ = env
+    old = [w(100, 1, n, on=None) for n in range(1, 6)]
+    assert run(env, FakeClient(USERS, {"u1": old})) == []
+    with db.session() as s:
+        assert s.scalar(select(m.MediaUser).where(m.MediaUser.remote_id == "u1")).baseline_at
+    newer = [*old, w(200, 1, 1, on=None), w(200, 1, 2, on=None)]
+    assert run(env, FakeClient(USERS, {"u1": newer})) == ["Andor"]
+    with db.session() as s:
+        dates = dict(
+            s.execute(
+                select(m.WatchedEpisode.series_id, m.WatchedEpisode.watched_on).where(
+                    m.WatchedEpisode.episode_number == 1
+                )
+            ).all()
+        )
+    assert dates == {1: None, 2: NOW.date()}
+    # the date sticks on later syncs
+    run(env, FakeClient(USERS, {"u1": newer}))
+    with db.session() as s:
+        assert (
+            s.scalar(
+                select(m.WatchedEpisode.watched_on).where(
+                    m.WatchedEpisode.series_id == 2, m.WatchedEpisode.episode_number == 2
+                )
+            )
+            == NOW.date()
+        )

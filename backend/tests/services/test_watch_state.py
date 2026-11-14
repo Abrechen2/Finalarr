@@ -140,3 +140,34 @@ def test_without_a_media_server_watch_state_is_off(db):
         s.query(m.MediaServer).delete()
         s.commit()
         assert series_watch(s, by_title(s, "Slime"))["enabled"] is False
+
+
+def test_unwatched_counts_only_after_the_furthest_watched_episode(db):
+    # Someone who watched E02 of a long-running show is not "300 behind" because of the
+    # episodes before it; only what comes after the furthest watched episode counts.
+    with db.session() as s:
+        slime = by_title(s, "Slime")
+        s.query(m.WatchedEpisode).filter_by(series_id=slime.id).delete()
+        dennis = s.scalar(select(m.MediaUser).where(m.MediaUser.name == "Dennis"))
+        s.add(
+            m.WatchedEpisode(
+                user_id=dennis.id, series_id=slime.id, season_number=1, episode_number=2
+            )
+        )
+        s.commit()
+        state = series_watch(s, slime)
+        assert (state["unwatched_on_disk"], state["next_unwatched"]) == (
+            1,
+            {"season": 1, "episode": 3},
+        )
+        s.add(
+            m.WatchedEpisode(
+                user_id=dennis.id, series_id=slime.id, season_number=1, episode_number=3
+            )
+        )
+        s.commit()
+        state = series_watch(s, slime)
+        assert (state["unwatched_on_disk"], state["next_unwatched"]) == (0, None)
+        assert list(
+            s.scalars(watch_filter(select(m.Series.title), "caught_up").order_by(m.Series.title))
+        ) == ["Andor", "Slime"]

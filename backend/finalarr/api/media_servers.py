@@ -201,8 +201,10 @@ def patch_user(server_id: int, user_id: int) -> ResponseReturnValue:
             raise not_found("Media server user")
         user.selected = body.selected
         if not body.selected:
-            # Nothing is kept about people who are not selected.
+            # Nothing is kept about people who are not selected; selecting again starts
+            # with a fresh baseline.
             s.execute(delete(WatchedEpisode).where(WatchedEpisode.user_id == user.id))
+            user.baseline_at = None
         s.commit()
         result = {"id": user.id, "name": user.name, "selected": user.selected}
     if body.selected:

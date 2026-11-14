@@ -85,11 +85,19 @@ class WatchSync:
             s.flush()
             by_tvdb = _series_by_tvdb(s)
             unmatched: set[str] = set()
+            today = self._clock().date()
             for user in server.users:
+                previous = _stored(s, user.id)
                 s.execute(delete(m.WatchedEpisode).where(m.WatchedEpisode.user_id == user.id))
                 if user.remote_id in watched:
                     rows, missing = _rows(watched[user.remote_id], by_tvdb)
                     unmatched |= missing
+                    first_seen = None if user.baseline_at is None else today
+                    rows = {
+                        key: on or previous.get(key) or (None if key in previous else first_seen)
+                        for key, on in rows.items()
+                    }
+                    user.baseline_at = user.baseline_at or self._clock()
                     s.add_all(
                         m.WatchedEpisode(
                             user_id=user.id,
@@ -120,6 +128,20 @@ def _store_users(server: m.MediaServer, remote: dict[str, str]) -> None:
             known[remote_id].name = name
         else:
             server.users.append(m.MediaUser(remote_id=remote_id, name=name, selected=False))
+
+
+def _stored(s: Session, user_id: int) -> dict[Key, date | None]:
+    return {
+        (sid, season, episode): on
+        for sid, season, episode, on in s.execute(
+            select(
+                m.WatchedEpisode.series_id,
+                m.WatchedEpisode.season_number,
+                m.WatchedEpisode.episode_number,
+                m.WatchedEpisode.watched_on,
+            ).where(m.WatchedEpisode.user_id == user_id)
+        )
+    }
 
 
 def _series_by_tvdb(s: Session) -> dict[int, list[int]]:
