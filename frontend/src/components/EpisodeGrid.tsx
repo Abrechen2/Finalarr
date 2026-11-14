@@ -17,6 +17,9 @@ export function EpisodeGrid({
   episodes,
   partStarts = [],
   watched = {},
+  corrected = [],
+  selected,
+  onSelect,
   now = new Date(),
 }: {
   season: number
@@ -25,6 +28,11 @@ export function EpisodeGrid({
   partStarts?: number[]
   /** "season x episode" → who watched it (media servers). */
   watched?: Record<string, string[]>
+  /** Episodes whose watched state was corrected by hand ("season x episode"). */
+  corrected?: string[]
+  selected?: number
+  /** Makes every square a button, e.g. to correct its watched state. */
+  onSelect?: (episode: number) => void
   now?: Date
 }) {
   const { t, i18n } = useTranslation()
@@ -39,7 +47,8 @@ export function EpisodeGrid({
           : ''
         const viewers = watched[`${season}x${episode.number}`] ?? []
         const seen = viewers.length ? t('episode.watchedBy', { names: viewers.join(', ') }) : ''
-        const status = [t(`episode.${cell}`), finale && t('episode.finale'), delayed, seen]
+        const fixed = corrected.includes(`${season}x${episode.number}`) ? t('watch.corrected') : ''
+        const status = [t(`episode.${cell}`), finale && t('episode.finale'), delayed, seen, fixed]
           .filter(Boolean)
           .join(', ')
         const accent = finale
@@ -47,13 +56,10 @@ export function EpisodeGrid({
             ? ' !bg-gold !border-gold !text-bg'
             : ' !border-gold !text-gold'
           : ''
-        return (
-          <li
-            key={episode.id}
-            title={`${code} ${episode.title}${delayed ? ` (${delayed})` : ''}${seen ? ` – ${seen}` : ''}`.trim()}
-            aria-label={`${code}: ${status}`}
-            className={`relative flex h-8 w-8 items-center justify-center rounded-control border text-[11px] font-bold ${CELL[cell]}${accent}${episode.monitored ? '' : ' opacity-40'}${partStarts.includes(episode.number) ? ' ml-3' : ''}`}
-          >
+        const label = `${code}: ${status}`
+        const square = `relative flex h-8 w-8 items-center justify-center rounded-control border text-[11px] font-bold ${CELL[cell]}${accent}${episode.monitored ? '' : ' opacity-40'}${selected === episode.number ? ' ring-2 ring-accent' : ''}`
+        const content = (
+          <>
             {episode.number}
             {seen && (
               <span
@@ -68,6 +74,27 @@ export function EpisodeGrid({
                 ⏸
               </span>
             )}
+          </>
+        )
+        const title =
+          `${code} ${episode.title}${delayed ? ` (${delayed})` : ''}${seen ? ` – ${seen}` : ''}`.trim()
+        const gap = partStarts.includes(episode.number) ? 'ml-3' : ''
+        return onSelect ? (
+          <li key={episode.id} className={gap}>
+            <button
+              type="button"
+              title={title}
+              aria-label={label}
+              aria-pressed={selected === episode.number}
+              onClick={() => onSelect(episode.number)}
+              className={square}
+            >
+              {content}
+            </button>
+          </li>
+        ) : (
+          <li key={episode.id} title={title} aria-label={label} className={`${square} ${gap}`}>
+            {content}
           </li>
         )
       })}

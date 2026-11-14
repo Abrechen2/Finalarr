@@ -11,7 +11,8 @@ import { WaitingCard } from '../components/WaitingCard'
 import { WatchPanel } from '../components/WatchPanel'
 import { SeasonOverride } from '../components/SeasonOverride'
 import { Toggle } from '../components/Toggle'
-import { EpisodeGrid } from '../components/EpisodeGrid'
+import { CountSources } from '../components/CountSources'
+import { WatchCorrector } from '../components/WatchCorrector'
 import { FollowToggle } from '../components/FollowToggle'
 import { Poster } from '../components/Poster'
 import { StateBadge } from '../components/StateBadge'
@@ -59,14 +60,8 @@ function SeasonSection({ series, season }: { series: SeriesDetail; season: Seaso
             ` ${t('anilist.startsOn', { date: new Date(season.anilist_start).toLocaleDateString(i18n.language === 'en' ? 'en-GB' : 'de-DE') })}`}
         </p>
       )}
-      {season.episodes.length > 0 && (
-        <EpisodeGrid
-          season={season.number}
-          episodes={season.episodes}
-          partStarts={season.parts.slice(1).map((p) => p.from)}
-          watched={series.watch?.episodes}
-        />
-      )}
+      {season.episodes.length > 0 && <WatchCorrector series={series} season={season} />}
+      {season.number > 0 && <CountSources season={season} />}
       <SeasonParts seriesId={series.id} season={season} />
       {series.followed && series.series_type === 'anime' && season.number > 0 && (
         <AnilistPicker seriesId={series.id} seriesTitle={series.title} season={season} />

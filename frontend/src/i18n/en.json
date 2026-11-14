@@ -551,6 +551,48 @@
       "never": "Finalarr never follows this series, even if someone watches it."
     },
     "badgeAuto": "automatic",
-    "badgeWatched": "{{count}} watched"
+    "badgeWatched": "{{count}} watched",
+    "correctTitle": "Correct S{{s}}E{{e}}",
+    "correctFor": "for",
+    "markWatched": "Mark as watched",
+    "markUnwatched": "Mark as unwatched",
+    "markUpTo": "Watched up to here",
+    "markSeason": "Whole season watched",
+    "unmarkSeason": "Whole season unwatched",
+    "undo": "Take the correction back",
+    "close": "Close",
+    "corrected": "corrected by hand",
+    "correctHint": "Tip: click an episode to correct its watched state."
+  },
+  "count": {
+    "title": "Where does the episode count come from?",
+    "decision": "Finalarr expects {{n}} episodes (source: {{source}}).",
+    "decisionUnknown": "Finalarr does not know the episode count yet and holds back “complete”.",
+    "disputedHint": "The sources name different numbers. “Complete” waits for the larger one until you set one below.",
+    "checked": "Last checked: {{time}}",
+    "source": "Source",
+    "episodes": "Episodes",
+    "note": "Note",
+    "names": {
+      "sonarr": "Sonarr",
+      "anilist": "AniList",
+      "tvmaze": "TVmaze",
+      "tmdb": "TMDB",
+      "trakt": "Trakt",
+      "override": "Set by you"
+    },
+    "sonarrDetail": "{{listed}} listed, {{aired}} aired, {{on_disk}} on disk",
+    "sonarrFinale": "finale: episode {{n}}",
+    "anilistEntry": "{{title}}: {{episodes}} episodes ({{status}})",
+    "anilistEntryUnknown": "entry {{id}}",
+    "part": "Part {{index}}: episodes {{from}}–{{to}}",
+    "status": {
+      "FINISHED": "finished",
+      "RELEASING": "airing",
+      "NOT_YET_RELEASED": "announced",
+      "CANCELLED": "cancelled",
+      "HIATUS": "on hiatus"
+    },
+    "unknownCount": "?"
   }
 }

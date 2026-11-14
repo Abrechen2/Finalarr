@@ -551,6 +551,48 @@
       "never": "Finalarr folgt dieser Serie nie, auch wenn jemand sie schaut."
     },
     "badgeAuto": "automatisch",
-    "badgeWatched": "{{count}} gesehen"
+    "badgeWatched": "{{count}} gesehen",
+    "correctTitle": "S{{s}}E{{e}} korrigieren",
+    "correctFor": "für",
+    "markWatched": "Als gesehen markieren",
+    "markUnwatched": "Als ungesehen markieren",
+    "markUpTo": "Bis hier gesehen",
+    "markSeason": "Ganze Staffel gesehen",
+    "unmarkSeason": "Ganze Staffel ungesehen",
+    "undo": "Korrektur zurücknehmen",
+    "close": "Schließen",
+    "corrected": "manuell korrigiert",
+    "correctHint": "Tipp: Auf eine Folge klicken, um den Gesehen-Stand zu korrigieren."
+  },
+  "count": {
+    "title": "Woher kommt die Folgenzahl?",
+    "decision": "Finalarr rechnet mit {{n}} Folgen (Quelle: {{source}}).",
+    "decisionUnknown": "Finalarr kennt die Folgenzahl noch nicht und wartet mit „komplett“.",
+    "disputedHint": "Die Quellen nennen verschiedene Zahlen. „Komplett“ wartet auf die größere Zahl, bis du unten eine festlegst.",
+    "checked": "Zuletzt geprüft: {{time}}",
+    "source": "Quelle",
+    "episodes": "Folgen",
+    "note": "Hinweis",
+    "names": {
+      "sonarr": "Sonarr",
+      "anilist": "AniList",
+      "tvmaze": "TVmaze",
+      "tmdb": "TMDB",
+      "trakt": "Trakt",
+      "override": "Von dir festgelegt"
+    },
+    "sonarrDetail": "{{listed}} gelistet, {{aired}} ausgestrahlt, {{on_disk}} vorhanden",
+    "sonarrFinale": "Finale: Folge {{n}}",
+    "anilistEntry": "{{title}}: {{episodes}} Folgen ({{status}})",
+    "anilistEntryUnknown": "Eintrag {{id}}",
+    "part": "Teil {{index}}: Folge {{from}}–{{to}}",
+    "status": {
+      "FINISHED": "abgeschlossen",
+      "RELEASING": "läuft",
+      "NOT_YET_RELEASED": "angekündigt",
+      "CANCELLED": "abgebrochen",
+      "HIATUS": "pausiert"
+    },
+    "unknownCount": "?"
   }
 }

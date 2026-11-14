@@ -16,8 +16,12 @@ export interface WatchState {
   /** A media server is connected; without one the UI hides watch state. */
   enabled: boolean
   users: { name: string; server: string; watched: number; last_watched: string | null }[]
-  /** "season x episode" → names of the users who watched it. */
-  episodes: Record<string, string[]>
+  /** "season x episode" → ids of the users who watched it. */
+  episodes: Record<string, number[]>
+  /** Selected media server users who count. */
+  viewers: { id: number; name: string; server: string }[]
+  /** Episodes corrected by hand ("season x episode"). */
+  corrected: string[]
   unwatched_on_disk: number
   next_unwatched: { season: number; episode: number } | null
 }
