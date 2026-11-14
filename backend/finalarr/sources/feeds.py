@@ -1,4 +1,5 @@
-"""RSS headlines (LiveChart.me, Anime News Network), parsed with defusedxml."""
+"""RSS headlines (LiveChart.me, Anime News Network, Anime2You, Crunchyroll News),
+parsed with defusedxml."""
 
 from __future__ import annotations
 
@@ -17,6 +18,8 @@ MAX_BYTES = 2 * 1024 * 1024
 FEEDS = {
     "livechart": "https://www.livechart.me/feeds/headlines",
     "animenewsnetwork": "https://www.animenewsnetwork.com/news/rss.xml?ann-edition=w",
+    "anime2you": "https://www.anime2you.de/feed/",
+    "crunchyroll": "https://cr-news-api-service.prd.crunchyrollsvc.com/v1/en-US/rss",
 }
 
 
@@ -34,6 +37,7 @@ class FeedItem:
     link: str | None
     published: datetime | None
     source: str | None = None
+    summary: str = ""  # raw <description>, may contain HTML
 
 
 def google_news_url(query: str, language: str) -> str:
@@ -78,6 +82,7 @@ def parse_feed(raw: bytes) -> list[FeedItem]:
             link=_safe_link(item.findtext("link")),
             published=_date(item.findtext("pubDate")),
             source=(item.findtext("source") or "").strip() or None,
+            summary=(item.findtext("description") or "").strip(),
         )
         for item in root.iter("item")
         if (item.findtext("title") or "").strip()

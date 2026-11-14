@@ -1,6 +1,6 @@
 import pytest
 
-from finalarr.core.news_filter import is_season_news
+from finalarr.core.news_filter import evidence_sentence, is_season_news, news_kind
 
 MUSHOKU = ["Mushoku Tensei: Jobless Reincarnation", "Mushoku Tensei"]
 SLIME = ["That Time I Got Reincarnated as a Slime", "Tensei Shitara Slime Datta Ken"]
@@ -68,3 +68,45 @@ def test_the_series_must_be_named_in_the_headline():
     assert is_season_news(
         "Slime season 4 part 3 dated", ["That Time I Got Reincarnated as a Slime", "Slime"]
     )
+
+
+@pytest.mark.parametrize(
+    ("headline", "kind"),
+    [
+        ("»Re:ZERO« erhält fünfte Staffel + Visual", "renewal"),
+        ("Severance renewed for season 3", "renewal"),
+        ("Re:ZERO Season 5 Anime Announced", "announcement"),
+        ("Mushoku Tensei: Staffel 3 angekündigt", "announcement"),
+        ("Re:ZERO season 4 cancelled", "cancellation"),
+        ("Re:ZERO: Staffel 4 wird abgesetzt", "cancellation"),
+        ("Re:ZERO episode 7 delayed due to production issues", "delay"),
+        ("Re:ZERO: Folge 7 verschoben", "delay"),
+        ("Re:ZERO Season 4 premieres April 8", "date"),
+        ("Re:ZERO: Staffel 4 startet im April", "date"),
+        ("New Re:ZERO season 4 trailer", "trailer"),
+        ("Re:ZERO episode 5 discussion", "other"),
+    ],
+)
+def test_news_kind(headline, kind):
+    assert news_kind(headline) == kind
+
+
+def test_strong_news_survives_merchandise_words():
+    titles = ["Mushoku Tensei"]
+    assert is_season_news("Mushoku Tensei season 3 announced alongside new figures", titles)
+    assert not is_season_news("Mushoku Tensei season 3 figure revealed", titles)
+
+
+@pytest.mark.parametrize(
+    ("summary", "evidence"),
+    [
+        (
+            "<p>Gute Nachrichten! Die Serie erhält eine <b>fünfte Staffel</b>. Mehr folgt.</p>",
+            "Die Serie erhält eine fünfte Staffel.",
+        ),
+        ("Nothing relevant here at all.", None),
+        ("", None),
+    ],
+)
+def test_evidence_sentence(summary, evidence):
+    assert evidence_sentence(summary) == evidence

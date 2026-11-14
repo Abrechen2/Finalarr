@@ -20,7 +20,7 @@ from sqlalchemy.dialects.sqlite import insert
 from sqlalchemy.orm import Session
 
 from finalarr.core.fingerprint import fingerprint
-from finalarr.core.news_filter import is_season_news
+from finalarr.core.news_filter import evidence_sentence, is_season_news, news_kind
 from finalarr.db import models as m
 from finalarr.db.session import Database
 from finalarr.services.settings_store import load_settings
@@ -137,6 +137,8 @@ def _record(s: Session, series_id: int, feed: str, item: FeedItem) -> m.Event | 
         "link": item.link,
         "feed": feed,
         "published": item.published.isoformat() if item.published else None,
+        "news_kind": news_kind(item.title),
+        "evidence": evidence_sentence(item.summary),
     }
     key = fingerprint(
         "news_mention", series.instance_id, series.sonarr_id, 0, item.link or item.title

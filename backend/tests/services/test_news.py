@@ -191,3 +191,37 @@ def test_merchandise_headlines_never_become_hints(db):
     ]
     created = run(db, items)
     assert [json.loads(e.payload_json)["link"] for e in created] == ["https://x/2"]
+
+
+def test_hints_carry_the_news_kind_and_evidence(db):
+    from finalarr.sources.feeds import FeedItem
+
+    item = FeedItem(
+        "Mushoku Tensei: Jobless Reincarnation Season 3 Part 2 announced",
+        "https://n/3",
+        NOW,
+        summary="<p>Big news. Season 3 Part 2 will premiere in 2027.</p>",
+    )
+    run(db, [item])
+    with db.session() as s:
+        payload = json.loads(s.scalar(select(m.Event)).payload_json)
+    assert payload["news_kind"] == "announcement"
+    assert payload["evidence"] == "Season 3 Part 2 will premiere in 2027."
+
+
+def test_feed_summaries_are_parsed():
+    from finalarr.sources.feeds import parse_feed
+
+    raw = (
+        b"<rss><channel><item><title>T</title><description>&lt;p&gt;Hello&lt;/p&gt;"
+        b"</description></item><item><title>U</title></item></channel></rss>"
+    )
+    first, second = parse_feed(raw)
+    assert (first.summary, second.summary) == ("<p>Hello</p>", "")
+
+
+def test_new_feeds_are_listed():
+    from finalarr.sources.feeds import FEEDS
+
+    assert FEEDS["anime2you"] == "https://www.anime2you.de/feed/"
+    assert FEEDS["crunchyroll"].startswith("https://cr-news-api-service.prd.crunchyrollsvc.com/")

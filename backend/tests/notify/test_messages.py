@@ -107,3 +107,20 @@ def test_episode_delayed_names_old_and_new_date():
     )
     open_end = render("episode_delayed", payload | {"new": None}, "de", None)
     assert "20.11.2026 → offen" in open_end
+
+
+def test_typed_news_names_the_kind_and_quotes_the_evidence():
+    payload = {
+        "title": "Re:ZERO",
+        "headline": "Re:ZERO erhält fünfte Staffel",
+        "news_kind": "renewal",
+        "evidence": "Die Serie erhält eine fünfte Staffel.",
+        "link": "https://n/1",
+    }
+    text = render("news_mention", payload, "de", None)
+    assert text.startswith("🔁 <b>Re:ZERO</b> – Verlängerung: Re:ZERO erhält fünfte Staffel")
+    assert "\n<i>„Die Serie erhält eine fünfte Staffel.“</i>" in text
+    english = render("news_mention", payload | {"news_kind": "cancellation"}, "en", None)
+    assert english.startswith("🛑 <b>Re:ZERO</b> – cancelled: ")
+    plain = render("news_mention", payload | {"news_kind": "other", "evidence": None}, "de", None)
+    assert plain.startswith("📰 <b>Re:ZERO</b> in den News: ")

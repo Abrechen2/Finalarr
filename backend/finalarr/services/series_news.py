@@ -11,7 +11,7 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from finalarr.core.news_filter import is_season_news
+from finalarr.core.news_filter import is_season_news, news_kind
 from finalarr.db import models as m
 from finalarr.services.news import anilist_titles
 from finalarr.services.season_sources import JsonCache
@@ -91,6 +91,7 @@ def series_news(
                 {
                     "kind": "web",
                     "title": i.title,
+                    "news_kind": news_kind(i.title),
                     "link": i.link,
                     "source": i.source,
                     "published": i.published.isoformat() if i.published else None,

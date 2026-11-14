@@ -7,6 +7,9 @@ from html import escape
 from typing import Any
 
 LANGUAGES = ("de", "en")
+# Order matches the "kinds" text of each language.
+NEWS_KINDS = ("cancellation", "delay", "renewal", "announcement", "date", "trailer")
+NEWS_ICONS = ("🛑", "⏸️", "🔁", "📅", "🗓️", "🎬")
 
 _TEXT = {
     "de": {
@@ -24,6 +27,9 @@ _TEXT = {
         "news_mention": "📰 <b>{title}</b> in den News: {headline}",
         "episode_delayed": "⏸️ <b>{title}</b> S{s:02d}E{n:02d} verschoben: {old} → {new}",
         "open": "offen",
+        "typed_news": "{icon} <b>{title}</b> – {kind}: {headline}",
+        "kinds": "Absetzung|Verschiebung|Verlängerung|Ankündigung|Termin|Trailer",
+        "quote": "„{text}“",
         "article": "Artikel",
         "date": "%d.%m.%Y",
         "test": "✅ Finalarr: Testnachricht – dieser Kanal funktioniert.",
@@ -43,6 +49,9 @@ _TEXT = {
         "news_mention": "📰 <b>{title}</b> in the news: {headline}",
         "episode_delayed": "⏸️ <b>{title}</b> S{s:02d}E{n:02d} postponed: {old} → {new}",
         "open": "open",
+        "typed_news": "{icon} <b>{title}</b> – {kind}: {headline}",
+        "kinds": "cancelled|delayed|renewed|announced|date|trailer",
+        "quote": "“{text}”",
         "article": "Article",
         "date": "%d/%m/%Y",
         "test": "✅ Finalarr: test message – this channel works.",
@@ -104,8 +113,22 @@ def render(
         detail = "announced_detail" if event_type == "season_announced" else "sequel_detail"
         text += texts[detail].format(date=day, expected=values["expected"])
     if event_type == "news_mention":
+        text = _typed_news(text, payload, values, texts)
         return text + _links([(texts["article"], payload.get("link")), ("Finalarr", finalarr_url)])
     return text + _links([("Finalarr", finalarr_url), ("Sonarr", payload.get("sonarr_url"))])
+
+
+def _typed_news(
+    text: str, payload: dict[str, Any], values: dict[str, Any], texts: dict[str, str]
+) -> str:
+    kind = payload.get("news_kind")
+    if kind in NEWS_KINDS:
+        index = NEWS_KINDS.index(kind)
+        label = texts["kinds"].split("|")[index]
+        text = texts["typed_news"].format(icon=NEWS_ICONS[index], kind=label, **values)
+    if payload.get("evidence"):
+        text += "\n<i>" + texts["quote"].format(text=escape(str(payload["evidence"]))) + "</i>"
+    return text
 
 
 def _day(value: Any, texts: dict[str, str]) -> str:
