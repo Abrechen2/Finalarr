@@ -98,6 +98,7 @@ class WatchSync:
                         for key, on in rows.items()
                     }
                     user.baseline_at = user.baseline_at or self._clock()
+                    rows = _apply_overrides(s, user.id, rows)
                     s.add_all(
                         m.WatchedEpisode(
                             user_id=user.id,
@@ -128,6 +129,22 @@ def _store_users(server: m.MediaServer, remote: dict[str, str]) -> None:
             known[remote_id].name = name
         else:
             server.users.append(m.MediaUser(remote_id=remote_id, name=name, selected=False))
+
+
+def _apply_overrides(
+    s: Session, user_id: int, rows: dict[Key, date | None]
+) -> dict[Key, date | None]:
+    """Manual corrections win; a "watched" one ends once the server agrees."""
+    result = dict(rows)
+    for override in s.scalars(select(m.WatchOverride).where(m.WatchOverride.user_id == user_id)):
+        key = (override.series_id, override.season_number, override.episode_number)
+        if not override.watched:
+            result.pop(key, None)
+        elif key in rows:
+            s.delete(override)
+        else:
+            result[key] = override.created_at.date()
+    return result
 
 
 def _stored(s: Session, user_id: int) -> dict[Key, date | None]:

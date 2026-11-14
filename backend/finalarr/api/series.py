@@ -29,7 +29,12 @@ from finalarr.services.series_news import series_news
 from finalarr.services.settings_store import load_settings
 from finalarr.services.source_catalog import disabled_sources
 from finalarr.services.waiting import waiting_state
-from finalarr.services.watch_state import series_watch, watch_filter, watched_counts
+from finalarr.services.watch_state import (
+    correct_watched,
+    series_watch,
+    watch_filter,
+    watched_counts,
+)
 from finalarr.sources.feeds import fetch_feed
 
 bp = Blueprint("series", __name__, url_prefix="/api/v1/series")
@@ -49,6 +54,16 @@ class SeriesPatch(BaseModel):
     include_specials: bool | None = None
     respect_monitoring: bool | None = None
     calendar: bool | None = None
+
+
+class WatchedCorrection(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    user_id: int
+    # [season, episode] pairs; one click marks a single episode, a season or "up to here".
+    episodes: list[tuple[int, int]] = Field(min_length=1, max_length=2000)
+    # True/False corrects, None takes the correction back.
+    watched: bool | None
 
 
 class FollowMonitored(BaseModel):
@@ -272,6 +287,21 @@ def get_series_news(series_id: int) -> ResponseReturnValue:
             fetch=current_app.extensions.get("finalarr.news_fetch", fetch_feed),
             web=bool(load_settings(s)["series_news_web"]),
         )
+
+
+@bp.post("/<int:series_id>/watched")
+def correct_series_watched(series_id: int) -> ResponseReturnValue:
+    body = parse_body(WatchedCorrection)
+    with database().session() as s:
+        series = _load(s, series_id)
+        try:
+            correct_watched(
+                s, series.id, body.user_id, body.episodes, body.watched, datetime.now(UTC).date()
+            )
+        except LookupError:
+            raise not_found("Media server user") from None
+        s.commit()
+        return series_watch(s, series)
 
 
 @bp.get("/<int:series_id>/extras")

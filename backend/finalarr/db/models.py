@@ -384,3 +384,21 @@ class WatchedEpisode(Base):
     watched_on: Mapped[date | None] = mapped_column(Date)
 
     user: Mapped[MediaUser] = relationship(back_populates="watched")
+
+
+class WatchOverride(Base):
+    """A manual correction: this user did (not) watch this episode, whatever the server
+    says. A "watched" correction ends once the server reports the episode itself."""
+
+    __tablename__ = "watch_overrides"
+
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("media_users.id", ondelete="CASCADE"), primary_key=True
+    )
+    series_id: Mapped[int] = mapped_column(
+        ForeignKey("series.id", ondelete="CASCADE"), primary_key=True
+    )
+    season_number: Mapped[int] = mapped_column(Integer, primary_key=True)
+    episode_number: Mapped[int] = mapped_column(Integer, primary_key=True)
+    watched: Mapped[bool] = mapped_column(Boolean)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

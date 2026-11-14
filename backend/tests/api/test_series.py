@@ -287,10 +287,41 @@ def test_detail_and_list_carry_watched_state_and_filters(api, app, library):
     _watch(app, "Slime", [1, 2])
     detail = api.get(f"/api/v1/series/{library['slime']}").get_json()
     assert detail["watch"]["users"][0]["watched"] == 2
-    assert detail["watch"]["episodes"]["1x1"] == ["Dennis"]
+    viewer = detail["watch"]["viewers"][0]
+    assert viewer["name"] == "Dennis"
+    assert detail["watch"]["episodes"]["1x1"] == [viewer["id"]]
     listed = {i["title"]: i for i in api.get("/api/v1/series").get_json()["items"]}
     assert listed["Slime"]["watched"] == 2 and listed["Andor"]["watched"] == 0
     assert titles(api.get("/api/v1/series?watch=started")) == ["Slime"]
     assert titles(api.get("/api/v1/series?follow=auto")) == titles(api.get("/api/v1/series"))
     assert api.get("/api/v1/series?watch=nope").status_code == 400
     assert api.get("/api/v1/series?follow=nope").status_code == 400
+
+
+def test_watched_corrections_endpoint(api, app, library):
+    _watch(app, "Slime", [1])
+    viewer = api.get(f"/api/v1/series/{library['slime']}").get_json()["watch"]["viewers"][0]
+    url = f"/api/v1/series/{library['slime']}/watched"
+    body = api.post(
+        url, json={"user_id": viewer["id"], "episodes": [[1, 2], [1, 3]], "watched": True}
+    )
+    assert body.status_code == 200
+    watch = body.get_json()
+    assert sorted(watch["episodes"]) == ["1x1", "1x2", "1x3"]
+    assert watch["corrected"] == ["1x2", "1x3"]
+    undo = api.post(url, json={"user_id": viewer["id"], "episodes": [[1, 2]], "watched": None})
+    assert undo.get_json()["corrected"] == ["1x3"]
+    assert (
+        api.post(url, json={"user_id": 999, "episodes": [[1, 1]], "watched": True}).status_code
+        == 404
+    )
+    assert (
+        api.post(url, json={"user_id": viewer["id"], "episodes": [], "watched": True}).status_code
+        == 400
+    )
+    assert (
+        api.post(
+            "/api/v1/series/999/watched", json={"user_id": 1, "episodes": [[1, 1]], "watched": True}
+        ).status_code
+        == 404
+    )

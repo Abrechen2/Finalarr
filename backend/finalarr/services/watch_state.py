@@ -7,6 +7,7 @@ Episodes skipped before that point and specials (season 0) never count.
 
 from __future__ import annotations
 
+from datetime import date
 from typing import Any
 
 from sqlalchemy import Select, and_, exists, func, select
@@ -82,14 +83,36 @@ def series_watch(s: Session, series: m.Series) -> dict[str, Any]:
         .group_by(m.MediaUser.id)
         .order_by(func.count().desc(), m.MediaUser.name)
     ).all()
-    episodes: dict[str, list[str]] = {}
-    for season, episode, name in s.execute(
-        select(m.WatchedEpisode.season_number, m.WatchedEpisode.episode_number, m.MediaUser.name)
-        .join(m.MediaUser)
+    episodes: dict[str, list[int]] = {}
+    for season, episode, user_id in s.execute(
+        select(
+            m.WatchedEpisode.season_number,
+            m.WatchedEpisode.episode_number,
+            m.WatchedEpisode.user_id,
+        )
         .where(m.WatchedEpisode.series_id == series.id)
-        .order_by(m.MediaUser.id)
+        .order_by(m.WatchedEpisode.user_id)
     ):
-        episodes.setdefault(f"{season}x{episode}", []).append(name)
+        episodes.setdefault(f"{season}x{episode}", []).append(user_id)
+    viewers = [
+        {"id": uid, "name": name, "server": server}
+        for uid, name, server in s.execute(
+            select(m.MediaUser.id, m.MediaUser.name, m.MediaServer.name)
+            .join(m.MediaServer)
+            .where(m.MediaUser.selected.is_(True), m.MediaServer.enabled.is_(True))
+            .order_by(m.MediaUser.id)
+        )
+    ]
+    corrected = sorted(
+        {
+            f"{season}x{episode}"
+            for season, episode in s.execute(
+                select(m.WatchOverride.season_number, m.WatchOverride.episode_number).where(
+                    m.WatchOverride.series_id == series.id
+                )
+            )
+        }
+    )
     unwatched, first = _next(s, series.id)
     return {
         # Without a media server the UI shows no watch panel at all.
@@ -104,6 +127,8 @@ def series_watch(s: Session, series: m.Series) -> dict[str, Any]:
             for name, server, count, last in users
         ],
         "episodes": episodes,
+        "viewers": viewers,
+        "corrected": corrected,
         "unwatched_on_disk": unwatched,
         "next_unwatched": first,
     }
@@ -171,3 +196,39 @@ def watched_counts(s: Session, series_ids: list[int]) -> dict[int, int]:
         select(per_user.c.series_id, func.max(per_user.c.n)).group_by(per_user.c.series_id)
     )
     return {sid: n for sid, n in rows}
+
+
+def correct_watched(
+    s: Session,
+    series_id: int,
+    user_id: int,
+    episodes: list[tuple[int, int]],
+    watched: bool | None,
+    today: date,
+) -> None:
+    """Mark episodes (not) watched for one selected user, or take corrections back
+    (``watched=None``; the next sync restores what the server says)."""
+    user = s.get(m.MediaUser, user_id)
+    if user is None or not user.selected:
+        raise LookupError("user")
+    for season, episode in episodes:
+        key = {
+            "user_id": user_id,
+            "series_id": series_id,
+            "season_number": season,
+            "episode_number": episode,
+        }
+        override = s.get(m.WatchOverride, key)
+        if watched is None:
+            if override is not None:
+                s.delete(override)
+            continue
+        if override is None:
+            s.add(m.WatchOverride(**key, watched=watched))
+        else:
+            override.watched = watched
+        row = s.get(m.WatchedEpisode, key)
+        if watched and row is None:
+            s.add(m.WatchedEpisode(**key, watched_on=today))
+        elif not watched and row is not None:
+            s.delete(row)

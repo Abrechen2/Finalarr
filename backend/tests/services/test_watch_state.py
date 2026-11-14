@@ -91,7 +91,9 @@ def test_series_watch_per_user_and_episode(db):
         {"name": "Dennis", "server": "Plex", "watched": 2, "last_watched": "2026-11-08"},
         {"name": "Anna", "server": "Plex", "watched": 1, "last_watched": "2026-11-02"},
     ]
-    assert state["episodes"] == {"1x1": ["Dennis", "Anna"], "1x2": ["Dennis"]}
+    ids = {v["name"]: v["id"] for v in state["viewers"]}
+    assert state["episodes"] == {"1x1": [ids["Dennis"], ids["Anna"]], "1x2": [ids["Dennis"]]}
+    assert state["corrected"] == []
     assert state["unwatched_on_disk"] == 1  # E03 is on disk, nobody saw it; E04 has no file
     assert state["next_unwatched"] == {"season": 1, "episode": 3}
 
@@ -105,6 +107,8 @@ def test_caught_up_and_nobody_watching(db):
         "enabled": True,
         "users": [],
         "episodes": {},
+        "viewers": idle["viewers"],
+        "corrected": [],
         "unwatched_on_disk": 0,
         "next_unwatched": None,
     }
