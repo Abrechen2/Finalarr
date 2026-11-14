@@ -379,7 +379,7 @@
   "waiting": {
     "title": "Worauf du wartest",
     "airing": "Staffel {{season}} läuft: {{have}} von {{expected}} Folgen sind da.",
-    "scheduled": "Staffel {{season}} startet bald.",
+    "scheduled": "Staffel {{season}} startet am {{date}}.",
     "missing_one": "Staffel {{season}}: {{count}} ausgestrahlte Folge fehlt noch in der Bibliothek.",
     "missing_other": "Staffel {{season}}: {{count}} ausgestrahlte Folgen fehlen noch in der Bibliothek.",
     "disputed": "Staffel {{season}}: Sonarr und AniList nennen verschiedene Folgenzahlen ({{expected}} und {{anilist}}).",

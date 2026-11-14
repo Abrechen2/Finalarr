@@ -41,7 +41,7 @@ _EXCLUDE = re.compile(
     r"\bfilm\b|\bmovie\b|kinofilm|watch order|reihenfolge|interview|"
     r"konzert|concert|ausstellung|exhibition|pop up|\btickets?\b|gewinnspiel|preorder|vorbestell|"
     r"\blike\b|to watch|\breview\w*|\brecap\w*|rueckblick|\bkritik\b|ranking|\branked\b|"
-    r"\bsongs?\b|soundtrack|music video|musikvideo)"
+    r"\bsongs?\b|soundtrack|music video|musikvideo|steelcase|\bedition\b|showcar|\bwirbt\b)"
 )
 # First match wins: a cancelled or delayed season matters more than its trailer.
 _KINDS: tuple[tuple[NewsKind, re.Pattern[str]], ...] = (

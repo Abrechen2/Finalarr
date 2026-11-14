@@ -68,6 +68,10 @@ def _season_state(series: m.Series, season: m.Season, now: datetime) -> dict[str
         return {"key": "missing", **base, "missing": missing}
     if season.state == "aired":
         return None
+    if season.state == "scheduled":
+        dates = [a for e in episodes if (a := _utc(e.air_date_utc)) is not None]
+        # Without a date, an announcement (or "date open") says more than "soon".
+        return {"key": "scheduled", **base, "first_air": min(dates).isoformat()} if dates else None
     if season.expected_count is None:
         return {"key": "count_unknown", **base}
     return {"key": season.state, **base}
@@ -83,10 +87,14 @@ def waiting_state(s: Session, series: m.Series, now: datetime) -> dict[str, Any]
     latest = seasons[-1] if seasons else None
     if latest is not None and (state := _season_state(series, latest, now)) is not None:
         return state
-    announced = _announcement(s, series, latest.number if latest else 0, now.date())
+    # A placeholder season that has not started can still be the announced one.
+    started = (latest.number - (latest.state == "scheduled")) if latest else 0
+    announced = _announcement(s, series, started, now.date())
     if announced is not None:
         return announced
     if latest is not None and latest.state == "complete":
         key = "ended" if series.status == "ended" else "complete_no_sequel"
         return {"key": key, "season": latest.number}
+    if latest is not None and latest.state == "scheduled":
+        return {"key": "renewed_open", "season": latest.number}
     return {"key": "nothing_known"}

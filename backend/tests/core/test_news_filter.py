@@ -110,3 +110,14 @@ def test_strong_news_survives_merchandise_words():
 )
 def test_evidence_sentence(summary, evidence):
     assert evidence_sentence(summary) == evidence
+
+
+@pytest.mark.parametrize(
+    "headline",
+    [
+        "»DAN DA DAN« wirbt mit Formel-1-Showcar für dritte Staffel",
+        "Zweite »DAN DA DAN«-Staffel erhält Steelcase-Edition von AniMoon",
+    ],
+)
+def test_promotion_and_editions_are_dropped(headline):
+    assert not is_season_news(headline, ["DAN DA DAN"])

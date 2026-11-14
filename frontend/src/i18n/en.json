@@ -379,7 +379,7 @@
   "waiting": {
     "title": "What you're waiting for",
     "airing": "Season {{season}} is airing: {{have}} of {{expected}} episodes are here.",
-    "scheduled": "Season {{season}} starts soon.",
+    "scheduled": "Season {{season}} starts on {{date}}.",
     "missing_one": "Season {{season}}: {{count}} aired episode is still missing from the library.",
     "missing_other": "Season {{season}}: {{count}} aired episodes are still missing from the library.",
     "disputed": "Season {{season}}: Sonarr and AniList name different episode counts ({{expected}} and {{anilist}}).",

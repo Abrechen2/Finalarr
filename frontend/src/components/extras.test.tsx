@@ -35,6 +35,10 @@ test.each([
     'Staffel 4 ist angekündigt: Start 05.04.2027.',
   ],
   [{ key: 'ended' }, 'Die Serie ist abgeschlossen.'],
+  [
+    { key: 'scheduled', season: 3, first_air: '2027-04-05T15:00:00Z' },
+    'Staffel 3 startet am 05.04.2027.',
+  ],
 ] as const)('waiting sentence %#', (waiting, text) => {
   render(<WaitingCard waiting={waiting} />)
   expect(screen.getByText(text)).toBeInTheDocument()

@@ -135,3 +135,36 @@ def test_not_followed_and_nothing_known(db):
             series.seasons.remove(x)
 
     assert state(db, empty) == {"key": "nothing_known"}
+
+
+def test_scheduled_season_names_its_start_or_falls_back_to_the_announcement(db):
+    def scheduled(s, series):
+        x = season(series)
+        x.state = "scheduled"
+        for e in x.episodes:
+            e.has_file, e.air_date_utc = False, NOW + timedelta(days=10 + e.number)
+
+    result = state(db, scheduled)
+    assert result["key"] == "scheduled"
+    assert result["first_air"][:10] == (NOW + timedelta(days=11)).date().isoformat()
+
+    def undated(s, series):
+        scheduled(s, series)
+        for e in season(series).episodes:
+            e.air_date_utc = None
+
+    assert state(db, undated) == {"key": "renewed_open", "season": 2}
+
+    def with_sequel(s, series):
+        undated(s, series)
+        announce(
+            s, series, "sequel_announced", sequel_title="Slime 2nd Season", first_air="2027-01-01"
+        )
+
+    assert state(db, with_sequel)["key"] == "announced"
+
+    def with_season(s, series):
+        undated(s, series)
+        announce(s, series, season=2, first_air="2027-04-05")
+
+    assert state(db, with_season)["first_air"] == "2027-04-05"
