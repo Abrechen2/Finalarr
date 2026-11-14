@@ -14,6 +14,7 @@ from finalarr.api.common import database
 from finalarr.api.events import event_view
 from finalarr.api.series import counted
 from finalarr.db.models import Channel, Delivery, Episode, Event, Season, Series, SonarrInstance
+from finalarr.services.watch_state import continue_watching
 
 bp = Blueprint("dashboard", __name__, url_prefix="/api/v1")
 RECENT_EVENTS = 10
@@ -100,5 +101,6 @@ def dashboard() -> ResponseReturnValue:
                 for c in finales
             ],
             "recent_events": [event_view(e) for e in recent],
+            "continue_watching": continue_watching(s),
             "onboarding": onboarding,
         }

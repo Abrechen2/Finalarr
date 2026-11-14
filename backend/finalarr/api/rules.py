@@ -41,6 +41,9 @@ class SettingsPatch(BaseModel):
     calendar_announcements: StrictBool | None = None
     calendar_days_back: int | None = Field(default=None, ge=0, le=90)
     calendar_days_ahead: int | None = Field(default=None, ge=7, le=730)
+    auto_follow: StrictBool | None = None
+    auto_follow_min_episodes: int | None = Field(default=None, ge=1, le=50)
+    auto_follow_days: int | None = Field(default=None, ge=1, le=365)
 
 
 def _nudge() -> None:

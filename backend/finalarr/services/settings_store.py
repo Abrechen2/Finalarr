@@ -27,6 +27,10 @@ DEFAULTS: dict[str, Any] = {
     "calendar_days_ahead": 120,
     # Ids from services.source_catalog the user switched off.
     "sources_disabled": [],
+    # Follow series that a selected media server user watches (services.watch_sync).
+    "auto_follow": True,
+    "auto_follow_min_episodes": 2,
+    "auto_follow_days": 30,
 }
 
 

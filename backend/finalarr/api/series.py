@@ -6,7 +6,7 @@ import base64
 import binascii
 import json
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Literal
 
 from flask import Blueprint, current_app, request
 from flask.typing import ResponseReturnValue
@@ -15,25 +15,37 @@ from sqlalchemy import Select, and_, or_, select, update
 from sqlalchemy.orm import Session, object_session, selectinload
 
 from finalarr.api.common import ApiProblem, database, not_found, parse_body
-from finalarr.db.models import AnilistMapping, Episode, Season, Series, SonarrInstance
+from finalarr.db.models import (
+    FOLLOW_MODES,
+    AnilistMapping,
+    Episode,
+    Season,
+    Series,
+    SonarrInstance,
+)
 from finalarr.services.reconcile_queue import enqueue
 from finalarr.services.series_extras import series_extras
 from finalarr.services.series_news import series_news
 from finalarr.services.settings_store import load_settings
 from finalarr.services.source_catalog import disabled_sources
 from finalarr.services.waiting import waiting_state
+from finalarr.services.watch_state import series_watch, watch_filter, watched_counts
 from finalarr.sources.feeds import fetch_feed
 
 bp = Blueprint("series", __name__, url_prefix="/api/v1/series")
 DEFAULT_LIMIT = 50
 MAX_LIMIT = 200
 TYPE_FILTERS = {"anime": ("anime",), "standard": ("standard", "daily")}
+WATCH_FILTERS = ("started", "behind", "caught_up")
 
 
 class SeriesPatch(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     followed: bool | None = None
+    # "auto" hands the series back to the media-server rule; followed/unfollowed by hand
+    # becomes "always"/"never".
+    follow_mode: Literal["auto"] | None = None
     include_specials: bool | None = None
     respect_monitoring: bool | None = None
     calendar: bool | None = None
@@ -72,6 +84,7 @@ def series_summary(series: Series) -> dict[str, Any]:
         "poster_url": series.poster_url,
         "monitored": series.monitored,
         "followed": series.followed,
+        "follow_mode": series.follow_mode,
         "include_specials": series.include_specials,
         "respect_monitoring": series.respect_monitoring,
         "calendar": series.calendar,
@@ -120,6 +133,7 @@ def series_detail(series: Series) -> dict[str, Any]:
     session = object_session(series)
     if session is not None:
         body["waiting"] = waiting_state(session, series, datetime.now(UTC))
+        body["watch"] = series_watch(session, series)
     body["details"] = {
         "overview": series.overview,
         "network": series.network,
@@ -180,6 +194,14 @@ def _filtered(query: Select[Series]) -> Select[Series]:
         query = query.where(Series.series_type.in_(TYPE_FILTERS[args["type"]]))
     if args.get("q"):
         query = query.where(Series.title.icontains(args["q"].strip(), autoescape=True))
+    if "watch" in args:
+        if args["watch"] not in WATCH_FILTERS:
+            raise ApiProblem(400, "bad_request", "watch must be started, behind or caught_up")
+        query = watch_filter(query, args["watch"])
+    if "follow" in args:
+        if args["follow"] not in FOLLOW_MODES:
+            raise ApiProblem(400, "bad_request", "follow must be auto, always or never")
+        query = query.where(Series.follow_mode == args["follow"])
     return query
 
 
@@ -206,8 +228,9 @@ def list_series() -> ResponseReturnValue:
     with database().session() as s:
         rows = list(s.scalars(query.limit(limit + 1)))
         page = rows[:limit]
+        watched = watched_counts(s, [r.id for r in page])
         return {
-            "items": [series_summary(r) for r in page],
+            "items": [series_summary(r) | {"watched": watched.get(r.id, 0)} for r in page],
             "next_cursor": _encode_cursor(page[-1]) if len(rows) > limit else None,
         }
 
@@ -277,6 +300,8 @@ def patch_series(series_id: int) -> ResponseReturnValue:
         newly_followed = body.followed is True and not series.followed
         for field, value in body.model_dump(exclude_none=True).items():
             setattr(series, field, value)
+        if body.followed is not None:
+            series.follow_mode = "always" if body.followed else "never"
         if (
             newly_followed
             or body.include_specials is not None
@@ -293,13 +318,17 @@ def patch_series(series_id: int) -> ResponseReturnValue:
 def follow_monitored() -> ResponseReturnValue:
     body = parse_body(FollowMonitored)
     with database().session() as s:
-        query = update(Series).where(Series.monitored.is_(True), Series.followed.is_(False))
+        query = update(Series).where(
+            Series.monitored.is_(True), Series.followed.is_(False), Series.follow_mode != "never"
+        )
         if body.instance_id is not None:
             query = query.where(Series.instance_id == body.instance_id)
         if body.tag is not None:
             # tags_json is a JSON list of labels; match the quoted label exactly.
             query = query.where(Series.tags_json.contains(json.dumps(body.tag), autoescape=True))
-        changed = s.execute(query.values(followed=True)).rowcount  # type: ignore[attr-defined]
+        changed = s.execute(  # type: ignore[attr-defined]
+            query.values(followed=True, follow_mode="always")
+        ).rowcount
         instances = select(SonarrInstance.id).where(SonarrInstance.enabled.is_(True))
         if body.instance_id is not None:
             instances = instances.where(SonarrInstance.id == body.instance_id)

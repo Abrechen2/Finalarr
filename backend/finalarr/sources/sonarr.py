@@ -105,9 +105,9 @@ def validate_base_url(url: str) -> str:
     """Accept only ``http(s)://host[:port][/path]`` without credentials."""
     parts = urlsplit(url.strip())
     if parts.scheme not in ("http", "https") or not parts.hostname:
-        raise ValueError("Sonarr URL must start with http:// or https:// and name a host")
+        raise ValueError("URL must start with http:// or https:// and name a host")
     if parts.username or parts.password:
-        raise ValueError("Sonarr URL must not contain credentials")
+        raise ValueError("URL must not contain credentials")
     return url.strip().rstrip("/")
 
 

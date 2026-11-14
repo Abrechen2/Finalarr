@@ -19,6 +19,7 @@ from finalarr.api import (
     dashboard,
     events,
     instances,
+    media_servers,
     rules,
     series,
     sources,
@@ -45,6 +46,7 @@ from finalarr.services.reconcile_queue import enqueue
 from finalarr.services.reconciler import Reconciler
 from finalarr.services.season_sources import JsonCache, TmdbSource, TraktSource, TvmazeSource
 from finalarr.services.series_extras import ExtrasSources
+from finalarr.services.watch_sync import WatchSync
 from finalarr.sources.anilist import AnilistClient
 from finalarr.sources.animeschedule import AnimeScheduleClient
 from finalarr.sources.feeds import FEEDS, fetch_feed
@@ -62,6 +64,7 @@ FEED_READS_PER_MINUTE = 30
 ANNOUNCEMENTS_EVERY_SECONDS = 6 * 60 * 60
 NEWS_EVERY_SECONDS = 30 * 60
 DELIVER_EVERY_SECONDS = 10
+MEDIA_EVERY_SECONDS = 30 * 60
 
 
 def extras_sources(settings: Settings, cache: JsonCache, anilist: CachedAnilist) -> ExtrasSources:
@@ -160,6 +163,8 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
         extra_titles=anilist_titles,
     )
 
+    watch_sync = WatchSync(database, box)
+
     def announcement_cycle() -> None:
         watcher.run()
         mal_watcher.run()
@@ -172,6 +177,7 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
             ("anilist", anilist_cycle, ANILIST_EVERY_SECONDS),
             ("announcements", announcement_cycle, ANNOUNCEMENTS_EVERY_SECONDS),
             ("news", news.run, NEWS_EVERY_SECONDS),
+            ("media", watch_sync.run, MEDIA_EVERY_SECONDS),
             ("deliver", delivery.run, DELIVER_EVERY_SECONDS),
         ],
     )
@@ -187,6 +193,7 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
         scheduler.run_soon("announcements")
 
     app.extensions["finalarr.nudge_anilist"] = nudge_sources
+    app.extensions["finalarr.nudge_media"] = lambda: scheduler.run_soon("media")
     app.extensions["finalarr.watcher"] = watcher
     app.register_blueprint(instances.bp)
     app.register_blueprint(webhook.bp)
@@ -199,6 +206,7 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
     app.register_blueprint(system.bp)
     app.register_blueprint(calendar.bp)
     app.register_blueprint(sources.bp)
+    app.register_blueprint(media_servers.bp)
     app.extensions["finalarr.feed_limiter"] = RateLimiter(FEED_READS_PER_MINUTE, 60)
     spa_dir = static_dir or Path(os.environ.get("FINALARR_STATIC_DIR", _DEFAULT_STATIC_DIR))
 

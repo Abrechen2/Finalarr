@@ -238,3 +238,59 @@ def test_series_extras_endpoint(api, app, library):
     body = api.get(f"/api/v1/series/{library['slime']}/extras").get_json()
     assert set(body) >= {"next_episode", "trailer", "watch", "channel", "dub", "errors"}
     assert api.get("/api/v1/series/999/extras").status_code == 404
+
+
+def follow_mode(app, title):
+    with app.extensions["finalarr.db"].session() as s:
+        row = s.scalar(select(m.Series).where(m.Series.title == title))
+        return row.followed, row.follow_mode
+
+
+def test_manual_follow_is_always_unfollow_is_never_and_auto_can_come_back(api, app, library):
+    andor = api.get("/api/v1/series?q=Andor").get_json()["items"][0]
+    assert andor["follow_mode"] == "auto"
+    api.patch(f"/api/v1/series/{andor['id']}", json={"followed": True})
+    assert follow_mode(app, "Andor") == (True, "always")
+    api.patch(f"/api/v1/series/{andor['id']}", json={"followed": False})
+    assert follow_mode(app, "Andor") == (False, "never")
+    body = api.patch(f"/api/v1/series/{andor['id']}", json={"follow_mode": "auto"}).get_json()
+    assert (body["followed"], body["follow_mode"]) == (False, "auto")
+    assert api.patch(f"/api/v1/series/{andor['id']}", json={"follow_mode": "x"}).status_code == 400
+
+
+def test_follow_all_respects_never_and_marks_always(api, app, library):
+    with app.extensions["finalarr.db"].session() as s:
+        s.scalar(select(m.Series).where(m.Series.title == "Andor")).follow_mode = "never"
+        s.commit()
+    assert api.post("/api/v1/series/follow-monitored", json={}).get_json() == {"followed": 0}
+    assert follow_mode(app, "Andor") == (False, "never")
+
+
+def _watch(app, title, episodes):
+    with app.extensions["finalarr.db"].session() as s:
+        series = s.scalar(select(m.Series).where(m.Series.title == title))
+        server = m.MediaServer(kind="emby", name="Emby", url="http://e", token_enc="x")
+        user = m.MediaUser(remote_id="u1", name="Dennis", selected=True)
+        server.users = [user]
+        s.add(server)
+        s.flush()
+        s.add_all(
+            m.WatchedEpisode(
+                user_id=user.id, series_id=series.id, season_number=1, episode_number=n
+            )
+            for n in episodes
+        )
+        s.commit()
+
+
+def test_detail_and_list_carry_watched_state_and_filters(api, app, library):
+    _watch(app, "Slime", [1, 2])
+    detail = api.get(f"/api/v1/series/{library['slime']}").get_json()
+    assert detail["watch"]["users"][0]["watched"] == 2
+    assert detail["watch"]["episodes"]["1x1"] == ["Dennis"]
+    listed = {i["title"]: i for i in api.get("/api/v1/series").get_json()["items"]}
+    assert listed["Slime"]["watched"] == 2 and listed["Andor"]["watched"] == 0
+    assert titles(api.get("/api/v1/series?watch=started")) == ["Slime"]
+    assert titles(api.get("/api/v1/series?follow=auto")) == titles(api.get("/api/v1/series"))
+    assert api.get("/api/v1/series?watch=nope").status_code == 400
+    assert api.get("/api/v1/series?follow=nope").status_code == 400

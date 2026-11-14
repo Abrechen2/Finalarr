@@ -67,3 +67,7 @@ def test_recent_events_are_the_latest_ten(api, app):
     events = api.get("/api/v1/dashboard").get_json()["recent_events"]
     assert len(events) == 10
     assert events[0]["payload"]["title"] == "11"
+
+
+def test_dashboard_has_a_continue_watching_list(api):
+    assert api.get("/api/v1/dashboard").get_json()["continue_watching"] == []
