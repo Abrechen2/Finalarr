@@ -58,8 +58,9 @@ def _sonarr_next(series: m.Series, now: datetime) -> dict[str, Any] | None:
 
 
 def _latest_anilist(s: Session, series: m.Series) -> tuple[int | None, list[int]]:
-    """AniList ids mapped to the highest TVDB season (manual pins win)."""
-    if series.series_type != "anime" or series.tvdb_id is None:
+    """AniList ids mapped to the highest TVDB season (manual pins win). Sonarr often
+    types anime as "standard", so the mapping decides, not the series type."""
+    if series.tvdb_id is None:
         return None, []
     rows = s.scalars(
         select(m.AnilistMapping).where(m.AnilistMapping.tvdb_id == series.tvdb_id)

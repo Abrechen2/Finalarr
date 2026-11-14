@@ -194,9 +194,18 @@ def test_past_remote_dates_are_ignored(db):
     assert extras(db, tvmaze=FakeTvmaze(show))["next_episode"] is None
 
 
-def test_standard_series_skips_anilist(db):
+def test_anime_typed_standard_still_uses_its_anilist_mapping(db):
     with db.session() as s:
         s.query(m.Series).one().series_type = "standard"
+        s.commit()
+    anilist = FakeAnilist({40: media()})
+    assert extras(db, tvmaze=None, anilist=anilist)["trailer"] == {"youtube_id": "yt40"}
+    assert anilist.asked == [[40]]
+
+
+def test_series_without_mapping_skips_anilist(db):
+    with db.session() as s:
+        s.query(m.AnilistMapping).delete()
         s.commit()
     anilist = FakeAnilist()
     extras(db, tvmaze=None, anilist=anilist)
