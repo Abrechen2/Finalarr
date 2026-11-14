@@ -34,6 +34,8 @@ def upgrade() -> None:
     with op.batch_alter_table("events") as batch_op:
         batch_op.drop_constraint("ck_events_type", type_="check")
         batch_op.create_check_constraint("ck_events_type", _NEW)
+    # Cached AniList media lack the new trailer and streaming fields: refetch them.
+    op.execute("DELETE FROM anilist_cache WHERE key LIKE 'media:%'")
 
 
 def downgrade() -> None:

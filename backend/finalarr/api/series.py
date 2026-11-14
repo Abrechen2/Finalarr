@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 import binascii
 import json
+from datetime import UTC, datetime
 from typing import Any
 
 from flask import Blueprint, current_app, request
@@ -16,6 +17,7 @@ from sqlalchemy.orm import Session, object_session, selectinload
 from finalarr.api.common import ApiProblem, database, not_found, parse_body
 from finalarr.db.models import AnilistMapping, Episode, Season, Series, SonarrInstance
 from finalarr.services.reconcile_queue import enqueue
+from finalarr.services.series_extras import series_extras
 from finalarr.services.series_news import series_news
 from finalarr.services.settings_store import load_settings
 from finalarr.sources.feeds import fetch_feed
@@ -241,6 +243,14 @@ def get_series_news(series_id: int) -> ResponseReturnValue:
             current_app.extensions["finalarr.json_cache"],
             fetch=current_app.extensions.get("finalarr.news_fetch", fetch_feed),
             web=bool(load_settings(s)["series_news_web"]),
+        )
+
+
+@bp.get("/<int:series_id>/extras")
+def get_series_extras(series_id: int) -> ResponseReturnValue:
+    with database().session() as s:
+        return series_extras(
+            s, _load(s, series_id), current_app.extensions["finalarr.extras"], datetime.now(UTC)
         )
 
 

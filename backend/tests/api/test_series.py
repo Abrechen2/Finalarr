@@ -225,3 +225,15 @@ def test_detail_carries_sonarr_details_and_delays(api, app, library):
     episodes = body["seasons"][0]["episodes"]
     assert episodes[2]["delayed_from"].startswith("2026-01-14")
     assert episodes[0]["delayed_from"] is None
+
+
+def test_series_extras_endpoint(api, app, library):
+    from finalarr.services.season_sources import JsonCache
+    from finalarr.services.series_extras import ExtrasSources
+
+    app.extensions["finalarr.extras"] = ExtrasSources(
+        cache=JsonCache(app.extensions["finalarr.db"]), tvmaze=None
+    )
+    body = api.get(f"/api/v1/series/{library['slime']}/extras").get_json()
+    assert set(body) >= {"next_episode", "trailer", "watch", "channel", "dub", "errors"}
+    assert api.get("/api/v1/series/999/extras").status_code == 404

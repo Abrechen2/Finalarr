@@ -76,3 +76,34 @@ def test_trakt_unknown_and_errors():
     responses.get(f"{TRAKT_URL}/shows/2/seasons", status=403)
     with pytest.raises(TraktError):
         TraktClient("c").seasons(2)
+
+
+@responses.activate
+def test_tmdb_extras_trailer_and_providers():
+    responses.get(
+        f"{TMDB_URL}/tv/95396",
+        json={
+            "videos": {
+                "results": [
+                    {"site": "YouTube", "type": "Teaser", "key": "tease"},
+                    {"site": "Vimeo", "type": "Trailer", "key": "vim"},
+                    {"site": "YouTube", "type": "Trailer", "key": "trail"},
+                ]
+            },
+            "watch/providers": {
+                "results": {
+                    "DE": {
+                        "link": "https://www.themoviedb.org/tv/95396/watch?locale=DE",
+                        "flatrate": [{"provider_name": "Apple TV+"}],
+                        "buy": [{"provider_name": "Amazon"}],
+                    }
+                }
+            },
+        },
+    )
+    extras = TmdbClient("k").extras(95396, "DE")
+    assert "append_to_response=videos%2Cwatch%2Fproviders" in responses.calls[0].request.url
+    assert extras.trailer == "trail"
+    assert extras.providers == ("Apple TV+",)
+    assert extras.link == "https://www.themoviedb.org/tv/95396/watch?locale=DE"
+    assert TmdbClient("k").extras(95396, "US").providers == ()

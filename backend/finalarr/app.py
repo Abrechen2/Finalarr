@@ -43,7 +43,9 @@ from finalarr.services.news import NewsWatcher, anilist_titles
 from finalarr.services.reconcile_queue import enqueue
 from finalarr.services.reconciler import Reconciler
 from finalarr.services.season_sources import JsonCache, TmdbSource, TraktSource, TvmazeSource
+from finalarr.services.series_extras import ExtrasSources
 from finalarr.sources.anilist import AnilistClient
+from finalarr.sources.animeschedule import AnimeScheduleClient
 from finalarr.sources.feeds import FEEDS, fetch_feed
 from finalarr.sources.jikan import JikanClient
 from finalarr.sources.tmdb import TmdbClient
@@ -59,6 +61,20 @@ FEED_READS_PER_MINUTE = 30
 ANNOUNCEMENTS_EVERY_SECONDS = 6 * 60 * 60
 NEWS_EVERY_SECONDS = 30 * 60
 DELIVER_EVERY_SECONDS = 10
+
+
+def extras_sources(settings: Settings, cache: JsonCache, anilist: CachedAnilist) -> ExtrasSources:
+    """Series page extras; TMDB and AnimeSchedule only with a key."""
+    tmdb = settings.tmdb_api_key
+    token = settings.animeschedule_token
+    return ExtrasSources(
+        cache=cache,
+        tvmaze=TvmazeClient(),
+        anilist=anilist,
+        tmdb=TmdbClient(tmdb.get_secret_value()) if tmdb else None,
+        animeschedule=AnimeScheduleClient(token.get_secret_value()) if token else None,
+        region=settings.watch_region,
+    )
 
 
 def season_sources(settings: Settings, cache: JsonCache) -> list[SeasonSource]:
@@ -123,6 +139,7 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
 
     json_cache = JsonCache(database)
     app.extensions["finalarr.json_cache"] = json_cache
+    app.extensions["finalarr.extras"] = extras_sources(settings, json_cache, cached_anilist)
     watcher = AnnouncementWatcher(
         database,
         season_sources(settings, json_cache),

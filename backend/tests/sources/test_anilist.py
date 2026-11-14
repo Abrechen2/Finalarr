@@ -121,3 +121,48 @@ def test_errors(kwargs):
 
 def test_empty_batch_makes_no_request():
     assert AnilistClient().media_batch([]) == {}
+
+
+@responses.activate
+def test_trailer_and_streaming_links():
+    responses.post(
+        ANILIST_URL,
+        json={
+            "data": {
+                "Page": {
+                    "media": [
+                        {
+                            "id": 7,
+                            "title": {"romaji": "G"},
+                            "trailer": {"id": "VpMwWDgZqtI", "site": "youtube"},
+                            "externalLinks": [
+                                {"site": "Twitter", "url": "https://x.com/g", "type": "SOCIAL"},
+                                {
+                                    "site": "Crunchyroll",
+                                    "url": "https://www.crunchyroll.com/series/G",
+                                    "type": "STREAMING",
+                                },
+                                {
+                                    "site": "Crunchyroll",
+                                    "url": "https://www.crunchyroll.com/de/series/G",
+                                    "type": "STREAMING",
+                                },
+                                {"site": "Evil", "url": "javascript:x", "type": "STREAMING"},
+                            ],
+                        },
+                        {
+                            "id": 8,
+                            "title": {"romaji": "H"},
+                            "trailer": {"id": "x", "site": "dailymotion"},
+                        },
+                    ]
+                }
+            }
+        },
+    )
+    media = AnilistClient().media_batch([7, 8])
+    assert "trailer" in json.loads(responses.calls[0].request.body)["query"]
+    assert media[7].youtube_trailer == "VpMwWDgZqtI"
+    assert media[7].streaming_links == [("Crunchyroll", "https://www.crunchyroll.com/series/G")]
+    assert media[8].youtube_trailer is None
+    assert media[8].streaming_links == []

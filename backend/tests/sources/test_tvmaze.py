@@ -92,3 +92,29 @@ def test_own_budget_waits_instead_of_failing():
         for _ in range(3):
             client.seasons(1)
     assert waits and sum(waits) >= 10
+
+
+@responses.activate
+def test_show_info_with_next_episode(client):
+    responses.get(
+        f"{TVMAZE_URL}/shows/44933",
+        json={
+            "network": None,
+            "webChannel": {"name": "Apple TV+"},
+            "_embedded": {
+                "nextepisode": {"season": 3, "number": 1, "airstamp": "2027-03-05T02:00:00+00:00"}
+            },
+        },
+    )
+    show = client.show(44933)
+    assert "embed=nextepisode" in responses.calls[0].request.url
+    assert show.channel == "Apple TV+"
+    assert (show.next_season, show.next_number) == (3, 1)
+    assert show.next_at.isoformat() == "2027-03-05T02:00:00+00:00"
+
+
+@responses.activate
+def test_show_info_network_without_next_episode(client):
+    responses.get(f"{TVMAZE_URL}/shows/1", json={"network": {"name": "CBS"}, "webChannel": None})
+    show = client.show(1)
+    assert (show.channel, show.next_at) == ("CBS", None)

@@ -42,6 +42,10 @@ class Settings(BaseSettings):
     # Optional extra announcement sources (free keys); unset = source off.
     tmdb_api_key: SecretStr | None = None
     trakt_client_id: SecretStr | None = None
+    # Optional AnimeSchedule.net app token: English dub dates and delay notes.
+    animeschedule_token: SecretStr | None = None
+    # Country for TMDB's "where to watch" (ISO 3166-1, e.g. DE, US, GB).
+    watch_region: str = Field(default="DE", pattern=r"^[A-Z]{2}$")
     # Base URL users open Finalarr at; enables "open in Finalarr" links in messages.
     public_url: str | None = None
     # Public base URL that serves only /ical/ (e.g. through a reverse proxy), shown as

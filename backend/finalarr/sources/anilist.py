@@ -27,6 +27,7 @@ title { romaji english } synonyms
 startDate { year month day } endDate { year month day }
 nextAiringEpisode { episode airingAt }
 relations { edges { relationType node { id type format status episodes } } }
+trailer { id site } externalLinks { site url type }
 """
 _BATCH_QUERY = "query($ids:[Int]){Page(perPage:50){media(id_in:$ids,type:ANIME){" + _FIELDS + "}}}"
 _SEARCH_QUERY = (
@@ -86,6 +87,17 @@ class _NextAiring(_Model):
     airing_at: int = Field(alias="airingAt")
 
 
+class _Trailer(_Model):
+    id: str | None = None
+    site: str | None = None
+
+
+class _Link(_Model):
+    site: str = ""
+    url: str = ""
+    type: str | None = None
+
+
 class AnilistMedia(_Model):
     id: int
     format: str | None = None
@@ -98,6 +110,8 @@ class AnilistMedia(_Model):
     end: _FuzzyDate = Field(default_factory=_FuzzyDate, alias="endDate")
     next_airing: _NextAiring | None = Field(default=None, alias="nextAiringEpisode")
     relations: _Relations = Field(default_factory=_Relations)
+    trailer: _Trailer | None = None
+    external_links: tuple[_Link, ...] = Field(default=(), alias="externalLinks")
 
     @property
     def title(self) -> str:
@@ -114,6 +128,19 @@ class AnilistMedia(_Model):
     @property
     def next_airing_at(self) -> datetime | None:
         return datetime.fromtimestamp(self.next_airing.airing_at, UTC) if self.next_airing else None
+
+    @property
+    def youtube_trailer(self) -> str | None:
+        return self.trailer.id if self.trailer and self.trailer.site == "youtube" else None
+
+    @property
+    def streaming_links(self) -> list[tuple[str, str]]:
+        """(site, url) of streaming services, first link per site, https only."""
+        seen: dict[str, str] = {}
+        for link in self.external_links:
+            if link.type == "STREAMING" and link.url.startswith("https://"):
+                seen.setdefault(link.site, link.url)
+        return list(seen.items())
 
     @property
     def relation_ids(self) -> list[tuple[str, int]]:

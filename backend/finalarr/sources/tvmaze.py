@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 import time
 from collections.abc import Callable
-from datetime import date
+from datetime import date, datetime
 
 import requests
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, ValidationError
@@ -33,6 +33,50 @@ class TvmazeSeason(BaseModel):
     premiere_date: date | None = Field(default=None, alias="premiereDate")
     end_date: date | None = Field(default=None, alias="endDate")
     episode_order: int | None = Field(default=None, alias="episodeOrder")
+
+
+class _Named(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    name: str = ""
+
+
+class _NextEpisode(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    season: int | None = None
+    number: int | None = None
+    airstamp: datetime | None = None
+
+
+class _Embedded(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    nextepisode: _NextEpisode | None = None
+
+
+class TvmazeShow(BaseModel):
+    """Channel and next episode of a show (``/shows/{id}?embed=nextepisode``)."""
+
+    model_config = ConfigDict(extra="ignore", populate_by_name=True, frozen=True)
+
+    network: _Named | None = None
+    web_channel: _Named | None = Field(default=None, alias="webChannel")
+    embedded: _Embedded = Field(default_factory=_Embedded, alias="_embedded")
+
+    @property
+    def channel(self) -> str | None:
+        named = self.web_channel or self.network
+        return named.name if named and named.name else None
+
+    @property
+    def next_at(self) -> datetime | None:
+        return self.embedded.nextepisode.airstamp if self.embedded.nextepisode else None
+
+    @property
+    def next_season(self) -> int | None:
+        return self.embedded.nextepisode.season if self.embedded.nextepisode else None
+
+    @property
+    def next_number(self) -> int | None:
+        return self.embedded.nextepisode.number if self.embedded.nextepisode else None
 
 
 class TvmazeClient:
@@ -66,7 +110,16 @@ class TvmazeClient:
         except ValidationError:
             raise TvmazeError("Unexpected response from TVmaze") from None
 
-    def _get(self, path: str, params: dict[str, int] | None = None) -> requests.Response:
+    def show(self, show_id: int) -> TvmazeShow:
+        response = self._get(f"/shows/{show_id}", {"embed": "nextepisode"})
+        if response.status_code != 200:
+            raise TvmazeError(f"TVmaze answered HTTP {response.status_code}")
+        try:
+            return TvmazeShow.model_validate_json(response.content)
+        except ValidationError:
+            raise TvmazeError("Unexpected response from TVmaze") from None
+
+    def _get(self, path: str, params: dict[str, int | str] | None = None) -> requests.Response:
         for attempt in range(2):
             while not self._budget.hit("tvmaze"):
                 self._sleep(self._window / 4)
