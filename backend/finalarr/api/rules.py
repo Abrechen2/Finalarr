@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictBool
 from finalarr.api.common import database, not_found, parse_body
 from finalarr.api.series import series_detail
 from finalarr.db.models import Season
+from finalarr.services.count_sources import count_sources
 from finalarr.services.reconcile_queue import enqueue
 from finalarr.services.settings_store import load_settings, save_settings
 
@@ -69,6 +70,21 @@ def patch_season(season_id: int) -> ResponseReturnValue:
     _nudge()
     season_view: dict[str, object] = next(x for x in detail["seasons"] if x["id"] == season_id)
     return season_view
+
+
+@bp.get("/seasons/<int:season_id>/count-sources")
+def season_count_sources(season_id: int) -> ResponseReturnValue:
+    with database().session() as s:
+        season = s.get(Season, season_id)
+        if season is None:
+            raise not_found("Season")
+        return count_sources(
+            s,
+            season.series,
+            season,
+            current_app.extensions["finalarr.json_cache"],
+            current_app.extensions["finalarr.anilist"],
+        )
 
 
 @bp.get("/settings")

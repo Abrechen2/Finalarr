@@ -77,3 +77,14 @@ def test_settings_defaults_and_update(api):
 )
 def test_settings_validation(api, body):
     assert api.patch("/api/v1/settings", json=body).status_code == 400
+
+
+def test_count_sources_endpoint(api, app, season_id):
+    class Anilist:
+        def media(self, ids):
+            return {}
+
+    app.extensions["finalarr.anilist"] = Anilist()
+    body = api.get(f"/api/v1/seasons/{season_id}/count-sources").get_json()
+    assert body["sources"][0]["source"] == "sonarr"
+    assert api.get("/api/v1/seasons/999/count-sources").status_code == 404
