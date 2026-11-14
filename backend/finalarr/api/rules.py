@@ -1,4 +1,4 @@
-"""Per-season overrides and global rules (PLAN.md sections 7, 4.2)."""
+"""Per-season overrides and global rules."""
 
 from __future__ import annotations
 

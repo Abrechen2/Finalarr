@@ -1,4 +1,4 @@
-"""AniList search and manual season pins (PLAN.md 4.1: never guessed silently)."""
+"""AniList search and manual season pins."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Quiet hours per channel: deliveries wait until the window ends (PLAN.md 3, 4.x)."""
+"""Quiet hours per channel: deliveries wait until the window ends."""
 
 from __future__ import annotations
 

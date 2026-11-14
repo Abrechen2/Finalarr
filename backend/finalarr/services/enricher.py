@@ -1,4 +1,4 @@
-"""AniList enrichment for followed anime (PLAN.md 4.1, 4.2).
+"""AniList enrichment for followed anime.
 
 Any series whose TVDB id Fribb maps is treated as anime, whatever its Sonarr
 series type. Per TVDB season: the mapped AniList entries (manual pins win over

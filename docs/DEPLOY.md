@@ -2,13 +2,13 @@
 
 ## Requirements
 
-- Docker with Compose, amd64 (arm64 images come with final releases).
+- Docker, amd64 or arm64 (release candidates are amd64 only). Image:
+  `ghcr.io/abrechen2/finalarr` (`latest`, a version such as `0.3.0`, or `rc-latest`).
 - Sonarr v4 reachable from the container.
 - Two secrets in the environment (Finalarr refuses to start without them):
   - `FINALARR_API_KEY` — at least 20 characters, e.g. `openssl rand -hex 32`. It is also
     the UI login.
-  - `FINALARR_SECRET_KEY` — a Fernet key:
-    `python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())'`.
+  - `FINALARR_SECRET_KEY` — a Fernet key: `openssl rand -base64 32 | tr '+/' '-_'`.
     It encrypts stored Sonarr keys and channel URLs; changing it makes them unreadable.
 
 Optional: `FINALARR_AUTH=local` (no login from home networks, like Sonarr's "disabled for
@@ -20,21 +20,44 @@ See `.env.example`.
 
 ## Docker Compose
 
+The README has a ready-to-use compose file with the published image. To build from a
+checkout instead:
+
 ```sh
 cp .env.example .env   # fill in the two keys
 docker compose up -d --build
 ```
 
-Data lives in `/config` (SQLite database, log, scheduler lock). Back it up like any
-other appdata folder.
+Data lives in `/config` (SQLite database, log, scheduler lock).
+
+## Updates and backups
+
+Pull the new image and recreate the container (`docker compose pull && docker compose up
+-d`); database migrations run on start. Back up `/config` and keep both keys: without the
+same `FINALARR_SECRET_KEY` a restored database cannot decrypt the stored Sonarr keys and
+channel URLs.
+
+## Remote access and HTTPS
+
+Finalarr speaks plain HTTP. For access from outside your network put it behind a reverse
+proxy with HTTPS and set:
+
+- `FINALARR_COOKIE_SECURE=true` — the login cookie is only sent over HTTPS;
+- `FINALARR_TRUSTED_PROXIES=1` (number of proxies) — so Finalarr sees the real client
+  address for rate limits and `FINALARR_AUTH=local`. With `local` and no trusted proxy,
+  forwarded requests always need the API key;
+- `FINALARR_PUBLIC_URL` — the address you open, for links in messages.
+
+Sonarr URL and channel URLs are requests Finalarr makes on your behalf; only people with
+the API key can set them, so keep the key private.
 
 ## Unraid
 
-Use `docker-compose.unraid.yml` as an overlay (`PUID=99`, `PGID=100`, appdata path,
-env file) or create a container from the image with the same settings. To ship an image
-built elsewhere: `DEPLOY_HOST=root@unraid scripts/deploy.sh [--rc N]` builds amd64,
-loads it over SSH, restarts the container and waits for `/health`. It asks before
-restarting.
+Install Finalarr from Community Applications (template: `unraid/my-finalarr.xml`). With
+Compose: `docker-compose.unraid.yml` is an overlay with `PUID=99`, `PGID=100`, the appdata
+path and an env file. For your own builds, `DEPLOY_HOST=root@unraid scripts/deploy.sh
+[--rc N]` builds amd64, loads it over SSH, restarts the container and waits for `/health`;
+it asks before restarting.
 
 ## Connect Sonarr
 

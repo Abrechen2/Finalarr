@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/Abrechen2/Finalarr/security/advisories/new
+    about: Please report security problems privately, not as an issue.
+  - name: Questions and ideas
+    url: https://github.com/Abrechen2/Finalarr/discussions
+    about: Setup help, questions and ideas that are not a bug.

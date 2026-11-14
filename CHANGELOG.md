@@ -59,5 +59,15 @@ landed and when a season is complete.
   (`FINALARR_ANIMESCHEDULE_TOKEN`).
 - `FINALARR_AUTH=local`: no login from your home network; the API key is still needed from
   anywhere else.
+- **Open source** on GitHub: CI, release images on GHCR (amd64; arm64 too for final
+  releases), Unraid Community Applications template, issue templates, private security
+  reporting, licence notices in the image (`/licenses/INDEX.txt`).
 - Runs as one Docker container (non-root, PUID/PGID, healthcheck, data in `/config`);
   refuses to start without `FINALARR_API_KEY` and `FINALARR_SECRET_KEY`.
+
+### Security
+- `FINALARR_AUTH=local` no longer trusts forwarded requests unless
+  `FINALARR_TRUSTED_PROXIES` is set; behind an unconfigured proxy every visitor looked local.
+- Logs strip bot tokens, webhook secrets, passwords and token parameters from HTTP(S)
+  URLs that Apprise prints.
+

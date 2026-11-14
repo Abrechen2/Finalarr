@@ -1,4 +1,4 @@
-"""Sending through Apprise, with errors captured and redacted (PLAN.md section 9)."""
+"""Sending through Apprise, with errors captured and redacted."""
 
 from __future__ import annotations
 

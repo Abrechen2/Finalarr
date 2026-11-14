@@ -1,4 +1,4 @@
-"""TVDB season → AniList id mapping from Fribb's anime-lists (PLAN.md 4.1).
+"""TVDB season → AniList id mapping from Fribb's anime-lists.
 
 AniList has no TVDB lookup, so this community list is the bridge. It is
 refreshed weekly; manual pins (source "manual") are never touched.

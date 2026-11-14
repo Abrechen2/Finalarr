@@ -1,4 +1,4 @@
-"""System status and log tail (PLAN.md section 7)."""
+"""System status and log tail."""
 
 from __future__ import annotations
 

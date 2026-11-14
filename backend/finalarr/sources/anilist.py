@@ -1,4 +1,4 @@
-"""AniList GraphQL client (public API, no key). PLAN.md 4.1 and section 9.
+"""AniList GraphQL client (public API, no key).
 
 AniList allows 90 requests/min nominally and 30/min while degraded; Finalarr
 keeps its own budget well below that and honours 429 ``Retry-After``. Media are

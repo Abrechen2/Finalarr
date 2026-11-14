@@ -1,4 +1,4 @@
-"""Notification texts DE/EN, Telegram-safe HTML (PLAN.md 16.5)."""
+"""Notification texts DE/EN, Telegram-safe HTML."""
 
 from __future__ import annotations
 

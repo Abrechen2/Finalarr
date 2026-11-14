@@ -1,4 +1,4 @@
-"""AniList media cache in the database (TTL per PLAN.md section 9)."""
+"""AniList media cache in the database, with a TTL per airing status."""
 
 from __future__ import annotations
 

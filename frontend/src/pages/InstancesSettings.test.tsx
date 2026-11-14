@@ -10,7 +10,7 @@ afterEach(() => {
 
 const instance = {
   id: 1,
-  name: 'Unraid',
+  name: 'Home',
   url: 'http://sonarr:8989',
   api_key: '***abcd',
   enabled: true,
@@ -35,7 +35,7 @@ test('instance row: status, webhook URL, actions', async () => {
     'DELETE /api/v1/instances/1': { status: 204, body: {} },
   })
   renderWithProviders(<InstancesSettings />)
-  expect(await screen.findByText('Unraid')).toBeInTheDocument()
+  expect(await screen.findByText('Home')).toBeInTheDocument()
   expect(screen.getByText('Sonarr cannot be reached')).toBeInTheDocument()
   expect(screen.getByText(/Letzter Abgleich/)).toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: 'Kopieren' }))

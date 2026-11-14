@@ -1,4 +1,4 @@
-"""Background jobs with a singleton guarantee (PLAN.md 4.5).
+"""Background jobs with a singleton guarantee.
 
 The scheduler only runs in the process that holds an exclusive ``flock`` on
 ``/config/scheduler.lock``. A second process (e.g. an overlapping worker during

@@ -1,4 +1,4 @@
-"""Notification channels and event resend (PLAN.md sections 7, 16.3)."""
+"""Notification channels and event resend."""
 
 from __future__ import annotations
 

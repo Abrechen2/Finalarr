@@ -1,4 +1,4 @@
-"""Dashboard: airing seasons, upcoming finales, recent reports (PLAN.md 16.3)."""
+"""Dashboard: airing seasons, upcoming finales, recent reports."""
 
 from __future__ import annotations
 

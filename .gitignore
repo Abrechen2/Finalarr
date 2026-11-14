@@ -22,3 +22,4 @@ coverage/
 *.egg-info/
 build/
 !.env.example
+docs/PLAN.md

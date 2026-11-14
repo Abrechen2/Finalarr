@@ -1,4 +1,4 @@
-"""Gunicorn settings (PLAN.md 4.5): one worker, the scheduler starts after fork."""
+"""Gunicorn settings: one worker, the scheduler starts after fork."""
 
 import os
 

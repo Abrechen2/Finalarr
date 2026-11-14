@@ -1,4 +1,4 @@
-"""Uniform API error bodies: ``{"error": {"code", "message"}}`` (PLAN.md section 7)."""
+"""Uniform API error bodies: ``{"error": {"code", "message"}}``."""
 
 from flask import Response, jsonify
 

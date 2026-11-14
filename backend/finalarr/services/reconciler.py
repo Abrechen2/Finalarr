@@ -1,4 +1,4 @@
-"""Reconciler: Sonarr → database → evaluator → events (PLAN.md 4, "polling decides").
+"""Reconciler: Sonarr → database → evaluator → events.
 
 Sonarr is read outside any transaction; each series is then written in one
 short transaction together with its season state and new events (outbox).
@@ -322,7 +322,7 @@ def _store_result(season: m.Season, result: Evaluation, now: datetime) -> None:
 def record_events(
     s: Session, series: m.Series, season: m.Season, result: Evaluation
 ) -> list[m.Event]:
-    """Insert new events; an existing fingerprint is a no-op (PLAN.md 4.3)."""
+    """Insert new events; an existing fingerprint is a no-op."""
     created = []
     for event in result.events:
         payload = {

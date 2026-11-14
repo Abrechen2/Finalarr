@@ -5,7 +5,7 @@ def test_status_reports_version_db_scheduler_and_instances(api, instance):
     body = api.get("/api/v1/system/status").get_json()
     assert body["db"] == "ok"
     assert body["scheduler"] == {"running": False, "jobs": []}
-    assert body["instances"][0]["name"] == "Unraid"
+    assert body["instances"][0]["name"] == "Home"
     assert "version" in body
 
 

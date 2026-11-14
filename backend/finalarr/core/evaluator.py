@@ -1,6 +1,6 @@
 """Pure season evaluator: ``evaluate(season, memory, now, policy) -> Evaluation``.
 
-No I/O and no clock: everything comes in as arguments (PLAN.md 4.3). Rules:
+No I/O and no clock: everything comes in as arguments. Rules:
 
 - The first evaluation of a season is a silent baseline, so an existing library
   never floods the channel. Specials (season 0) stay silent unless included.

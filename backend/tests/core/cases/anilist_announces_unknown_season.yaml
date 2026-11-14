@@ -1,4 +1,4 @@
-# Codex review: AniList may announce a season Sonarr does not list yet (PLAN.md 4.2).
+# Codex review: AniList may announce a season Sonarr does not list yet.
 season: {number: 2}
 episodes: {count: 0}
 runs:

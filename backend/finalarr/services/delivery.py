@@ -1,4 +1,4 @@
-"""Delivery queue: one row per (event, channel), retried with backoff (PLAN.md 4.3).
+"""Delivery queue: one row per (event, channel), retried with backoff.
 
 Deliveries are created in the same transaction as their events (outbox). A
 send is at-least-once: a crash between the provider's OK and the commit can

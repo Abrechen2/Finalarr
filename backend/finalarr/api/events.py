@@ -1,4 +1,4 @@
-"""Event log and season evaluation (PLAN.md section 7)."""
+"""Event log and season evaluation."""
 
 from __future__ import annotations
 

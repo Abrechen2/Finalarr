@@ -1,4 +1,4 @@
-"""Deterministic event fingerprints; the events table keeps them UNIQUE (PLAN.md 4.3)."""
+"""Deterministic event fingerprints; the events table keeps them UNIQUE."""
 
 import hashlib
 

@@ -1,4 +1,4 @@
-"""Sonarr webhook receiver. The body is only a trigger (PLAN.md section 9).
+"""Sonarr webhook receiver. The body is only a trigger.
 
 Order matters: size cap, IP allowlist, token, Basic auth and rate limit are all
 checked before the body is parsed. Nothing from the body is stored except the

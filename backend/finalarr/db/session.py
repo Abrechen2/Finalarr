@@ -1,4 +1,4 @@
-"""Engine, sessions and migrations for the SQLite database (PLAN.md 4.4, 6)."""
+"""Engine, sessions and migrations for the SQLite database."""
 
 from __future__ import annotations
 

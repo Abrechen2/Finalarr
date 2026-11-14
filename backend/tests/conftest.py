@@ -42,7 +42,7 @@ def api(client):
 def instance(api, app):
     response = api.post(
         "/api/v1/instances",
-        json={"name": "Unraid", "url": "http://sonarr:8989", "api_key": "sonarr-secret-key"},
+        json={"name": "Home", "url": "http://sonarr:8989", "api_key": "sonarr-secret-key"},
     )
     assert response.status_code == 201, response.get_json()
     from finalarr.services.reconcile_queue import take_all

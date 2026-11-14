@@ -1,5 +1,5 @@
 """API authentication: ``X-Api-Key`` header, or a session cookie set by logging in
-with the same key (PLAN.md section 9).
+with the same key.
 
 Cookie sessions carry a digest of the API key, so rotating the key ends them.
 Writes over a cookie session need the ``X-Requested-With: finalarr`` header,

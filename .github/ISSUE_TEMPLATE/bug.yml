@@ -1,0 +1,38 @@
+name: Bug report
+description: Something in Finalarr does not work as described
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Logs are in *Settings → System* or `/config/finalarr.log`;
+        Finalarr strips keys and channel URLs, but please check before pasting.
+  - type: input
+    id: version
+    attributes:
+      label: Finalarr version
+      description: Shown on the About page.
+      placeholder: 0.3.0
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How to reproduce
+      description: Series, season, Sonarr version, channel type — whatever matters.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log lines
+      render: text
+  - type: dropdown
+    id: install
+    attributes:
+      label: Installation
+      options: [Docker Compose, Unraid, Other]

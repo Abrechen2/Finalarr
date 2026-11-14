@@ -8,7 +8,7 @@
   <Privileged>false</Privileged>
   <Support>https://github.com/Abrechen2/Finalarr/issues</Support>
   <Project>https://github.com/Abrechen2/Finalarr</Project>
-  <Overview>Season-finale and season-complete notifier for Sonarr. Tells you once when new episodes are on disk, when the season finale has landed and when a season is complete (AniList cross-check for anime, split cours included). Telegram, Discord, Pushover, webhooks or any Apprise URL. Web UI in German and English. A project by abrechen2 (https://www.abrechen2.de/en/).</Overview>
+  <Overview>Season-finale and season-complete notifier for Sonarr. Tells you once when new episodes are on disk, when the season finale has landed and when a season is complete (AniList cross-check for anime, split cours included), and what you are still waiting for: announced seasons and sequels, postponed episodes, the next air date. Calendar with iCal feed. Telegram, Discord, Pushover, webhooks or any Apprise URL. Web UI in German and English. A project by abrechen2 (https://www.abrechen2.de/en/).</Overview>
   <Category>MediaApp:Video Tools: Status:Beta</Category>
   <WebUI>http://[IP]:[PORT:5790]/</WebUI>
   <Icon>https://raw.githubusercontent.com/Abrechen2/Finalarr/main/assets/icon-512.png</Icon>
@@ -18,8 +18,14 @@
   <Config Name="WebUI port" Target="5790" Default="5790" Mode="tcp" Description="Web UI, API and Sonarr webhook" Type="Port" Display="always" Required="true" Mask="false">5790</Config>
   <Config Name="Config" Target="/config" Default="/mnt/user/appdata/finalarr" Mode="rw" Description="Database, log and scheduler lock" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/finalarr</Config>
   <Config Name="API key" Target="FINALARR_API_KEY" Default="" Mode="" Description="Required, at least 20 characters (e.g. openssl rand -hex 32). Also your login." Type="Variable" Display="always" Required="true" Mask="true"/>
-  <Config Name="Secret key" Target="FINALARR_SECRET_KEY" Default="" Mode="" Description="Required Fernet key that encrypts stored Sonarr keys and channel URLs. See docs/DEPLOY.md to generate one; keep it, changing it makes stored secrets unreadable." Type="Variable" Display="always" Required="true" Mask="true"/>
+  <Config Name="Secret key" Target="FINALARR_SECRET_KEY" Default="" Mode="" Description="Required. Encrypts stored Sonarr keys and channel URLs. Generate in the Unraid terminal: openssl rand -base64 32 | tr '+/' '-_' — keep it; changing it makes stored secrets unreadable." Type="Variable" Display="always" Required="true" Mask="true"/>
   <Config Name="Public URL" Target="FINALARR_PUBLIC_URL" Default="" Mode="" Description="Optional address you open Finalarr at; adds links to messages." Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="Login from home network" Target="FINALARR_AUTH" Default="required" Mode="" Description="required = API key everywhere; local = no login from private addresses (behind a reverse proxy also set Trusted proxies)" Type="Variable" Display="always" Required="false" Mask="false">required</Config>
+  <Config Name="Trusted proxies" Target="FINALARR_TRUSTED_PROXIES" Default="0" Mode="" Description="Number of reverse proxies in front of Finalarr (e.g. 1 behind Nginx Proxy Manager)" Type="Variable" Display="advanced" Required="false" Mask="false">0</Config>
+  <Config Name="TMDB API key" Target="FINALARR_TMDB_API_KEY" Default="" Mode="" Description="Optional (themoviedb.org): earlier season announcements, where to watch per country, trailers" Type="Variable" Display="advanced" Required="false" Mask="true"/>
+  <Config Name="Watch region" Target="FINALARR_WATCH_REGION" Default="DE" Mode="" Description="Country for where to watch (ISO code, e.g. DE, US, GB)" Type="Variable" Display="advanced" Required="false" Mask="false">DE</Config>
+  <Config Name="Trakt client id" Target="FINALARR_TRAKT_CLIENT_ID" Default="" Mode="" Description="Optional (trakt.tv): another source for season announcements" Type="Variable" Display="advanced" Required="false" Mask="true"/>
+  <Config Name="AnimeSchedule token" Target="FINALARR_ANIMESCHEDULE_TOKEN" Default="" Mode="" Description="Optional (animeschedule.net): English dub dates" Type="Variable" Display="advanced" Required="false" Mask="true"/>
   <Config Name="PUID" Target="PUID" Default="99" Mode="" Description="User id for files in /config" Type="Variable" Display="advanced" Required="false" Mask="false">99</Config>
   <Config Name="PGID" Target="PGID" Default="100" Mode="" Description="Group id for files in /config" Type="Variable" Display="advanced" Required="false" Mask="false">100</Config>
   <Config Name="TZ" Target="TZ" Default="Europe/Berlin" Mode="" Description="Time zone for quiet hours" Type="Variable" Display="advanced" Required="false" Mask="false">Europe/Berlin</Config>

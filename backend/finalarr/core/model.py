@@ -1,4 +1,4 @@
-"""Immutable value types for the pure season evaluator (PLAN.md 4.2-4.3)."""
+"""Immutable value types for the pure season evaluator."""
 
 from __future__ import annotations
 

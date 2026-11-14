@@ -31,7 +31,7 @@ def db(tmp_path):
 
 def _series(session):
     instance = m.SonarrInstance(
-        name="Unraid", url="http://sonarr:8989", api_key_enc="x", webhook_token="t" * 64
+        name="Home", url="http://sonarr:8989", api_key_enc="x", webhook_token="t" * 64
     )
     series = m.Series(instance=instance, sonarr_id=1, title="Slime", series_type="anime")
     season = m.Season(series=series, number=3)

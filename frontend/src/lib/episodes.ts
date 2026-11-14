@@ -2,7 +2,7 @@ import type { EpisodeDetail } from './types'
 
 export type EpisodeCell = 'file' | 'missing' | 'future'
 
-/** How an episode square looks (PLAN.md 16.3): on disk, aired without file, not aired yet. */
+/** How an episode square looks: on disk, aired without file, not aired yet. */
 export function episodeCell(episode: EpisodeDetail, now: Date): EpisodeCell {
   if (episode.has_file) return 'file'
   if (episode.air_date && new Date(episode.air_date) <= now) return 'missing'

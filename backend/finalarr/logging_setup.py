@@ -1,4 +1,4 @@
-"""Logging to stdout and /config/finalarr.log, with secrets stripped (PLAN.md section 9)."""
+"""Logging to stdout and /config/finalarr.log, with secrets stripped."""
 
 from __future__ import annotations
 

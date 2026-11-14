@@ -1,0 +1,11 @@
+# Overlay for Unraid: docker compose -f docker-compose.yml -f docker-compose.unraid.yml up -d
+services:
+  finalarr:
+    environment:
+      - PUID=99
+      - PGID=100
+    env_file:
+      - path: /mnt/user/appdata/finalarr/finalarr.env
+        required: true
+    volumes:
+      - /mnt/user/appdata/finalarr/config:/config

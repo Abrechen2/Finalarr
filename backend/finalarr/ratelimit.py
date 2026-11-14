@@ -1,4 +1,4 @@
-"""Small in-process sliding-window rate limiter (single worker, see PLAN.md 4.5)."""
+"""Small in-process sliding-window rate limiter (single worker)."""
 
 import threading
 import time

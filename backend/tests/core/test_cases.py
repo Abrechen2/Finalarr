@@ -1,4 +1,4 @@
-"""Table-driven evaluator cases (PLAN.md section 12). A new bug = a new YAML case."""
+"""Table-driven evaluator cases. A new bug = a new YAML case."""
 
 from typing import Any
 

@@ -1,4 +1,4 @@
-"""Sonarr instances: CRUD, connection test, webhook token, manual sync (PLAN.md section 7)."""
+"""Sonarr instances: CRUD, connection test, webhook token, manual sync."""
 
 from __future__ import annotations
 

@@ -5,7 +5,7 @@ from finalarr.db import models as m
 
 
 def test_create_masks_the_key_and_issues_a_webhook_token(instance):
-    assert instance["name"] == "Unraid"
+    assert instance["name"] == "Home"
     assert instance["api_key"] == "***-key"
     assert "sonarr-secret-key" not in str(instance)
     assert len(instance["webhook_token"]) == 64
@@ -39,7 +39,7 @@ def test_invalid_body_is_400_with_fields(api):
 
 def test_duplicate_name_is_409(api, instance):
     response = api.post(
-        "/api/v1/instances", json={"name": "Unraid", "url": "http://x:1", "api_key": "k"}
+        "/api/v1/instances", json={"name": "Home", "url": "http://x:1", "api_key": "k"}
     )
     assert response.status_code == 409
 

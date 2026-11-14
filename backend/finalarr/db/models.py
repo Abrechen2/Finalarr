@@ -1,4 +1,4 @@
-"""SQLAlchemy models; schema per PLAN.md section 6 incl. the constraints from 20.1."""
+"""SQLAlchemy models with the database constraints."""
 
 from __future__ import annotations
 
@@ -276,7 +276,7 @@ class Setting(Base):
 
 
 class ReconcileRequest(Base):
-    """Durable, per-series coalesced reconcile trigger (PLAN.md 4.5). series 0 = full sync."""
+    """Durable, per-series coalesced reconcile trigger. series 0 = full sync."""
 
     __tablename__ = "reconcile_requests"
     __table_args__ = (UniqueConstraint("instance_id", "sonarr_series_id"),)

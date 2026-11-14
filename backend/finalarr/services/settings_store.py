@@ -1,4 +1,4 @@
-"""Global rules stored in the ``settings`` table, with defaults (PLAN.md 4.3, 16.3)."""
+"""Global rules stored in the ``settings`` table, with defaults."""
 
 from __future__ import annotations
 

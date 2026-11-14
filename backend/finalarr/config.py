@@ -1,4 +1,4 @@
-"""Bootstrap configuration from the environment (PLAN.md section 8).
+"""Bootstrap configuration from the environment.
 
 Fails closed: without a usable API key and Fernet secret key the app refuses to
 start. Everything else lives in the database and the UI.
@@ -90,9 +90,7 @@ class Settings(BaseSettings):
             Fernet(value.get_secret_value().strip().encode())
         except (ValueError, TypeError):
             raise ValueError(
-                "must be a Fernet key (generate one with "
-                "`python -c 'from cryptography.fernet import Fernet; "
-                "print(Fernet.generate_key().decode())'`)"
+                "must be a Fernet key (generate one with `openssl rand -base64 32 | tr '+/' '-_'`)"
             ) from None
         return SecretStr(value.get_secret_value().strip())
 

@@ -1,4 +1,4 @@
-"""Series list/detail and follow switches (PLAN.md section 7, 16.3)."""
+"""Series list/detail and follow switches."""
 
 from __future__ import annotations
 

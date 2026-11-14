@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 import type { SeasonSummary } from '../lib/types'
 import { StateBadge } from './StateBadge'
 
-/** Bar + mono "7/12" label + state badge (PLAN.md 16.4). */
+/** Bar + mono "7/12" label + state badge. */
 export function SeasonProgress({ season }: { season: SeasonSummary }) {
   const { t } = useTranslation()
   const expected = season.expected ?? 0

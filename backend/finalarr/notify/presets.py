@@ -1,4 +1,4 @@
-"""Channel presets → Apprise URLs (PLAN.md 16.3). The stored URL is never shown again."""
+"""Channel presets → Apprise URLs. The stored URL is never shown again."""
 
 from __future__ import annotations
 
