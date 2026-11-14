@@ -34,7 +34,9 @@ def _finale(episodes: list[Episode]) -> Episode | None:
 
 def _season_card(series: Series, season: Season, now: datetime) -> dict[str, Any] | None:
     episodes = counted(series, season)
-    upcoming = sorted(a for e in episodes if (a := _aware(e.air_date_utc)) is not None and a > now)
+    upcoming = sorted(
+        (a, e.number) for e in episodes if (a := _aware(e.air_date_utc)) is not None and a > now
+    )
     finale = _finale(episodes)
     finale_at = _aware(finale.air_date_utc) if finale else None
     return {
@@ -47,7 +49,8 @@ def _season_card(series: Series, season: Season, now: datetime) -> dict[str, Any
         "have": sum(1 for e in episodes if e.has_file),
         "expected": season.expected_count,
         "disputed": season.disputed,
-        "next_air_date": upcoming[0].isoformat() if upcoming else None,
+        "next_air_date": upcoming[0][0].isoformat() if upcoming else None,
+        "next_episode": upcoming[0][1] if upcoming else None,
         "finale_episode": finale.number if finale and finale_at and finale_at > now else None,
         "finale_air_date": finale_at.isoformat() if finale_at and finale_at > now else None,
     }

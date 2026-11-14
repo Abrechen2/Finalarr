@@ -47,6 +47,7 @@ def test_airing_seasons_and_upcoming_finales(api, app, instance):
     airing = [(a["title"], a["have"], a["expected"]) for a in body["airing"]]
     assert airing == [("Andor", 1, 3), ("Slime", 2, 4)]  # sorted by next air date
     assert body["airing"][0]["next_air_date"][:10] == (NOW + timedelta(days=3)).date().isoformat()
+    assert [a["next_episode"] for a in body["airing"]] == [2, 3]
     finales = [(f["title"], f["episode"]) for f in body["upcoming_finales"]]
     assert finales == [("Slime", 4), ("Andor", 3)]
     assert body["onboarding"] == {"instance": True, "followed": True, "channel": False}

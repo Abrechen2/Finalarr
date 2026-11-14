@@ -222,6 +222,7 @@ def test_detail_carries_sonarr_details_and_delays(api, app, library):
         "genres": ["Anime"],
         "fanart_url": "https://img/fanart.jpg",
     }
+    assert body["waiting"]["key"]
     episodes = body["seasons"][0]["episodes"]
     assert episodes[2]["delayed_from"].startswith("2026-01-14")
     assert episodes[0]["delayed_from"] is None

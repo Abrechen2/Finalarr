@@ -20,6 +20,7 @@ from finalarr.services.reconcile_queue import enqueue
 from finalarr.services.series_extras import series_extras
 from finalarr.services.series_news import series_news
 from finalarr.services.settings_store import load_settings
+from finalarr.services.waiting import waiting_state
 from finalarr.sources.feeds import fetch_feed
 
 bp = Blueprint("series", __name__, url_prefix="/api/v1/series")
@@ -115,6 +116,9 @@ def series_detail(series: Series) -> dict[str, Any]:
     body = series_summary(series)
     anilist = _anilist_by_season(series)
     body["sonarr_url"] = f"{series.instance.url}/series/{series.title_slug}"
+    session = object_session(series)
+    if session is not None:
+        body["waiting"] = waiting_state(session, series, datetime.now(UTC))
     body["details"] = {
         "overview": series.overview,
         "network": series.network,
