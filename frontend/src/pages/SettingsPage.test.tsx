@@ -11,6 +11,7 @@ const RULES = {
   stable_runs: 2,
   reconcile_interval_minutes: 30,
   news_feeds: true,
+  series_news_web: true,
 }
 
 afterEach(async () => {

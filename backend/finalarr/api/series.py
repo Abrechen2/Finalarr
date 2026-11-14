@@ -16,6 +16,9 @@ from sqlalchemy.orm import Session, object_session, selectinload
 from finalarr.api.common import ApiProblem, database, not_found, parse_body
 from finalarr.db.models import AnilistMapping, Episode, Season, Series, SonarrInstance
 from finalarr.services.reconcile_queue import enqueue
+from finalarr.services.series_news import series_news
+from finalarr.services.settings_store import load_settings
+from finalarr.sources.feeds import fetch_feed
 
 bp = Blueprint("series", __name__, url_prefix="/api/v1/series")
 DEFAULT_LIMIT = 50
@@ -214,6 +217,23 @@ def list_tags() -> ResponseReturnValue:
     with database().session() as s:
         labels = {label for raw in s.scalars(select(Series.tags_json)) for label in json.loads(raw)}
     return sorted(labels)
+
+
+@bp.get("/<int:series_id>/news")
+def get_series_news(series_id: int) -> ResponseReturnValue:
+    language = request.args.get("lang", "de")
+    if language not in ("de", "en"):
+        raise ApiProblem(400, "bad_request", "lang must be de or en")
+    with database().session() as s:
+        series = _load(s, series_id)
+        return series_news(
+            s,
+            series,
+            language,
+            current_app.extensions["finalarr.json_cache"],
+            fetch=current_app.extensions.get("finalarr.news_fetch", fetch_feed),
+            web=bool(load_settings(s)["series_news_web"]),
+        )
 
 
 @bp.get("/<int:series_id>")

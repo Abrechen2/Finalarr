@@ -173,7 +173,7 @@ test('detail shows seasons, dispute, unknown season hint and the Sonarr link', a
   expect(screen.getByRole('note')).toHaveTextContent('Sonarr listet 1 Folgen, AniList nennt 24')
   expect(screen.getByText('Sonarr kennt diese Staffel noch nicht.')).toBeInTheDocument()
   const headings = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)
-  expect(headings).toEqual(['Staffel 4', 'Staffel 3'])
+  expect(headings).toEqual(['News', 'Staffel 4', 'Staffel 3'])
 })
 
 test('detail of an unfollowed series explains why nothing happens', async () => {

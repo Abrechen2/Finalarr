@@ -190,7 +190,9 @@
     "stableRuns": "Abgleiche mit gleicher Folgenzahl vor „komplett“",
     "interval": "Abgleich mit Sonarr alle … Minuten",
     "newsFeeds": "News-Schlagzeilen (LiveChart, Anime News Network) zu gefolgten Serien melden",
-    "newsFeedsHint": "Streng nach Titel abgeglichen; ein Hinweis mit Link, keine Ankündigung."
+    "newsFeedsHint": "Streng nach Titel abgeglichen; ein Hinweis mit Link, keine Ankündigung.",
+    "seriesNewsWeb": "News-Suche im Web für jede Serie (Google News)",
+    "seriesNewsWebHint": "Schickt den Serientitel an Google News, um aktuelle Schlagzeilen zu zeigen."
   },
   "anilist": {
     "badge": "AniList",
@@ -350,5 +352,13 @@
     "rotate": "Neue Adresse erzeugen",
     "rotateConfirm": "Neue Adresse erzeugen? Bestehende Abos funktionieren danach nicht mehr.",
     "seriesSwitch": "Im Kalender zeigen"
+  },
+  "news": {
+    "title": "News",
+    "empty": "Noch keine News zu dieser Serie.",
+    "webOff": "Die Websuche nach News ist in den Regeln ausgeschaltet.",
+    "webError": "Die News-Suche ist gerade nicht erreichbar.",
+    "fromFinalarr": "Finalarr",
+    "via": "via {{source}}"
   }
 }

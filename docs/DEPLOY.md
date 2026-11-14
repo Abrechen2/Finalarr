@@ -61,6 +61,7 @@ shown again.
 | TMDB | same, second source | `FINALARR_TMDB_API_KEY` |
 | Trakt | same, third source | `FINALARR_TRAKT_CLIENT_ID` |
 | LiveChart.me, Anime News Network (RSS) | headlines that name a followed series (hint with link) | — |
+| Google News (RSS search) | latest headlines in the news box of a series page | — |
 
 Every source reports a season or sequel under the same key, so you get one message no
 matter which one knows first. News hints can be switched off under *Einstellungen → Regeln*.

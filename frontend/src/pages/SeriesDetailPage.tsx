@@ -5,6 +5,7 @@ import { PageTitle } from '../components/EmptyState'
 import { AnilistPicker } from '../components/AnilistPicker'
 import { SeasonCheck } from '../components/SeasonCheck'
 import { SeasonParts } from '../components/SeasonParts'
+import { SeriesNews } from '../components/SeriesNews'
 import { SeasonOverride } from '../components/SeasonOverride'
 import { Toggle } from '../components/Toggle'
 import { EpisodeGrid } from '../components/EpisodeGrid'
@@ -150,6 +151,7 @@ export function SeriesDetailPage() {
           )}
         </div>
       </div>
+      <SeriesNews seriesId={series.id} />
       <div className="flex flex-col gap-3">
         {seasons.map((season) => (
           <SeasonSection key={season.id} series={series} season={season} />

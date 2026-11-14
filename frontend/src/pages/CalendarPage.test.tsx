@@ -84,6 +84,7 @@ const RULES = {
   stable_runs: 2,
   reconcile_interval_minutes: 30,
   news_feeds: true,
+  series_news_web: true,
   calendar_scope: 'milestones',
   calendar_hide_downloaded: true,
   calendar_announcements: true,

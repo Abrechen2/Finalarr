@@ -31,6 +31,9 @@ landed and when a season is complete.
   not started yet (e.g. a 2027 continuation), Finalarr reports it once as "Fortsetzung
   angekündigt", before TheTVDB or Sonarr know the season. Anime typed "Standard" in Sonarr
   now get AniList data too.
+- **News on every series page**: Finalarr's own announcements and matched headlines,
+  then the latest web headlines about the series (Google News, in your UI language,
+  cached for 6 hours; can be switched off in the rules).
 - **Calendar**: a month view of what you are waiting for and a subscribable iCal feed
   (Google, Apple, Outlook). Choose season finales only, premieres and finales, or every
   episode; hide what is already on disk; show announced start dates; switch single series

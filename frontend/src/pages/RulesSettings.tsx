@@ -11,6 +11,7 @@ export interface GlobalRules {
   stable_runs: number
   reconcile_interval_minutes: number
   news_feeds: boolean
+  series_news_web: boolean
   calendar_scope: 'finales' | 'milestones' | 'all'
   calendar_hide_downloaded: boolean
   calendar_announcements: boolean
@@ -24,6 +25,7 @@ const TOGGLES = [
   ['include_specials_default', 'includeSpecialsDefault', false],
   ['respect_monitoring_default', 'respectMonitoringDefault', false],
   ['news_feeds', 'newsFeeds', true],
+  ['series_news_web', 'seriesNewsWeb', true],
 ] as const
 
 const NUMBERS = [

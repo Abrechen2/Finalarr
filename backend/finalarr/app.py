@@ -122,6 +122,7 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
         enricher.run()
 
     json_cache = JsonCache(database)
+    app.extensions["finalarr.json_cache"] = json_cache
     watcher = AnnouncementWatcher(
         database,
         season_sources(settings, json_cache),

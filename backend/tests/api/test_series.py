@@ -174,3 +174,34 @@ def test_tags_list_and_follow_by_tag(api, app, library):
     }
     assert titles(api.get("/api/v1/series?followed=true")) == ["Slime", "Zeta"]
     assert api.get("/api/v1/series").get_json()["items"][0]["tags"] == ["kids"]
+
+
+def test_series_news_endpoint(api, app, library):
+    from finalarr.sources.feeds import FeedItem
+
+    seen = []
+
+    def fake_fetch(url):
+        seen.append(url)
+        return [
+            FeedItem(
+                "Slime season 4 part 3 dated",
+                "https://news.example/1",
+                datetime.now(UTC),
+                "Example",
+            )
+        ]
+
+    app.extensions["finalarr.news_fetch"] = fake_fetch
+    body = api.get(f"/api/v1/series/{library['slime']}/news?lang=en").get_json()
+    assert body["web_enabled"] is True
+    assert body["items"][0]["title"] == "Slime season 4 part 3 dated"
+    assert "hl=en-US" in seen[0]
+    api.patch("/api/v1/settings", json={"series_news_web": False})
+    assert api.get(f"/api/v1/series/{library['slime']}/news").get_json() == {
+        "items": [],
+        "web_enabled": False,
+        "web_error": False,
+    }
+    assert api.get("/api/v1/series/999/news").status_code == 404
+    assert api.get(f"/api/v1/series/{library['slime']}/news?lang=xx").status_code == 400

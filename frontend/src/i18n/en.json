@@ -190,7 +190,9 @@
     "stableRuns": "Syncs with an unchanged count before \"complete\"",
     "interval": "Sync with Sonarr every … minutes",
     "newsFeeds": "Report headlines (LiveChart, Anime News Network) about followed series",
-    "newsFeedsHint": "Matched strictly by title; a hint with a link, not an announcement."
+    "newsFeedsHint": "Matched strictly by title; a hint with a link, not an announcement.",
+    "seriesNewsWeb": "Web news search for every series (Google News)",
+    "seriesNewsWebHint": "Sends the series title to Google News to show recent headlines."
   },
   "anilist": {
     "badge": "AniList",
@@ -350,5 +352,13 @@
     "rotate": "Create a new address",
     "rotateConfirm": "Create a new address? Existing subscriptions stop working.",
     "seriesSwitch": "Show in calendar"
+  },
+  "news": {
+    "title": "News",
+    "empty": "No news about this series yet.",
+    "webOff": "Web news search is switched off in the rules.",
+    "webError": "News search cannot be reached right now.",
+    "fromFinalarr": "Finalarr",
+    "via": "via {{source}}"
   }
 }
