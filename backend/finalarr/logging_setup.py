@@ -14,6 +14,11 @@ _PATTERNS = [
     (re.compile(r"(?i)(api[_-]?key[\"']?\s*[=:]\s*[\"']?)[^\s&\"',]+"), r"\1***"),
     # Apprise URLs carry their credentials inline.
     (re.compile(r"\b(tgram|discord|pover|json|jsons|apprise)://[^\s\"']+"), r"\1://***"),
+    # Credentials inside plain HTTP(S) URLs, as Apprise logs them when it sends.
+    (re.compile(r"(https?://)[^/\s:@]+:[^/\s@]+@"), r"\1***@"),
+    (re.compile(r"(/bot)\d+:[\w-]+"), r"\1***"),
+    (re.compile(r"(/api/webhooks/\d+/)[\w-]+"), r"\1***"),
+    (re.compile(r"(?i)([?&](?:token|key|secret|password|auth)=)[^&\s\"']+"), r"\1***"),
 ]
 
 

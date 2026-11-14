@@ -176,3 +176,27 @@ def test_invalid_auth_mode_refuses_to_start():
                 "FINALARR_AUTH": "none",
             }
         )
+
+
+@pytest.mark.parametrize("header", ["X-Forwarded-For", "Forwarded", "X-Real-IP"])
+def test_local_mode_does_not_trust_an_unconfigured_proxy(settings, tmp_path, header):
+    # Behind a reverse proxy without FINALARR_TRUSTED_PROXIES every visitor would
+    # look like the proxy's LAN address: forwarded requests need the key.
+    client = _local_app(settings, tmp_path)
+    proxied = {"REMOTE_ADDR": "192.168.1.2"}
+    response = client.get(
+        "/api/v1/auth/check", headers={header: "203.0.113.9"}, environ_base=proxied
+    )
+    assert response.status_code == 401
+
+
+def test_local_mode_follows_the_real_client_behind_a_trusted_proxy(settings, tmp_path):
+    client = _local_app(settings, tmp_path, trusted_proxies=1)
+    proxy = {"REMOTE_ADDR": "192.168.1.2"}
+    lan = client.get(
+        "/api/v1/auth/check", headers={"X-Forwarded-For": "192.168.1.50"}, environ_base=proxy
+    )
+    outside = client.get(
+        "/api/v1/auth/check", headers={"X-Forwarded-For": "203.0.113.9"}, environ_base=proxy
+    )
+    assert (lan.status_code, outside.status_code) == (200, 401)

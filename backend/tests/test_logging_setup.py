@@ -55,3 +55,14 @@ def test_tracebacks_are_redacted_too(tmp_path):
 def test_scheduler_skip_warnings_are_quiet(tmp_path):
     configure_logging("INFO", tmp_path)
     assert logging.getLogger("apscheduler").getEffectiveLevel() == logging.ERROR
+
+
+def test_credential_urls_are_redacted():
+    out = redact(
+        "POST https://api.telegram.org/bot123456789:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw/sendMessage"
+        " and https://discord.com/api/webhooks/1234567890/abcDEF-ghi_jkl and"
+        " https://user:pa55@hooks.example/x and https://ntfy.example/topic?token=s3cret"
+    )
+    for secret in ("AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw", "abcDEF-ghi_jkl", "pa55", "s3cret"):
+        assert secret not in out
+    assert "https://ntfy.example/topic" in out

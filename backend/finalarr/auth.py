@@ -25,6 +25,9 @@ CSRF_HEADER = "X-Requested-With"
 CSRF_VALUE = "finalarr"
 SAFE_METHODS = frozenset({"GET", "HEAD", "OPTIONS"})
 LOGIN_FAILURES_PER_MINUTE = 5
+# Headers a reverse proxy adds; without FINALARR_TRUSTED_PROXIES they mean "the peer
+# address is a proxy, not the visitor".
+PROXY_HEADERS = ("X-Forwarded-For", "Forwarded", "X-Real-IP")
 
 # Home networks only; ipaddress' own is_private also counts documentation ranges.
 LOCAL_NETWORKS = tuple(
@@ -56,6 +59,7 @@ def init_auth(app: Flask, settings: Settings) -> None:
     )
     app.extensions["finalarr.api_key"] = api_key
     app.extensions["finalarr.auth_mode"] = settings.auth
+    app.extensions["finalarr.trusted_proxies"] = settings.trusted_proxies
     app.extensions["finalarr.login_limiter"] = RateLimiter(LOGIN_FAILURES_PER_MINUTE, 60)
 
     @app.before_request
@@ -79,8 +83,13 @@ def init_auth(app: Flask, settings: Settings) -> None:
 def _local_client_allowed() -> bool:
     """FINALARR_AUTH=local: no login for clients on private networks (like Sonarr's
     "disabled for local addresses"). Behind a reverse proxy this relies on
-    FINALARR_TRUSTED_PROXIES, otherwise every request looks like the proxy's LAN IP."""
+    FINALARR_TRUSTED_PROXIES; a forwarded request without it always needs the key,
+    otherwise every visitor would look like the proxy's LAN address."""
     if current_app.extensions.get("finalarr.auth_mode") != "local":
+        return False
+    if not current_app.extensions.get("finalarr.trusted_proxies") and any(
+        h in request.headers for h in PROXY_HEADERS
+    ):
         return False
     try:
         peer = ipaddress.ip_address(request.remote_addr or "")
