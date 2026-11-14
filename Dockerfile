@@ -7,7 +7,7 @@ RUN npm ci --no-audit --no-fund
 COPY frontend/ .
 RUN npx vite build && node scripts/collect-licenses.mjs
 
-FROM python:3.12-slim
+FROM python:3.15-slim
 
 ARG VERSION=
 LABEL org.opencontainers.image.title="Finalarr" \
