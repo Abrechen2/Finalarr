@@ -34,7 +34,11 @@
     "noEvents": "Nothing reported yet.",
     "setupTitle": "Setup",
     "setupStart": "Start setup",
-    "nextEpisode": "Episode {{e}} {{relative}} · {{when}}"
+    "nextEpisode": "Episode {{e}} {{relative}} · {{when}}",
+    "continue": "Continue watching",
+    "noContinue": "Nothing unwatched in series you started.",
+    "continueItem_one": "{{count}} unwatched · next up {{next}}",
+    "continueItem_other": "{{count}} unwatched · next up {{next}}"
   },
   "series": {
     "title": "Series",
@@ -56,7 +60,15 @@
     "followTag": "Follow all with tag",
     "tagAll": "no tag filter",
     "tag": "Sonarr tag",
-    "runtime": "{{n}} min"
+    "runtime": "{{n}} min",
+    "watchAll": "Watched: all",
+    "watchStarted": "Started",
+    "watchBehind": "Unwatched episodes",
+    "watchCaughtUp": "Caught up",
+    "followModeAll": "Follow: all",
+    "followModeAuto": "Automatic",
+    "followModeAlways": "Manual",
+    "followModeNever": "Never follow"
   },
   "events": {
     "title": "Events",
@@ -85,7 +97,8 @@
     "tabSonarr": "Sonarr",
     "tabSystem": "System",
     "tabCalendar": "Calendar",
-    "tabSources": "Data sources"
+    "tabSources": "Data sources",
+    "tabMedia": "Media servers"
   },
   "about": {
     "title": "About Finalarr",
@@ -137,7 +150,8 @@
     "missing": "aired, file missing",
     "future": "not aired yet",
     "finale": "season finale",
-    "delayed": "postponed, was {{date}}"
+    "delayed": "postponed, was {{date}}",
+    "watchedBy": "watched by {{names}}"
   },
   "action": {
     "follow": "Follow",
@@ -484,5 +498,59 @@
         "terms": "Embedded player under YouTube's terms."
       }
     }
+  },
+  "media": {
+    "intro": "Connect Emby, Jellyfin or Plex. Finalarr reads what the selected people watched and follows those series automatically. It stores only which episodes were watched, no history.",
+    "add": "Add media server",
+    "kind": "Type",
+    "name": "Name",
+    "url": "Address",
+    "token": "API key / token",
+    "tokenHint": {
+      "emby": "Emby: Settings → Advanced → API keys.",
+      "jellyfin": "Jellyfin: Dashboard → API keys.",
+      "plex": "Plex: the server owner's X-Plex-Token (support article “Finding an authentication token”)."
+    },
+    "test": "Test connection",
+    "testOk": "Connected: {{version}}",
+    "save": "Save",
+    "users": "Whose viewing counts?",
+    "watchedCount": "{{count}} episodes watched",
+    "lastSync": "Last synced: {{time}}",
+    "neverSynced": "Not synced yet",
+    "syncNow": "Sync now",
+    "syncQueued": "Sync started.",
+    "remove": "Remove",
+    "unmatched_one": "{{count}} watched series matches no Sonarr series",
+    "unmatched_other": "{{count}} watched series match no Sonarr series",
+    "unmatchedHint": "They are missing in Sonarr or the media server knows no TVDB id.",
+    "empty": "No media server connected yet.",
+    "rule": "Follow automatically",
+    "ruleOn": "Follow series someone watches",
+    "ruleEpisodes": "from this many watched episodes",
+    "ruleDays": "within this many days",
+    "unreachable": "Media server unreachable or key rejected: {{message}}"
+  },
+  "watch": {
+    "title": "Watched",
+    "user": "{{name}}: {{watched}} episodes, last on {{date}}",
+    "userNoDate": "{{name}}: {{watched}} episodes",
+    "nobody": "Nobody has watched this series yet.",
+    "unwatched_one": "{{count}} episode on disk is still unwatched; next up {{next}}.",
+    "unwatched_other": "{{count}} episodes on disk are still unwatched; next up {{next}}.",
+    "caughtUp": "Caught up.",
+    "mode": "Follow",
+    "modes": {
+      "auto": "Automatic",
+      "always": "Always",
+      "never": "Never"
+    },
+    "modeHint": {
+      "auto": "Finalarr follows as soon as someone watches the series.",
+      "always": "You follow this series yourself.",
+      "never": "Finalarr never follows this series, even if someone watches it."
+    },
+    "badgeAuto": "automatic",
+    "badgeWatched": "{{count}} watched"
   }
 }

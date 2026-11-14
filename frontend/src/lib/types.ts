@@ -10,6 +10,18 @@ export interface SeasonSummary {
   disputed: boolean
 }
 
+export type FollowMode = 'auto' | 'always' | 'never'
+
+export interface WatchState {
+  /** A media server is connected; without one the UI hides watch state. */
+  enabled: boolean
+  users: { name: string; server: string; watched: number; last_watched: string | null }[]
+  /** "season x episode" → names of the users who watched it. */
+  episodes: Record<string, string[]>
+  unwatched_on_disk: number
+  next_unwatched: { season: number; episode: number } | null
+}
+
 export interface SeriesSummary {
   id: number
   instance_id: number
@@ -20,6 +32,9 @@ export interface SeriesSummary {
   poster_url: string | null
   monitored: boolean
   followed: boolean
+  follow_mode?: FollowMode
+  /** Most regular episodes one selected media server user has watched. */
+  watched?: number
   include_specials: boolean
   respect_monitoring: boolean
   calendar: boolean
@@ -92,6 +107,7 @@ export interface SeriesDetail extends Omit<SeriesSummary, 'seasons'> {
   seasons: SeasonDetail[]
   details?: SeriesDetails
   waiting?: WaitingState
+  watch?: WatchState
 }
 
 export interface NextEpisode {

@@ -8,6 +8,7 @@ import { SeasonParts } from '../components/SeasonParts'
 import { SeriesExtras } from '../components/SeriesExtras'
 import { SeriesNews } from '../components/SeriesNews'
 import { WaitingCard } from '../components/WaitingCard'
+import { WatchPanel } from '../components/WatchPanel'
 import { SeasonOverride } from '../components/SeasonOverride'
 import { Toggle } from '../components/Toggle'
 import { EpisodeGrid } from '../components/EpisodeGrid'
@@ -63,6 +64,7 @@ function SeasonSection({ series, season }: { series: SeriesDetail; season: Seaso
           season={season.number}
           episodes={season.episodes}
           partStarts={season.parts.slice(1).map((p) => p.from)}
+          watched={series.watch?.episodes}
         />
       )}
       <SeasonParts seriesId={series.id} season={season} />
@@ -176,6 +178,7 @@ export function SeriesDetailPage() {
         </div>
       </div>
       <WaitingCard waiting={series.waiting} />
+      <WatchPanel series={series} />
       <SeriesExtras seriesId={series.id} title={series.title} />
       <SeriesNews seriesId={series.id} />
       <div className="flex flex-col gap-3">

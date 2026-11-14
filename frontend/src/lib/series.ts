@@ -6,6 +6,8 @@ export interface SeriesFilter {
   q: string
   followed: '' | 'true' | 'false'
   type: '' | 'anime' | 'standard'
+  watch?: '' | 'started' | 'behind' | 'caught_up'
+  follow?: '' | 'auto' | 'always' | 'never'
 }
 
 export function seriesQueryString(filter: SeriesFilter, cursor?: string | null): string {
@@ -13,6 +15,8 @@ export function seriesQueryString(filter: SeriesFilter, cursor?: string | null):
   if (filter.q.trim()) params.set('q', filter.q.trim())
   if (filter.followed) params.set('followed', filter.followed)
   if (filter.type) params.set('type', filter.type)
+  if (filter.watch) params.set('watch', filter.watch)
+  if (filter.follow) params.set('follow', filter.follow)
   if (cursor) params.set('cursor', cursor)
   const query = params.toString()
   return query ? `?${query}` : ''
@@ -38,7 +42,10 @@ export function useSeriesDetail(id: number) {
 export function useSeriesPatch() {
   const client = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, ...body }: { id: number } & Partial<SeriesSummary>) =>
+    mutationFn: ({
+      id,
+      ...body
+    }: { id: number } & Partial<Omit<SeriesSummary, 'follow_mode'>> & { follow_mode?: 'auto' }) =>
       apiFetch<SeriesDetail>(`/api/v1/series/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(body),

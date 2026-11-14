@@ -3,6 +3,7 @@ import { CheckCircle2, Circle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { PageTitle } from '../components/EmptyState'
+import { Poster } from '../components/Poster'
 import { SeasonProgress } from '../components/SeasonProgress'
 import { apiFetch, errorText } from '../lib/api'
 import { pad } from '../lib/episodes'
@@ -29,6 +30,14 @@ export interface Dashboard {
   upcoming_finales: (Card & { episode: number; air_date: string })[]
   recent_events: EventView[]
   onboarding: { instance: boolean; followed: boolean; channel: boolean }
+  /** Started series with unwatched episodes on disk (media servers); absent before 0.4. */
+  continue_watching?: {
+    series_id: number
+    title: string
+    poster_url: string | null
+    unwatched: number
+    next: { season: number; episode: number } | null
+  }[]
 }
 
 function Column({
@@ -99,6 +108,37 @@ export function DashboardPage() {
     <>
       <PageTitle>{t('dashboard.title')}</PageTitle>
       {incomplete && <Setup steps={d.onboarding} />}
+      {Boolean(d.continue_watching?.length) && (
+        <section
+          aria-labelledby="continue"
+          className="mb-4 rounded-card border border-line bg-surface p-4"
+        >
+          <h2 id="continue" className="mb-3 text-sm text-muted">
+            {t('dashboard.continue')}
+          </h2>
+          <ul className="flex flex-wrap gap-4">
+            {d.continue_watching?.map((c) => (
+              <li key={c.series_id} className="flex w-64 gap-3">
+                <Poster url={c.poster_url} />
+                <div className="min-w-0">
+                  <Link
+                    to={`/series/${c.series_id}`}
+                    className="text-sm font-medium hover:text-accent"
+                  >
+                    {c.title}
+                  </Link>
+                  <p className="text-xs text-muted">
+                    {t('dashboard.continueItem', {
+                      count: c.unwatched,
+                      next: c.next ? `S${pad(c.next.season)}E${pad(c.next.episode)}` : '–',
+                    })}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <div className="grid gap-4 min-[1100px]:grid-cols-3">
         <Column title={t('dashboard.airing')} empty={t('dashboard.nothingAiring')}>
           {d.airing.map((c) => (

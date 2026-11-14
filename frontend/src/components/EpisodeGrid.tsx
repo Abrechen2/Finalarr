@@ -1,3 +1,4 @@
+import { Check } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { episodeCell, isSeasonFinale, pad } from '../lib/episodes'
 import { formatDate } from '../lib/format'
@@ -15,12 +16,15 @@ export function EpisodeGrid({
   season,
   episodes,
   partStarts = [],
+  watched = {},
   now = new Date(),
 }: {
   season: number
   episodes: EpisodeDetail[]
   /** First episode number of every split-cour part after the first. */
   partStarts?: number[]
+  /** "season x episode" → who watched it (media servers). */
+  watched?: Record<string, string[]>
   now?: Date
 }) {
   const { t, i18n } = useTranslation()
@@ -33,7 +37,9 @@ export function EpisodeGrid({
         const delayed = episode.delayed_from
           ? t('episode.delayed', { date: formatDate(episode.delayed_from, i18n.language) })
           : ''
-        const status = [t(`episode.${cell}`), finale && t('episode.finale'), delayed]
+        const viewers = watched[`${season}x${episode.number}`] ?? []
+        const seen = viewers.length ? t('episode.watchedBy', { names: viewers.join(', ') }) : ''
+        const status = [t(`episode.${cell}`), finale && t('episode.finale'), delayed, seen]
           .filter(Boolean)
           .join(', ')
         const accent = finale
@@ -44,11 +50,19 @@ export function EpisodeGrid({
         return (
           <li
             key={episode.id}
-            title={`${code} ${episode.title}${delayed ? ` (${delayed})` : ''}`.trim()}
+            title={`${code} ${episode.title}${delayed ? ` (${delayed})` : ''}${seen ? ` – ${seen}` : ''}`.trim()}
             aria-label={`${code}: ${status}`}
-            className={`flex h-8 w-8 items-center justify-center rounded-control border text-[11px] font-bold ${CELL[cell]}${accent}${episode.monitored ? '' : ' opacity-40'}${partStarts.includes(episode.number) ? ' ml-3' : ''}`}
+            className={`relative flex h-8 w-8 items-center justify-center rounded-control border text-[11px] font-bold ${CELL[cell]}${accent}${episode.monitored ? '' : ' opacity-40'}${partStarts.includes(episode.number) ? ' ml-3' : ''}`}
           >
             {episode.number}
+            {seen && (
+              <span
+                aria-hidden="true"
+                className="absolute -right-1 -top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full border border-line bg-surface text-ink"
+              >
+                <Check size={9} strokeWidth={3} />
+              </span>
+            )}
             {delayed && (
               <span aria-hidden="true" className="ml-px text-[9px] text-sky">
                 ⏸

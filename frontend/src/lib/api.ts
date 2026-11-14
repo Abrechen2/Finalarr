@@ -54,6 +54,9 @@ export function errorText(t: TFunction, error: unknown): string {
   if (error instanceof ApiError && error.code === 'channel_failed') {
     return t('error.channel_failed', { message: error.message })
   }
+  if (error instanceof ApiError && error.code === 'media_unreachable') {
+    return t('media.unreachable', { message: error.message })
+  }
   if (error instanceof ApiError && ['sonarr_auth', 'sonarr_unreachable'].includes(error.code)) {
     return t(`instance.${error.code}`)
   }

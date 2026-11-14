@@ -75,6 +75,8 @@ def series_watch(s: Session, series: m.Series) -> dict[str, Any]:
         episodes.setdefault(f"{season}x{episode}", []).append(name)
     unwatched, first = _next(s, series.id)
     return {
+        # Without a media server the UI shows no watch panel at all.
+        "enabled": s.scalar(select(exists().where(m.MediaServer.id.is_not(None)))) or False,
         "users": [
             {
                 "name": name,

@@ -204,3 +204,22 @@ test('follow all with a Sonarr tag', async () => {
   const post = calls.find((c) => c.init?.method === 'POST')
   expect(JSON.parse(String(post?.init?.body))).toEqual({ tag: 'anime' })
 })
+
+test('watch and follow-mode filters and badges', async () => {
+  const watched = { ...slime, follow_mode: 'auto' as const, watched: 5 }
+  const calls = mockFetch({
+    'GET /api/v1/series': { body: { items: [andor, watched], next_cursor: null } },
+    'GET /api/v1/series?watch=behind': { body: { items: [watched], next_cursor: null } },
+    'GET /api/v1/series?watch=behind&follow=auto': {
+      body: { items: [watched], next_cursor: null },
+    },
+  })
+  renderWithProviders(<SeriesPage />, { route: '/series' })
+  expect(await screen.findByText('5 gesehen')).toBeInTheDocument()
+  expect(screen.getByText('automatisch')).toBeInTheDocument()
+  fireEvent.change(screen.getByLabelText('Gesehen: alle'), { target: { value: 'behind' } })
+  fireEvent.change(screen.getByLabelText('Folgen: alle'), { target: { value: 'auto' } })
+  await waitFor(() =>
+    expect(calls.map((c) => c.url)).toContain('/api/v1/series?watch=behind&follow=auto'),
+  )
+})

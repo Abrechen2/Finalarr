@@ -86,6 +86,7 @@ def by_title(s, title):
 def test_series_watch_per_user_and_episode(db):
     with db.session() as s:
         state = series_watch(s, by_title(s, "Slime"))
+    assert state["enabled"] is True
     assert state["users"] == [
         {"name": "Dennis", "server": "Plex", "watched": 2, "last_watched": "2026-11-08"},
         {"name": "Anna", "server": "Plex", "watched": 1, "last_watched": "2026-11-02"},
@@ -100,7 +101,13 @@ def test_caught_up_and_nobody_watching(db):
         andor = series_watch(s, by_title(s, "Andor"))
         idle = series_watch(s, by_title(s, "Idle"))
     assert (andor["unwatched_on_disk"], andor["next_unwatched"]) == (0, None)
-    assert idle == {"users": [], "episodes": {}, "unwatched_on_disk": 0, "next_unwatched": None}
+    assert idle == {
+        "enabled": True,
+        "users": [],
+        "episodes": {},
+        "unwatched_on_disk": 0,
+        "next_unwatched": None,
+    }
 
 
 @pytest.mark.parametrize(
@@ -126,3 +133,10 @@ def test_continue_watching_lists_started_series_with_unwatched_files(db):
             "last_watched": "2026-11-08",
         }
     ]
+
+
+def test_without_a_media_server_watch_state_is_off(db):
+    with db.session() as s:
+        s.query(m.MediaServer).delete()
+        s.commit()
+        assert series_watch(s, by_title(s, "Slime"))["enabled"] is False

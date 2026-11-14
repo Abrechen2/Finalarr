@@ -27,6 +27,26 @@ const TYPES = [
   ['standard', 'series.typeStandard'],
 ] as const
 
+const WATCH = [
+  ['', 'series.watchAll'],
+  ['started', 'series.watchStarted'],
+  ['behind', 'series.watchBehind'],
+  ['caught_up', 'series.watchCaughtUp'],
+] as const
+const FOLLOW = [
+  ['', 'series.followModeAll'],
+  ['auto', 'series.followModeAuto'],
+  ['always', 'series.followModeAlways'],
+  ['never', 'series.followModeNever'],
+] as const
+
+function pick<T extends string>(
+  value: string | null,
+  options: readonly (readonly [T, string])[],
+): T {
+  return (options.find(([option]) => option === value)?.[0] ?? options[0][0]) as T
+}
+
 function readFilter(params: URLSearchParams): SeriesFilter {
   const followed = params.get('followed')
   const type = params.get('type')
@@ -34,7 +54,37 @@ function readFilter(params: URLSearchParams): SeriesFilter {
     q: params.get('q') ?? '',
     followed: followed === 'true' || followed === 'false' ? followed : '',
     type: type === 'anime' || type === 'standard' ? type : '',
+    watch: pick(params.get('watch'), WATCH),
+    follow: pick(params.get('follow'), FOLLOW),
   }
+}
+
+function FilterSelect({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string
+  options: readonly (readonly [string, string])[]
+  value: string
+  onChange: (value: string) => void
+}) {
+  const { t } = useTranslation()
+  return (
+    <select
+      aria-label={label}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="rounded-card border border-line bg-bg px-2 py-1.5 text-sm"
+    >
+      {options.map(([option, key]) => (
+        <option key={option} value={option}>
+          {t(key)}
+        </option>
+      ))}
+    </select>
+  )
 }
 
 function SeriesRow({ series }: { series: SeriesSummary }) {
@@ -68,6 +118,16 @@ function SeriesRow({ series }: { series: SeriesSummary }) {
               {(series.anilist_resolution === 'auto' || series.anilist_resolution === 'manual') && (
                 <span className="ml-2 rounded-card border border-line px-1.5">
                   {t('anilist.badge')}
+                </span>
+              )}
+              {series.followed && series.follow_mode === 'auto' && (
+                <span className="ml-2 rounded-card border border-line px-1.5">
+                  {t('watch.badgeAuto')}
+                </span>
+              )}
+              {Boolean(series.watched) && (
+                <span className="ml-2 rounded-card border border-line px-1.5">
+                  {t('watch.badgeWatched', { count: series.watched })}
                 </span>
               )}
             </p>
@@ -132,7 +192,9 @@ export function SeriesPage() {
   const tags = useSeriesTags()
   const [tag, setTag] = useState('')
   const items = list.data?.pages.flatMap((page) => page.items) ?? []
-  const filtered = Boolean(filter.q || filter.followed || filter.type)
+  const filtered = Boolean(
+    filter.q || filter.followed || filter.type || filter.watch || filter.follow,
+  )
 
   function update(key: keyof SeriesFilter, value: string) {
     const next = new URLSearchParams(params)
@@ -199,6 +261,18 @@ export function SeriesPage() {
           options={TYPES}
           value={filter.type}
           onChange={(v) => update('type', v)}
+        />
+        <FilterSelect
+          label={t('series.watchAll')}
+          options={WATCH}
+          value={filter.watch ?? ''}
+          onChange={(v) => update('watch', v)}
+        />
+        <FilterSelect
+          label={t('series.followModeAll')}
+          options={FOLLOW}
+          value={filter.follow ?? ''}
+          onChange={(v) => update('follow', v)}
         />
       </div>
       {list.isError && (

@@ -4,6 +4,7 @@ import { PageTitle } from '../components/EmptyState'
 import { CalendarSettings } from './CalendarSettings'
 import { ChannelsSettings } from './ChannelsSettings'
 import { InstancesSettings } from './InstancesSettings'
+import { MediaServersSettings } from './MediaServersSettings'
 import { SystemSettings } from './SystemSettings'
 import { RulesSettings } from './RulesSettings'
 import { SourcesSettings } from './SourcesSettings'
@@ -47,10 +48,20 @@ function Choice<T extends string>(props: {
   )
 }
 
-const TABS = ['sonarr', 'channels', 'rules', 'calendar', 'sources', 'appearance', 'system'] as const
+const TABS = [
+  'sonarr',
+  'media',
+  'channels',
+  'rules',
+  'calendar',
+  'sources',
+  'appearance',
+  'system',
+] as const
 type Tab = (typeof TABS)[number]
 const TAB_LABEL = {
   sonarr: 'settings.tabSonarr',
+  media: 'settings.tabMedia',
   channels: 'settings.tabChannels',
   rules: 'settings.tabRules',
   calendar: 'settings.tabCalendar',
@@ -60,6 +71,7 @@ const TAB_LABEL = {
 } as const
 const PANELS = {
   sonarr: InstancesSettings,
+  media: MediaServersSettings,
   channels: ChannelsSettings,
   rules: RulesSettings,
   calendar: CalendarSettings,

@@ -34,7 +34,11 @@
     "noEvents": "Noch nichts gemeldet.",
     "setupTitle": "Einrichtung",
     "setupStart": "Einrichtung starten",
-    "nextEpisode": "Folge {{e}} {{relative}} · {{when}}"
+    "nextEpisode": "Folge {{e}} {{relative}} · {{when}}",
+    "continue": "Weiterschauen",
+    "noContinue": "Nichts Ungesehenes in angefangenen Serien.",
+    "continueItem_one": "{{count}} ungesehen · als Nächstes {{next}}",
+    "continueItem_other": "{{count}} ungesehen · als Nächstes {{next}}"
   },
   "series": {
     "title": "Serien",
@@ -56,7 +60,15 @@
     "followTag": "Alle mit Tag folgen",
     "tagAll": "ohne Tag-Filter",
     "tag": "Sonarr-Tag",
-    "runtime": "{{n}} Min."
+    "runtime": "{{n}} Min.",
+    "watchAll": "Gesehen: alle",
+    "watchStarted": "Angefangen",
+    "watchBehind": "Ungesehenes vorhanden",
+    "watchCaughtUp": "Auf dem neuesten Stand",
+    "followModeAll": "Folgen: alle",
+    "followModeAuto": "Automatisch",
+    "followModeAlways": "Manuell",
+    "followModeNever": "Nie folgen"
   },
   "events": {
     "title": "Ereignisse",
@@ -85,7 +97,8 @@
     "tabSonarr": "Sonarr",
     "tabSystem": "System",
     "tabCalendar": "Kalender",
-    "tabSources": "Datenquellen"
+    "tabSources": "Datenquellen",
+    "tabMedia": "Mediaserver"
   },
   "about": {
     "title": "Über Finalarr",
@@ -137,7 +150,8 @@
     "missing": "ausgestrahlt, Datei fehlt",
     "future": "noch nicht ausgestrahlt",
     "finale": "Staffelfinale",
-    "delayed": "verschoben, vorher {{date}}"
+    "delayed": "verschoben, vorher {{date}}",
+    "watchedBy": "gesehen von {{names}}"
   },
   "action": {
     "follow": "Folgen",
@@ -484,5 +498,59 @@
         "terms": "Eingebetteter Player nach den YouTube-Bedingungen."
       }
     }
+  },
+  "media": {
+    "intro": "Verbinde Emby, Jellyfin oder Plex. Finalarr liest, was die ausgewählten Personen gesehen haben, und folgt diesen Serien automatisch. Gespeichert wird nur, welche Folgen gesehen sind, kein Verlauf.",
+    "add": "Mediaserver hinzufügen",
+    "kind": "Art",
+    "name": "Name",
+    "url": "Adresse",
+    "token": "API-Schlüssel / Token",
+    "tokenHint": {
+      "emby": "Emby: Einstellungen → Erweitert → API-Schlüssel.",
+      "jellyfin": "Jellyfin: Dashboard → API-Schlüssel.",
+      "plex": "Plex: X-Plex-Token des Server-Besitzers (Support-Artikel „Finding an authentication token“)."
+    },
+    "test": "Verbindung testen",
+    "testOk": "Verbunden: {{version}}",
+    "save": "Speichern",
+    "users": "Wessen Wiedergabe zählt?",
+    "watchedCount": "{{count}} Folgen gesehen",
+    "lastSync": "Zuletzt abgeglichen: {{time}}",
+    "neverSynced": "Noch nicht abgeglichen",
+    "syncNow": "Jetzt abgleichen",
+    "syncQueued": "Abgleich angestoßen.",
+    "remove": "Entfernen",
+    "unmatched_one": "{{count}} gesehene Serie ist keiner Sonarr-Serie zugeordnet",
+    "unmatched_other": "{{count}} gesehene Serien sind keiner Sonarr-Serie zugeordnet",
+    "unmatchedHint": "Sie fehlen in Sonarr oder der Mediaserver kennt keine TVDB-ID.",
+    "empty": "Noch kein Mediaserver verbunden.",
+    "rule": "Automatisch folgen",
+    "ruleOn": "Serien folgen, die jemand schaut",
+    "ruleEpisodes": "ab so vielen gesehenen Folgen",
+    "ruleDays": "innerhalb von so vielen Tagen",
+    "unreachable": "Mediaserver nicht erreichbar oder Schlüssel abgelehnt: {{message}}"
+  },
+  "watch": {
+    "title": "Gesehen",
+    "user": "{{name}}: {{watched}} Folgen, zuletzt {{date}}",
+    "userNoDate": "{{name}}: {{watched}} Folgen",
+    "nobody": "Noch niemand hat diese Serie geschaut.",
+    "unwatched_one": "{{count}} Folge auf der Platte ist noch ungesehen, als Nächstes {{next}}.",
+    "unwatched_other": "{{count}} Folgen auf der Platte sind noch ungesehen, als Nächstes {{next}}.",
+    "caughtUp": "Auf dem neuesten Stand.",
+    "mode": "Folgen",
+    "modes": {
+      "auto": "Automatisch",
+      "always": "Immer",
+      "never": "Nie"
+    },
+    "modeHint": {
+      "auto": "Finalarr folgt, sobald jemand die Serie schaut.",
+      "always": "Du folgst dieser Serie selbst.",
+      "never": "Finalarr folgt dieser Serie nie, auch wenn jemand sie schaut."
+    },
+    "badgeAuto": "automatisch",
+    "badgeWatched": "{{count}} gesehen"
   }
 }
