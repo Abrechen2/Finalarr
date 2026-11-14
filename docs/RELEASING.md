@@ -23,7 +23,7 @@ the matching `CHANGELOG.md` section.
 4. Unraid: in `unraid/my-finalarr.xml` drop ` Status:Beta` from `<Category>` for 1.0,
    copy the template to `Abrechen2/docker-templates` (Community Applications indexes that
    repository), then install and update once through CA.
-5. Verify: `docker pull ghcr.io/abrechen2/finalarr:latest` on amd64 and
+5. Verify: `docker pull ghcr.io/abrechen2/finalarr:latest` on amd64 and (cosign v3 or newer)
    `cosign verify ghcr.io/abrechen2/finalarr:0.3.0 --certificate-identity-regexp
    'https://github.com/Abrechen2/Finalarr/' --certificate-oidc-issuer
    https://token.actions.githubusercontent.com`.
