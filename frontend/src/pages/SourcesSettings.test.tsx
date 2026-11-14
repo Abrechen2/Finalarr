@@ -39,6 +39,7 @@ test('sources list explains use and terms and switches a source off', async () =
   expect(screen.getByText('Grundfunktion')).toBeInTheDocument()
   expect(screen.getByText('Schlüssel fehlt')).toBeInTheDocument()
   expect(screen.getByLabelText('TMDB verwenden')).toBeDisabled()
+  expect(screen.getByLabelText('TMDB verwenden')).not.toBeChecked()
   fireEvent.click(screen.getByLabelText('TVmaze verwenden'))
   await waitFor(() =>
     expect(

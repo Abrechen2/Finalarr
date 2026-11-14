@@ -78,7 +78,7 @@ export function SourcesSettings() {
             <Toggle
               label={t('sources.toggle', { name: source.name })}
               hint={source.core && source.enabled ? t('sources.coreHint') : undefined}
-              checked={source.enabled}
+              checked={source.enabled && source.configured}
               disabled={patch.isPending || (source.needs_key && !source.configured)}
               onChange={(enabled) => patch.mutate({ id: source.id, enabled })}
             />
