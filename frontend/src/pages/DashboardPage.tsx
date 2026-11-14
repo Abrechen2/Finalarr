@@ -7,7 +7,7 @@ import { SeasonProgress } from '../components/SeasonProgress'
 import { apiFetch, errorText } from '../lib/api'
 import { pad } from '../lib/episodes'
 import type { EventView } from '../lib/events'
-import { formatDate } from '../lib/format'
+import { airTime, formatDate, relativeTime } from '../lib/format'
 import type { SeasonState } from '../lib/types'
 import { EventRow } from './EventsPage'
 
@@ -21,6 +21,7 @@ interface Card {
   expected: number | null
   disputed: boolean
   next_air_date: string | null
+  next_episode: number | null
 }
 
 export interface Dashboard {
@@ -117,7 +118,15 @@ export function DashboardPage() {
               />
               {c.next_air_date && (
                 <p className="text-xs text-muted">
-                  {t('dashboard.nextAir', { date: formatDate(c.next_air_date, i18n.language) })}
+                  {typeof c.next_episode === 'number'
+                    ? t('dashboard.nextEpisode', {
+                        e: c.next_episode,
+                        relative: relativeTime(c.next_air_date, i18n.language),
+                        when: airTime(c.next_air_date, i18n.language),
+                      })
+                    : t('dashboard.nextAir', {
+                        date: formatDate(c.next_air_date, i18n.language),
+                      })}
                 </p>
               )}
             </li>

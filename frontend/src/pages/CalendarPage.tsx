@@ -36,7 +36,12 @@ function Chip({ entry, locale }: { entry: CalendarEntry; locale: string }) {
   const time = entry.all_day
     ? ''
     : new Date(entry.start).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
-  const text = label(entry, t)
+  const delayed = entry.delayed_from
+    ? t('calendar.delayed', {
+        date: new Date(entry.delayed_from).toLocaleDateString(locale, { dateStyle: 'medium' }),
+      })
+    : ''
+  const text = label(entry, t) + (delayed ? ` (${delayed})` : '')
   const what =
     entry.kind === 'announcement'
       ? t('calendar.kinds.announcement')
@@ -56,6 +61,7 @@ function Chip({ entry, locale }: { entry: CalendarEntry; locale: string }) {
       <span className="block truncate font-bold">
         {time && <span className="mr-1 font-normal text-muted">{time}</span>}
         {what}
+        {delayed && <span className="ml-1 font-normal text-sky">⏸</span>}
       </span>
       <span className="block truncate text-ink">{entry.title}</span>
     </span>

@@ -43,6 +43,20 @@ landed and when a season is complete.
   renewed TV seasons early; MyAnimeList (Jikan) backs up AniList for anime sequels;
   LiveChart.me and Anime News Network headlines that name a followed series arrive as
   "In den News" hints with a link. One message per season or sequel, whatever the source.
+- **What you are waiting for**, on every series page in one sentence ("Staffel 3 ist
+  angekündigt, der Termin ist noch offen", "2 ausgestrahlte Folgen fehlen noch", …), plus
+  the next episode with a countdown and its exact time (Sonarr, AniList or TVmaze), the
+  channel, "where to watch" links (AniList; per country from TMDB/JustWatch with a key), a
+  trailer that loads from YouTube only after a click, and Sonarr's overview, network,
+  runtime, genres and fanart. The dashboard counts down to the next episode too.
+- **Postponed episodes**: when an upcoming episode's air date moves back by a day or more
+  (or disappears), Finalarr reports "verschoben" with the old and new date and marks the
+  episode in the grid and the calendar.
+- **Typed news**: headlines are sorted into renewal, announcement, cancellation, delay,
+  date and trailer, with the sentence that carries the news; Anime2You (DE) and Crunchyroll
+  News (EN) join the news feeds.
+- **English dub dates** from AnimeSchedule.net with an optional app token
+  (`FINALARR_ANIMESCHEDULE_TOKEN`).
 - `FINALARR_AUTH=local`: no login from your home network; the API key is still needed from
   anywhere else.
 - Runs as one Docker container (non-root, PUID/PGID, healthcheck, data in `/config`);

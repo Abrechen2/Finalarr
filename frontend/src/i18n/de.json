@@ -33,7 +33,8 @@
     "noFinales": "Kein Finale in Sicht.",
     "noEvents": "Noch nichts gemeldet.",
     "setupTitle": "Einrichtung",
-    "setupStart": "Einrichtung starten"
+    "setupStart": "Einrichtung starten",
+    "nextEpisode": "Folge {{e}} {{relative}} · {{when}}"
   },
   "series": {
     "title": "Serien",
@@ -54,7 +55,8 @@
     "noMatch": "Keine Serie passt zu diesem Filter.",
     "followTag": "Alle mit Tag folgen",
     "tagAll": "ohne Tag-Filter",
-    "tag": "Sonarr-Tag"
+    "tag": "Sonarr-Tag",
+    "runtime": "{{n}} Min."
   },
   "events": {
     "title": "Ereignisse",
@@ -127,7 +129,8 @@
     "file": "vorhanden",
     "missing": "ausgestrahlt, Datei fehlt",
     "future": "noch nicht ausgestrahlt",
-    "finale": "Staffelfinale"
+    "finale": "Staffelfinale",
+    "delayed": "verschoben, vorher {{date}}"
   },
   "action": {
     "follow": "Folgen",
@@ -141,7 +144,8 @@
       "season_complete": "Komplett",
       "part_complete": "Teil komplett",
       "sequel_announced": "Fortsetzung",
-      "news_mention": "News"
+      "news_mention": "News",
+      "episode_delayed": "Verschoben"
     },
     "announced": "{{title}}: Staffel {{s}} angekündigt",
     "announcedDetail": "Start {{date}}, {{expected}} Folgen",
@@ -154,7 +158,9 @@
     "sequelAnnounced": "{{title}}: Fortsetzung angekündigt – {{sequel}}",
     "sequelDetail": "Start {{date}}",
     "newsMention": "{{title}} in den News: {{headline}}",
-    "sources": "Quellen"
+    "sources": "Quellen",
+    "delayed": "{{title}} S{{s}}E{{e}} verschoben: {{old}} → {{new}}",
+    "open": "offen"
   },
   "delivery": {
     "pending": "wartet",
@@ -351,7 +357,8 @@
     "copied": "Kopiert.",
     "rotate": "Neue Adresse erzeugen",
     "rotateConfirm": "Neue Adresse erzeugen? Bestehende Abos funktionieren danach nicht mehr.",
-    "seriesSwitch": "Im Kalender zeigen"
+    "seriesSwitch": "Im Kalender zeigen",
+    "delayed": "verschoben, vorher {{date}}"
   },
   "news": {
     "title": "News",
@@ -359,6 +366,47 @@
     "webOff": "Die Websuche nach News ist in den Regeln ausgeschaltet.",
     "webError": "Die News-Suche ist gerade nicht erreichbar.",
     "fromFinalarr": "Finalarr",
-    "via": "via {{source}}"
+    "via": "via {{source}}",
+    "kinds": {
+      "cancellation": "Absetzung",
+      "delay": "Verschiebung",
+      "renewal": "Verlängerung",
+      "announcement": "Ankündigung",
+      "date": "Termin",
+      "trailer": "Trailer"
+    }
+  },
+  "waiting": {
+    "title": "Worauf du wartest",
+    "airing": "Staffel {{season}} läuft: {{have}} von {{expected}} Folgen sind da.",
+    "scheduled": "Staffel {{season}} startet bald.",
+    "missing_one": "Staffel {{season}}: {{count}} ausgestrahlte Folge fehlt noch in der Bibliothek.",
+    "missing_other": "Staffel {{season}}: {{count}} ausgestrahlte Folgen fehlen noch in der Bibliothek.",
+    "disputed": "Staffel {{season}}: Sonarr und AniList nennen verschiedene Folgenzahlen ({{expected}} und {{anilist}}).",
+    "count_unknown": "Staffel {{season}} läuft, die Folgenzahl ist noch unklar ({{have}} sind da).",
+    "renewed_open": "Staffel {{season}} ist angekündigt, der Termin ist noch offen.",
+    "renewed_open_sequel": "{{sequel}} ist angekündigt, der Termin ist noch offen.",
+    "announced": "Staffel {{season}} ist angekündigt: Start {{date}}.",
+    "announced_sequel": "{{sequel}} ist angekündigt: Start {{date}}.",
+    "complete_no_sequel": "Staffel {{season}} ist komplett. Eine Fortsetzung ist noch nicht angekündigt.",
+    "ended": "Die Serie ist abgeschlossen.",
+    "nothing_known": "Noch nichts bekannt. Finalarr meldet sich, sobald es Neuigkeiten gibt."
+  },
+  "extras": {
+    "next": "Nächste Folge: S{{s}}E{{e}} {{relative}}",
+    "nextNoSeason": "Nächste Folge: Folge {{e}} {{relative}}",
+    "source": "laut {{source}}",
+    "channel": "Läuft bei {{channel}}",
+    "watch": "Ansehen bei",
+    "watchRegion": "Streaming-Angebote in {{region}}: Daten von JustWatch über TMDB",
+    "trailer": "Trailer abspielen",
+    "trailerNote": "Lädt das Video erst nach dem Klick von YouTube (youtube-nocookie.com).",
+    "trailerTitle": "Trailer: {{title}}",
+    "dub": "Englische Synchro",
+    "dubNext": "nächste Folge {{when}}",
+    "dubPremiere": "Start {{when}}",
+    "dubDelayed": "verschoben bis {{when}}",
+    "dubSource": "Daten: AnimeSchedule.net",
+    "errors": "Nicht alle Quellen waren erreichbar."
   }
 }

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { apiFetch, errorText } from '../lib/api'
-import { type EventPayload, type EventType, formatEvent } from '../lib/events'
+import { type EventPayload, type EventType, formatEvent, type NewsKind } from '../lib/events'
 import { formatDate } from '../lib/format'
 
 type NewsItem =
@@ -9,6 +9,7 @@ type NewsItem =
   | {
       kind: 'web'
       title: string
+      news_kind?: NewsKind
       link: string | null
       source: string | null
       published: string | null
@@ -18,6 +19,18 @@ interface News {
   items: NewsItem[]
   web_enabled: boolean
   web_error: boolean
+}
+
+function KindChip({ kind }: { kind: NewsKind | undefined }) {
+  const { t } = useTranslation()
+  if (!kind || kind === 'other') return null
+  // Bad news in red, everything else quiet (gold stays reserved for "complete").
+  const tone = kind === 'cancellation' || kind === 'delay' ? 'border-bad text-bad' : 'border-line'
+  return (
+    <span className={`mr-1.5 rounded-full border px-1.5 text-xs ${tone}`}>
+      {t(`news.kinds.${kind}`)}
+    </span>
+  )
 }
 
 function ExternalLink({
@@ -63,6 +76,7 @@ export function SeriesNews({ seriesId }: { seriesId: number }) {
               {item.published ? formatDate(item.published, i18n.language) : ''}
             </span>
             <span className="min-w-0 flex-1">
+              <KindChip kind={item.kind === 'event' ? item.payload.news_kind : item.news_kind} />
               {item.kind === 'event' ? (
                 <ExternalLink
                   href={item.event_type === 'news_mention' ? item.payload.link : undefined}
@@ -71,6 +85,9 @@ export function SeriesNews({ seriesId }: { seriesId: number }) {
                 </ExternalLink>
               ) : (
                 <ExternalLink href={item.link}>{item.title}</ExternalLink>
+              )}
+              {item.kind === 'event' && item.payload.evidence && (
+                <q className="mt-0.5 block text-xs text-muted">{item.payload.evidence}</q>
               )}
             </span>
             <span className="text-xs text-muted">

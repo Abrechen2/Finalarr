@@ -5,7 +5,9 @@ import { PageTitle } from '../components/EmptyState'
 import { AnilistPicker } from '../components/AnilistPicker'
 import { SeasonCheck } from '../components/SeasonCheck'
 import { SeasonParts } from '../components/SeasonParts'
+import { SeriesExtras } from '../components/SeriesExtras'
 import { SeriesNews } from '../components/SeriesNews'
+import { WaitingCard } from '../components/WaitingCard'
 import { SeasonOverride } from '../components/SeasonOverride'
 import { Toggle } from '../components/Toggle'
 import { EpisodeGrid } from '../components/EpisodeGrid'
@@ -14,7 +16,15 @@ import { Poster } from '../components/Poster'
 import { StateBadge } from '../components/StateBadge'
 import { errorKey } from '../lib/api'
 import { useSeriesDetail, useSeriesPatch } from '../lib/series'
-import type { SeasonDetail, SeriesDetail } from '../lib/types'
+import type { SeasonDetail, SeriesDetail, SeriesDetails } from '../lib/types'
+
+const NO_DETAILS: SeriesDetails = {
+  overview: '',
+  network: '',
+  runtime: null,
+  genres: [],
+  fanart_url: null,
+}
 
 function SeasonSection({ series, season }: { series: SeriesDetail; season: SeasonDetail }) {
   const { t, i18n } = useTranslation()
@@ -82,6 +92,7 @@ export function SeriesDetailPage() {
   }
   if (!detail.data) return null
   const series = detail.data
+  const details = series.details ?? NO_DETAILS
   const seasons = [...series.seasons].sort(
     (a, b) => (a.number === 0 ? 1 : 0) - (b.number === 0 ? 1 : 0) || b.number - a.number,
   )
@@ -95,6 +106,15 @@ export function SeriesDetailPage() {
         <ArrowLeft size={16} aria-hidden="true" />
         {t('series.back')}
       </Link>
+      {details.fanart_url && (
+        <img
+          src={details.fanart_url}
+          alt=""
+          loading="lazy"
+          referrerPolicy="no-referrer"
+          className="mb-4 h-32 w-full rounded-card border border-line object-cover opacity-60 sm:h-44"
+        />
+      )}
       <div className="mb-6 flex flex-wrap gap-4">
         <Poster url={series.poster_url} size="lg" />
         <div className="flex min-w-0 flex-1 flex-col gap-3">
@@ -103,10 +123,14 @@ export function SeriesDetailPage() {
             {[
               series.year,
               series.series_type === 'anime' ? t('series.typeAnime') : t('series.typeStandard'),
+              details.network,
+              details.runtime && t('series.runtime', { n: details.runtime }),
+              details.genres.slice(0, 3).join(', '),
             ]
               .filter(Boolean)
               .join(' · ')}
           </p>
+          {details.overview && <p className="max-w-prose text-sm">{details.overview}</p>}
           <div className="flex flex-wrap gap-2">
             <FollowToggle
               followed={series.followed}
@@ -151,6 +175,8 @@ export function SeriesDetailPage() {
           )}
         </div>
       </div>
+      <WaitingCard waiting={series.waiting} />
+      <SeriesExtras seriesId={series.id} title={series.title} />
       <SeriesNews seriesId={series.id} />
       <div className="flex flex-col gap-3">
         {seasons.map((season) => (

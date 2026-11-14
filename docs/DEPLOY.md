@@ -60,8 +60,11 @@ shown again.
 | TVmaze | renewed TV seasons, often months early | — |
 | TMDB | same, second source | `FINALARR_TMDB_API_KEY` |
 | Trakt | same, third source | `FINALARR_TRAKT_CLIENT_ID` |
-| LiveChart.me, Anime News Network (RSS) | headlines that name a followed series (hint with link) | — |
+| LiveChart.me, Anime News Network, Anime2You, Crunchyroll News (RSS) | headlines that name a followed series (typed hint with link) | — |
 | Google News (RSS search) | latest headlines in the news box of a series page | — |
+| AniList / TVmaze | next episode, channel, streaming links, trailer on the series page | — |
+| TMDB | "where to watch" per country (JustWatch data), trailer | `FINALARR_TMDB_API_KEY`, `FINALARR_WATCH_REGION` (default `DE`) |
+| AnimeSchedule.net | English dub dates and delay notes | `FINALARR_ANIMESCHEDULE_TOKEN` |
 
 Every source reports a season or sequel under the same key, so you get one message no
 matter which one knows first. News hints can be switched off under *Einstellungen → Regeln*.

@@ -2,6 +2,7 @@ import { useInfiniteQuery } from '@tanstack/react-query'
 import type { TFunction } from 'i18next'
 import { apiFetch } from './api'
 import { pad } from './episodes'
+import { formatDate } from './format'
 import type { Page } from './types'
 
 export const EVENT_TYPES = [
@@ -12,6 +13,7 @@ export const EVENT_TYPES = [
   'part_complete',
   'sequel_announced',
   'news_mention',
+  'episode_delayed',
 ] as const
 export type EventType = (typeof EVENT_TYPES)[number]
 
@@ -29,7 +31,15 @@ export interface EventPayload {
   headline?: string
   link?: string | null
   parts_mode?: 'season' | 'parts'
+  episode?: number
+  old?: string | null
+  new?: string | null
+  news_kind?: NewsKind
+  evidence?: string | null
 }
+
+export type NewsKind =
+  'cancellation' | 'delay' | 'renewal' | 'announcement' | 'date' | 'trailer' | 'other'
 
 export interface DeliveryView {
   id: number
@@ -108,6 +118,16 @@ export function formatEvent(
     }
     case 'news_mention':
       return t('event.newsMention', { title: base.title, headline: payload.headline ?? '' })
+    case 'episode_delayed': {
+      const day = (iso: string | null | undefined) =>
+        iso ? formatDate(iso, language) : t('event.open')
+      return t('event.delayed', {
+        ...base,
+        e: pad(payload.episode ?? 0),
+        old: day(payload.old),
+        new: day(payload.new),
+      })
+    }
     case 'part_complete':
       if (payload.parts_mode === 'parts' && payload.part_title) {
         return t('event.partCompleteAsSeason', { part: payload.part_title })

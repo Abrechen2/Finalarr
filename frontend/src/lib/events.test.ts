@@ -86,3 +86,14 @@ test('news mentions quote the headline', () => {
     formatEvent(t, 'news_mention', { title: 'Mushoku Tensei', headline: 'Part 2 in 2027' }),
   ).toBe('Mushoku Tensei in den News: Part 2 in 2027')
 })
+
+test('postponed episode names old and new date', async () => {
+  await i18n.changeLanguage('de')
+  const delayed = { title: 'Slime', season: 4, episode: 7, old: '2026-11-20T15:00:00Z' }
+  expect(formatEvent(t, 'episode_delayed', { ...delayed, new: '2026-12-04T15:00:00Z' }, 'de')).toBe(
+    'Slime S04E07 verschoben: 20.11.2026 → 04.12.2026',
+  )
+  expect(formatEvent(t, 'episode_delayed', { ...delayed, new: null }, 'de')).toBe(
+    'Slime S04E07 verschoben: 20.11.2026 → offen',
+  )
+})

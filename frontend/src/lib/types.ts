@@ -38,6 +38,7 @@ export interface EpisodeDetail {
   monitored: boolean
   has_file: boolean
   finale_type: string | null
+  delayed_from?: string | null
 }
 
 export interface SeasonDetail extends SeasonSummary {
@@ -54,9 +55,66 @@ export interface SeasonDetail extends SeasonSummary {
   parts: { index: number; from: number; to: number; title: string }[]
 }
 
+export interface SeriesDetails {
+  overview: string
+  network: string
+  runtime: number | null
+  genres: string[]
+  fanart_url: string | null
+}
+
+export type WaitingKey =
+  | 'airing'
+  | 'scheduled'
+  | 'missing'
+  | 'disputed'
+  | 'count_unknown'
+  | 'renewed_open'
+  | 'announced'
+  | 'complete_no_sequel'
+  | 'ended'
+  | 'nothing_known'
+  | 'not_followed'
+
+export interface WaitingState {
+  key: WaitingKey
+  season?: number | null
+  have?: number
+  expected?: number | null
+  missing?: number
+  anilist?: number | null
+  sequel_title?: string | null
+  first_air?: string | null
+}
+
 export interface SeriesDetail extends Omit<SeriesSummary, 'seasons'> {
   sonarr_url: string
   seasons: SeasonDetail[]
+  details?: SeriesDetails
+  waiting?: WaitingState
+}
+
+export interface NextEpisode {
+  season: number | null
+  episode: number
+  at: string
+  source: 'sonarr' | 'anilist' | 'tvmaze'
+}
+
+export interface SeriesExtras {
+  next_episode: NextEpisode | null
+  trailer: { youtube_id: string } | null
+  channel: string | null
+  watch: { name: string; url: string | null; source: 'anilist' | 'tmdb' }[]
+  watch_region: string | null
+  dub: {
+    premiere: string | null
+    next: string | null
+    delayed_until: string | null
+    delay_note: string
+    url: string
+  } | null
+  errors: string[]
 }
 
 export interface Page<T> {

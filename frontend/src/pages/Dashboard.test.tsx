@@ -128,3 +128,32 @@ test('onboarding errors from Sonarr are friendly', async () => {
   fireEvent.click(await screen.findByRole('button', { name: 'Verbindung testen' }))
   expect(await screen.findByText('Sonarr hat den API-Schlüssel abgelehnt.')).toBeInTheDocument()
 })
+
+test('airing card counts down to the next episode', async () => {
+  const card = {
+    series_id: 1,
+    season_id: 3,
+    title: 'Slime',
+    season: 3,
+    state: 'airing' as const,
+    have: 7,
+    expected: 12,
+    disputed: false,
+    next_air_date: new Date(Date.now() + 3 * 86_400_000 + 60_000).toISOString(),
+    next_episode: 8,
+  }
+  mockFetch({
+    'GET /api/v1/dashboard': {
+      body: {
+        airing: [card],
+        upcoming_finales: [],
+        recent_events: [],
+        onboarding: { instance: true, followed: true, channel: true },
+      },
+    },
+  })
+  renderWithProviders(<DashboardPage />)
+  expect(
+    await screen.findByText(/^Folge 8 in 3 Tagen · \w+\., \d{2}\.\d{2}\., \d{2}:\d{2}$/),
+  ).toBeInTheDocument()
+})

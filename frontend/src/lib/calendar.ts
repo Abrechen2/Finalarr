@@ -15,6 +15,7 @@ export interface CalendarEntry {
   series_id: number | null
   has_file: boolean
   sequel_title: string | null
+  delayed_from?: string | null
 }
 
 const pad = (n: number) => String(n).padStart(2, '0')

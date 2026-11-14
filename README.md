@@ -52,9 +52,11 @@ e2e/run.sh                  # end-to-end smoke test with a demo Sonarr
 
 Finalarr talks to your Sonarr, the notification channels you configure, and public
 metadata sources to learn about seasons and announcements: AniList and Fribb's
-anime-lists (GitHub), MyAnimeList via Jikan, TVmaze, LiveChart.me and Anime News Network,
-Google News (the series title, for the news box on a series page; can be switched off),
-plus TMDB and Trakt only if you add their keys. It sends them TVDB/AniList ids or plain
+anime-lists (GitHub), MyAnimeList via Jikan, TVmaze, the news feeds of LiveChart.me, Anime
+News Network, Anime2You and Crunchyroll, Google News (the series title, for the news box on
+a series page; can be switched off), plus TMDB, Trakt and AnimeSchedule.net only if you add
+their keys. A trailer is loaded from YouTube (youtube-nocookie.com) only when you click it;
+poster, fanart and "where to watch" links point to the services themselves. It sends them TVDB/AniList ids or plain
 search terms — never your Sonarr address, keys or library contents. No telemetry.
 
 ## Licence
