@@ -111,7 +111,7 @@ def series_watch(s: Session, series: m.Series) -> dict[str, Any]:
 
 def watch_filter[T](query: Select[T], value: str) -> Select[T]:
     """started: someone watched it; behind: started, files unwatched; caught_up: started,
-    nothing on disk unwatched."""
+    followed, nothing on disk unwatched."""
     started = exists().where(
         m.WatchedEpisode.series_id == m.Series.id, m.WatchedEpisode.season_number > 0
     )
@@ -119,7 +119,8 @@ def watch_filter[T](query: Select[T], value: str) -> Select[T]:
     conditions = {
         "started": started,
         "behind": and_(started, behind),
-        "caught_up": and_(started, ~behind),
+        # Episode lists exist only for followed series; without one it is a guess.
+        "caught_up": and_(started, m.Series.followed.is_(True), ~behind),
     }
     return query.where(conditions[value])
 

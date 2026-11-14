@@ -171,3 +171,15 @@ def test_unwatched_counts_only_after_the_furthest_watched_episode(db):
         assert list(
             s.scalars(watch_filter(select(m.Series.title), "caught_up").order_by(m.Series.title))
         ) == ["Andor", "Slime"]
+
+
+def test_caught_up_needs_a_followed_series_whose_episodes_are_known(db):
+    # Finalarr keeps episode lists only for followed series; for the others "nothing
+    # unwatched" would be a guess.
+    with db.session() as s:
+        by_title(s, "Andor").followed = False
+        s.commit()
+        caught_up = list(s.scalars(watch_filter(select(m.Series.title), "caught_up")))
+        started = sorted(s.scalars(watch_filter(select(m.Series.title), "started")))
+    assert caught_up == []
+    assert started == ["Andor", "Slime"]
