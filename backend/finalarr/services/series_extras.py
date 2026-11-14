@@ -18,7 +18,7 @@ from finalarr.db import models as m
 from finalarr.services.season_sources import ID_TTL, MISSING_ID_TTL, JsonCache
 from finalarr.sources.anilist import AnilistError, AnilistMedia
 from finalarr.sources.animeschedule import AnimeScheduleClient, AnimeScheduleError
-from finalarr.sources.tmdb import TmdbClient, TmdbError
+from finalarr.sources.tmdb import TmdbClient, TmdbError, main_providers
 from finalarr.sources.tvmaze import TvmazeClient, TvmazeError
 
 SHOW_TTL = timedelta(hours=6)
@@ -227,7 +227,7 @@ def series_extras(
     known = {str(w["name"]).lower() for w in watch}
     watch += [
         {"name": name, "url": (tmdb or {}).get("link"), "source": "tmdb"}
-        for name in (tmdb or {}).get("providers", [])
+        for name in main_providers((tmdb or {}).get("providers", []))
         if name.lower() not in known
     ]
     return {

@@ -107,3 +107,27 @@ def test_tmdb_extras_trailer_and_providers():
     assert extras.providers == ("Apple TV+",)
     assert extras.link == "https://www.themoviedb.org/tv/95396/watch?locale=DE"
     assert TmdbClient("k").extras(95396, "US").providers == ()
+
+
+@pytest.mark.parametrize(
+    ("names", "main"),
+    [
+        (["Amazon Prime Video", "Amazon Prime Video with Ads"], ["Amazon Prime Video"]),
+        (["Netflix", "Netflix Standard with Ads"], ["Netflix"]),
+        (["Crunchyroll Amazon Channel"], ["Crunchyroll"]),
+        (
+            ["Paramount Plus", "Paramount+ Amazon Channel", "Paramount Plus Apple TV channel"],
+            ["Paramount+"],
+        ),
+        (["WOW", "Magenta TV+", "Wow Fiction Amazon Channel"], ["WOW", "Magenta TV+"]),
+        (
+            ["Animation Digital Network", "Anime Digital Network Amazon Channel"],
+            ["Animation Digital Network"],
+        ),
+        (["Aniverse Amazon Channel"], ["Aniverse"]),
+    ],
+)
+def test_main_providers(names, main):
+    from finalarr.sources.tmdb import main_providers
+
+    assert main_providers(names) == main

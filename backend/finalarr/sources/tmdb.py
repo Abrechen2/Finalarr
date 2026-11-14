@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import date
 from typing import Any
@@ -12,6 +14,29 @@ TMDB_URL = "https://api.themoviedb.org/3"
 TIMEOUT_SECONDS = 10
 
 SeasonRow = tuple[int, date | None, int | None]
+
+
+# TMDB lists every way to subscribe ("… with Ads", "… Amazon Channel"); the user
+# only needs the service itself.
+_VARIANT = re.compile(
+    r"\s+(standard with ads|with ads|amazon channel|apple tv channel|roku premium channel)$",
+    re.IGNORECASE,
+)
+_ALIASES = {
+    "paramount plus": "Paramount+",
+    "anime digital network": "Animation Digital Network",
+    "wow fiction": "WOW",
+}
+
+
+def main_providers(names: Iterable[str]) -> list[str]:
+    """Collapse subscription variants into one entry per service, order kept."""
+    found: dict[str, str] = {}
+    for name in names:
+        base = _VARIANT.sub("", name.strip())
+        base = _ALIASES.get(base.lower(), base)
+        found.setdefault(base.lower(), base)
+    return list(found.values())
 
 
 class TmdbError(RuntimeError):

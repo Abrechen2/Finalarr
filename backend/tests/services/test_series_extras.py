@@ -210,3 +210,15 @@ def test_series_without_mapping_skips_anilist(db):
     anilist = FakeAnilist()
     extras(db, tvmaze=None, anilist=anilist)
     assert anilist.asked == []
+
+
+class VariantTmdb(FakeTmdb):
+    def extras(self, tv_id, region):
+        return TmdbExtras(
+            None, ("Crunchyroll Amazon Channel", "Netflix", "Netflix Standard with Ads"), None
+        )
+
+
+def test_tmdb_variants_collapse_into_main_providers(db):
+    result = extras(db, tvmaze=None, anilist=FakeAnilist({40: media()}), tmdb=VariantTmdb())
+    assert [w["name"] for w in result["watch"]] == ["Crunchyroll", "Netflix"]
