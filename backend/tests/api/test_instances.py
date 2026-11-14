@@ -155,3 +155,14 @@ def test_creating_an_instance_queues_a_first_sync(api, app):
     with app.extensions["finalarr.db"].session() as s:
         assert take_all(s) == [(created["id"], 0)]
     assert nudged == [1]
+
+
+def test_a_new_url_needs_the_key_again(api, instance):
+    # Otherwise a changed address would receive the stored Sonarr key on the next sync.
+    response = api.patch(f"/api/v1/instances/{instance['id']}", json={"url": "http://evil:1"})
+    assert response.status_code == 400
+    assert response.get_json()["error"]["fields"] == {"api_key": "required when the URL changes"}
+    ok = api.patch(
+        f"/api/v1/instances/{instance['id']}", json={"url": "http://sonarr2:8989", "api_key": "k2"}
+    )
+    assert ok.status_code == 200

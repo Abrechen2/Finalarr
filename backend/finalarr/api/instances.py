@@ -148,6 +148,11 @@ def patch_instance(instance_id: int) -> ResponseReturnValue:
     body = parse_body(InstancePatch)
     with database().session() as s:
         instance = _load(s, instance_id)
+        if body.url is not None and body.url != instance.url and body.api_key is None:
+            # The stored key must never go to an address it was not given for.
+            raise ApiProblem(
+                400, "validation", "Invalid input", {"api_key": "required when the URL changes"}
+            )
         if body.name is not None:
             instance.name = body.name.strip()
         if body.url is not None:
