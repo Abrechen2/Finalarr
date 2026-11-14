@@ -167,7 +167,8 @@ def patch_server(server_id: int) -> ResponseReturnValue:
         server = _load(s, server_id)
         if body.url is not None and body.url != server.url and body.token is None:
             # The stored token must never go to an address it was not given for.
-            missing = {"token": "required when the URL changes"}
+            # "token" names the form field (Bandit B105 false positive).
+            missing = {"token": "required when the URL changes"}  # nosec B105
             raise ApiProblem(400, "validation", "Invalid input", missing)
         if body.token is not None:
             _check(_client(server.kind, body.url or server.url, body.token))
