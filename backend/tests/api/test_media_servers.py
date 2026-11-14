@@ -102,3 +102,15 @@ def test_patch_delete_and_sync(api, app, fake):
     assert api.delete(f"/api/v1/media-servers/{server['id']}").status_code == 204
     assert api.get("/api/v1/media-servers").get_json() == []
     assert api.delete("/api/v1/media-servers/999").status_code == 404
+
+
+def test_a_new_url_needs_the_token_again(api, fake):
+    server = api.post("/api/v1/media-servers", json=BODY).get_json()
+    response = api.patch(f"/api/v1/media-servers/{server['id']}", json={"url": "http://evil:1"})
+    assert response.status_code == 400
+    assert response.get_json()["error"]["fields"] == {"token": "required when the URL changes"}
+    assert fake[-1][1] == "http://emby:8096"  # the stored token was never sent elsewhere
+    ok = api.patch(
+        f"/api/v1/media-servers/{server['id']}", json={"url": "http://emby2:8096", "token": "new"}
+    )
+    assert ok.status_code == 200 and fake[-1] == ("emby", "http://emby2:8096", "new")

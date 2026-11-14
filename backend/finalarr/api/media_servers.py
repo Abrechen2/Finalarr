@@ -165,9 +165,13 @@ def patch_server(server_id: int) -> ResponseReturnValue:
     body = parse_body(ServerPatch)
     with database().session() as s:
         server = _load(s, server_id)
-        if body.url is not None or body.token is not None:
-            token = body.token or secrets().decrypt(server.token_enc)
-            _check(_client(server.kind, body.url or server.url, token))
+        if body.url is not None and body.url != server.url and body.token is None:
+            # The stored token must never go to an address it was not given for.
+            raise ApiProblem(
+                400, "validation", "Invalid input", {"token": "required when the URL changes"}
+            )
+        if body.token is not None:
+            _check(_client(server.kind, body.url or server.url, body.token))
         if body.name is not None:
             server.name = body.name
         if body.url is not None:
