@@ -593,6 +593,7 @@
       "CANCELLED": "abgebrochen",
       "HIATUS": "pausiert"
     },
-    "unknownCount": "?"
+    "unknownCount": "?",
+    "unmonitored": "{{count}} davon nicht überwacht, sie zählen nicht mit"
   }
 }

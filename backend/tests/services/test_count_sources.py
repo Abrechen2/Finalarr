@@ -103,7 +103,13 @@ def test_every_source_with_its_number_and_the_decision(db):
     )
     by = {row["source"]: row for row in result["sources"]}
     assert by["sonarr"]["count"] == 12
-    assert by["sonarr"]["detail"] == {"listed": 12, "aired": 12, "on_disk": 10, "finale": 12}
+    assert by["sonarr"]["detail"] == {
+        "listed": 12,
+        "unmonitored": 0,
+        "aired": 12,
+        "on_disk": 10,
+        "finale": 12,
+    }
     assert by["sonarr"]["url"] == "http://sonarr:8989/series/mushoku"
     assert by["anilist"]["count"] == 24
     assert by["anilist"]["entries"] == [
@@ -156,3 +162,13 @@ def test_override_and_anilist_down(db):
             "url": "https://anilist.co/anime/11",
         },
     ]
+
+
+def test_unmonitored_episodes_are_named_not_hidden(db):
+    with db.session() as s:
+        for episode in s.query(m.Episode).filter(m.Episode.number > 8):
+            episode.monitored = False
+        s.commit()
+    by = {row["source"]: row for row in sources(db)["sources"]}
+    assert by["sonarr"]["count"] == 8
+    assert (by["sonarr"]["detail"]["listed"], by["sonarr"]["detail"]["unmonitored"]) == (12, 4)

@@ -44,7 +44,9 @@ def _sonarr(series: m.Series, season: m.Season) -> dict[str, Any]:
         "source": "sonarr",
         "count": len(episodes),
         "detail": {
-            "listed": len(episodes),
+            # Unmonitored episodes do not count while "respect monitoring" is on.
+            "listed": len(season.episodes),
+            "unmonitored": len(season.episodes) - len(episodes),
             "aired": sum(1 for e in episodes if (a := _aware(e.air_date_utc)) and a <= now),
             "on_disk": sum(1 for e in episodes if e.has_file),
             "finale": finale,

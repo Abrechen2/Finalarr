@@ -9,7 +9,13 @@ interface SourceRow {
   source: 'sonarr' | 'anilist' | 'tvmaze' | 'tmdb' | 'trakt' | 'override'
   count: number | null
   url?: string
-  detail?: { listed: number; aired: number; on_disk: number; finale: number | null }
+  detail?: {
+    listed: number
+    unmonitored?: number
+    aired: number
+    on_disk: number
+    finale: number | null
+  }
   entries?: {
     id: number
     title: string | null
@@ -34,6 +40,8 @@ function Note({ row }: { row: SourceRow }) {
     return (
       <>
         {t('count.sonarrDetail', row.detail)}
+        {Boolean(row.detail.unmonitored) &&
+          ` · ${t('count.unmonitored', { count: row.detail.unmonitored })}`}
         {row.detail.finale !== null && ` · ${t('count.sonarrFinale', { n: row.detail.finale })}`}
       </>
     )

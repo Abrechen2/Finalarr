@@ -101,7 +101,7 @@ test('count sources explain an unclear episode count', async () => {
             source: 'sonarr',
             count: 12,
             url: 'http://sonarr/series/x',
-            detail: { listed: 12, aired: 10, on_disk: 9, finale: null },
+            detail: { listed: 14, unmonitored: 2, aired: 10, on_disk: 9, finale: null },
           },
           {
             source: 'anilist',
@@ -133,7 +133,11 @@ test('count sources explain an unclear episode count', async () => {
   expect(
     await screen.findByText('Finalarr kennt die Folgenzahl noch nicht und wartet mit „komplett“.'),
   ).toBeInTheDocument()
-  expect(screen.getByText('12 gelistet, 10 ausgestrahlt, 9 vorhanden')).toBeInTheDocument()
+  expect(
+    screen.getByText(
+      '14 gelistet, 10 ausgestrahlt, 9 vorhanden · 2 davon nicht überwacht, sie zählen nicht mit',
+    ),
+  ).toBeInTheDocument()
   expect(screen.getByRole('link', { name: 'Part 1: 12 Folgen (abgeschlossen)' })).toHaveAttribute(
     'href',
     'https://anilist.co/anime/10',
