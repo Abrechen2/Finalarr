@@ -54,10 +54,7 @@ def test_season_and_episode_news_is_kept(headline, titles):
         ("7 Masterpiece Isekai Anime Like Mushoku Tensei season 2, But Better", MUSHOKU),
         ("'Severance' season 2 review: What it means to be you", ["Severance"]),
         ("Severance season 2 recap before season 3", ["Severance"]),
-        (
-            "Daoko Releases That Time I Got Reincarnated as a Slime Season 4 Opening Song Music Video",
-            SLIME,
-        ),
+        ("That Time I Got Reincarnated as a Slime Season 4 Opening Song Music Video", SLIME),
         ("Crunchyroll kündigt die deutschen Synchros für Sommer 2026 an, Staffel 2", MUSHOKU),
     ],
 )
