@@ -11,7 +11,9 @@ from typing import Any
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from finalarr.core.news_filter import is_season_news
 from finalarr.db import models as m
+from finalarr.services.news import anilist_titles
 from finalarr.services.season_sources import JsonCache
 from finalarr.sources.feeds import FeedError, FeedItem, fetch_feed, google_news_url
 
@@ -21,6 +23,8 @@ MAX_AGE = timedelta(days=365)
 WEB_TTL = timedelta(hours=6)
 SHORT_TITLE_CHARS = 8
 CONTEXT = {"anime": {"de": "anime", "en": "anime"}, "series": {"de": "Serie", "en": "series"}}
+# Ask for season/episode news up front; is_season_news filters the rest.
+FOCUS = {"de": "(Staffel OR Folge)", "en": "(season OR episode)"}
 
 Fetch = Callable[[str], list[FeedItem]]
 
@@ -34,7 +38,7 @@ def news_query(title: str, series_type: str, language: str) -> str:
     if len(core) < SHORT_TITLE_CHARS or len(core.split()) < 2:
         kind = "anime" if series_type == "anime" else "series"
         query += f" {CONTEXT[kind].get(language, CONTEXT[kind]['en'])}"
-    return query
+    return f"{query} {FOCUS.get(language, FOCUS['en'])}"
 
 
 def _event_items(s: Session, series: m.Series) -> list[dict[str, Any]]:
@@ -55,9 +59,15 @@ def _event_items(s: Session, series: m.Series) -> list[dict[str, Any]]:
     ]
 
 
-def _web_items(items: list[dict[str, Any]], now: datetime) -> list[dict[str, Any]]:
+def _web_items(
+    items: list[dict[str, Any]], now: datetime, titles: list[str]
+) -> list[dict[str, Any]]:
     oldest = (now - MAX_AGE).isoformat()
-    recent = [i for i in items if i["published"] and i["published"] >= oldest]
+    recent = [
+        i
+        for i in items
+        if i["published"] and i["published"] >= oldest and is_season_news(i["title"], titles)
+    ]
     return sorted(recent, key=lambda i: i["published"], reverse=True)[:MAX_ITEMS]
 
 
@@ -90,7 +100,8 @@ def series_news(
 
         try:
             found = cache.remember(f"news:{language}:{query}", WEB_TTL, search)
-            items += _web_items(found, moment)
+            titles = [series.title, *anilist_titles(s).get(series.id, [])]
+            items += _web_items(found, moment, titles)
         except FeedError:
             error = True
     return {"items": items, "web_enabled": web, "web_error": error}

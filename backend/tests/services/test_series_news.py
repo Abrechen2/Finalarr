@@ -34,11 +34,16 @@ def test_feed_items_carry_their_source():
 @pytest.mark.parametrize(
     ("title", "series_type", "lang", "query"),
     [
-        ("Mushoku Tensei: Jobless Reincarnation", "anime", "de", '"Mushoku Tensei"'),
-        ("Severance", "standard", "en", '"Severance" series'),
-        ("24", "standard", "de", '"24" Serie'),
-        ("DAN DA DAN", "anime", "en", '"DAN DA DAN"'),
-        ("Frieren", "anime", "de", '"Frieren" anime'),
+        (
+            "Mushoku Tensei: Jobless Reincarnation",
+            "anime",
+            "de",
+            '"Mushoku Tensei" (Staffel OR Folge)',
+        ),
+        ("Severance", "standard", "en", '"Severance" series (season OR episode)'),
+        ("24", "standard", "de", '"24" Serie (Staffel OR Folge)'),
+        ("DAN DA DAN", "anime", "en", '"DAN DA DAN" (season OR episode)'),
+        ("Frieren", "anime", "de", '"Frieren" anime (Staffel OR Folge)'),
     ],
 )
 def test_news_query(title, series_type, lang, query):
@@ -109,11 +114,9 @@ def test_series_news_combines_finalarr_events_and_web_headlines(db):
     assert [i["kind"] for i in result["items"]][:1] == ["event"]
     assert result["items"][0]["event_type"] == "sequel_announced"
     web = [i for i in result["items"] if i["kind"] == "web"]
-    assert (
-        web
-        and web[0]["source"] == "Anime2You"
-        and web[0]["link"].startswith("https://news.google.com/")
-    )
+    # the fixture's merchandise headlines (figure, fashion line) are filtered out
+    assert [w["source"] for w in web] == ["Hypebeast", "Crunchyroll"]
+    assert web[0]["link"].startswith("https://news.google.com/")
     assert all(
         i["event_type"] != "episodes_available" for i in result["items"] if i["kind"] == "event"
     )
@@ -133,3 +136,23 @@ def test_web_search_off_or_failing(db):
     result = news(db, broken)
     assert result["web_error"] is True
     assert [i["kind"] for i in result["items"]] == ["event"]
+
+
+def test_merchandise_headlines_are_filtered_out(db):
+    from finalarr.sources.feeds import FeedItem
+
+    def fetch(url):
+        return [
+            FeedItem(
+                "Neue Figur von Roxy aus »Mushoku Tensei« angekündigt",
+                "https://n/1",
+                NOW,
+                "Anime2You",
+            ),
+            FeedItem(
+                "„Mushoku Tensei“ Staffel 3 Teil 2 startet 2027", "https://n/2", NOW, "Hypebeast"
+            ),
+        ]
+
+    titles = [i["title"] for i in news(db, fetch)["items"] if i["kind"] == "web"]
+    assert titles == ["„Mushoku Tensei“ Staffel 3 Teil 2 startet 2027"]

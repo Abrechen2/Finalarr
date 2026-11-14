@@ -170,3 +170,24 @@ def test_news_can_be_switched_off(db):
     calls = []
     NewsWatcher(db, [("x", lambda: calls.append(1) or [])], clock=lambda: NOW).run()
     assert calls == []
+
+
+def test_merchandise_headlines_never_become_hints(db):
+    from finalarr.sources.feeds import FeedItem
+
+    items = [
+        FeedItem(
+            '"Mushoku Tensei: Jobless Reincarnation" Nendoroid figure opens for preorder',
+            "https://x/1",
+            NOW,
+            None,
+        ),
+        FeedItem(
+            '"Mushoku Tensei: Jobless Reincarnation" Season 3 Part 2 premieres January',
+            "https://x/2",
+            NOW,
+            None,
+        ),
+    ]
+    created = run(db, items)
+    assert [json.loads(e.payload_json)["link"] for e in created] == ["https://x/2"]

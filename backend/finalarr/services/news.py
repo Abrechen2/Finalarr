@@ -20,6 +20,7 @@ from sqlalchemy.dialects.sqlite import insert
 from sqlalchemy.orm import Session
 
 from finalarr.core.fingerprint import fingerprint
+from finalarr.core.news_filter import is_season_news
 from finalarr.db import models as m
 from finalarr.db.session import Database
 from finalarr.services.settings_store import load_settings
@@ -79,7 +80,7 @@ class NewsWatcher:
             created = [
                 event
                 for feed, item in items
-                for series_id in _matching(titles, normalize(item.title))
+                for series_id in _matching(titles, item.title)
                 if (event := _record(s, series_id, feed, item)) is not None
             ]
             if created and self._on_events:
@@ -118,9 +119,13 @@ def anilist_titles(s: Session) -> dict[int, list[str]]:
     return titles
 
 
-def _matching(titles: dict[int, set[str]], headline: str) -> list[int]:
+def _matching(titles: dict[int, set[str]], raw_headline: str) -> list[int]:
+    """Series the headline names — and only if it is season or episode news."""
+    headline = normalize(raw_headline)
     return sorted(
-        sid for sid, names in titles.items() if any(title_matches(n, headline) for n in names)
+        sid
+        for sid, names in titles.items()
+        if any(title_matches(n, headline) for n in names) and is_season_news(raw_headline, names)
     )
 
 
