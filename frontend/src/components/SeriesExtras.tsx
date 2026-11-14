@@ -10,6 +10,29 @@ import type { SeriesExtras as Extras } from '../lib/types'
 const SOURCE_NAMES = { sonarr: 'Sonarr', anilist: 'AniList', tvmaze: 'TVmaze' } as const
 const CHIP = 'inline-block rounded-full border border-line px-2.5 py-0.5 text-sm'
 
+const CREDIT_NAMES: Record<string, string> = { ...SOURCE_NAMES, tmdb: 'TMDB' }
+
+/** "per TVmaze", linked to the source page when there is one (TVmaze's CC BY-SA asks for it). */
+function SourceCredit({ source, links }: { source: string; links?: Record<string, string> }) {
+  const { t } = useTranslation()
+  const name = CREDIT_NAMES[source] ?? source
+  const href = links?.[source]
+  const text = t('extras.source', { source: name })
+  return href ? (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer noopener"
+      title={t('extras.onSource', { source: name })}
+      className="text-xs text-muted underline hover:text-accent"
+    >
+      {text}
+    </a>
+  ) : (
+    <span className="text-xs text-muted">{text}</span>
+  )
+}
+
 /** Click-to-load: nothing is requested from YouTube before the click. */
 function Trailer({ id, title }: { id: string; title: string }) {
   const { t } = useTranslation()
@@ -91,15 +114,14 @@ export function SeriesExtras({ seriesId, title }: { seriesId: number; title: str
               : t('extras.nextNoSeason', { e: pad(next.episode), relative })}
           </span>
           <span className="text-sm">{airTime(next.at, i18n.language)}</span>
-          <span className="text-xs text-muted">
-            {t('extras.source', { source: SOURCE_NAMES[next.source] })}
-          </span>
+          <SourceCredit source={next.source} links={data.source_links} />
         </p>
       )}
       {data.channel && (
         <p className="flex items-center gap-2 text-sm">
           <Tv size={16} aria-hidden="true" className="text-muted" />
           {t('extras.channel', { channel: data.channel })}
+          {data.source_links?.tvmaze && <SourceCredit source="tvmaze" links={data.source_links} />}
         </p>
       )}
       {data.watch.length > 0 && (
@@ -125,7 +147,8 @@ export function SeriesExtras({ seriesId, title }: { seriesId: number; title: str
           </ul>
           {data.watch_region && data.watch.some((w) => w.source === 'tmdb') && (
             <p className="mt-1 text-xs text-muted">
-              {t('extras.watchRegion', { region: data.watch_region })}
+              {t('extras.watchRegion', { region: data.watch_region })}{' '}
+              {data.source_links?.tmdb && <SourceCredit source="tmdb" links={data.source_links} />}
             </p>
           )}
         </div>

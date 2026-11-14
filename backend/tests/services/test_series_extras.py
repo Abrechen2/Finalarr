@@ -222,3 +222,55 @@ class VariantTmdb(FakeTmdb):
 def test_tmdb_variants_collapse_into_main_providers(db):
     result = extras(db, tvmaze=None, anilist=FakeAnilist({40: media()}), tmdb=VariantTmdb())
     assert [w["name"] for w in result["watch"]] == ["Crunchyroll", "Netflix"]
+
+
+def test_switched_off_sources_are_skipped(db):
+    anilist = FakeAnilist({40: media(NOW + timedelta(days=2))})
+    tvmaze = FakeTvmaze(TvmazeShow.model_validate({"network": {"name": "X"}}))
+    sources = ExtrasSources(
+        cache=JsonCache(db, clock=lambda: NOW),
+        tvmaze=tvmaze,
+        anilist=anilist,
+        tmdb=FakeTmdb(),
+        animeschedule=FakeSchedule(),
+    )
+    with db.session() as s:
+        series = s.query(m.Series).one()
+        result = series_extras(
+            s,
+            series,
+            sources,
+            NOW,
+            disabled=frozenset({"anilist", "tvmaze", "tmdb", "animeschedule", "youtube"}),
+        )
+    assert anilist.asked == [] and tvmaze.calls == 0
+    assert (result["next_episode"], result["trailer"], result["watch"], result["dub"]) == (
+        None,
+        None,
+        [],
+        None,
+    )
+    assert result["channel"] == "Tokyo MX"  # Sonarr's own network stays
+
+
+def test_trailer_off_keeps_the_rest(db):
+    anilist = FakeAnilist({40: media()})
+    sources = ExtrasSources(cache=JsonCache(db, clock=lambda: NOW), tvmaze=None, anilist=anilist)
+    with db.session() as s:
+        result = series_extras(
+            s, s.query(m.Series).one(), sources, NOW, disabled=frozenset({"youtube"})
+        )
+    assert result["trailer"] is None
+    assert result["watch"]
+
+
+def test_source_pages_are_linked_for_attribution(db):
+    show = TvmazeShow.model_validate({"network": {"name": "Tokyo MX"}})
+    result = extras(
+        db, tvmaze=FakeTvmaze(show), anilist=FakeAnilist({40: media()}), tmdb=FakeTmdb()
+    )
+    assert result["source_links"] == {
+        "anilist": "https://anilist.co/anime/40",
+        "tvmaze": "https://www.tvmaze.com/shows/9",
+        "tmdb": "https://www.themoviedb.org/tv/5",
+    }

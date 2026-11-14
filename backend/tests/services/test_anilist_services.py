@@ -410,3 +410,31 @@ def test_finished_or_mapped_sequels_are_not_announced(db, mushoku):
 def test_old_sequel_start_is_not_news(db, mushoku):
     later = datetime(2028, 6, 1, tzinfo=UTC)
     assert run_with_events(db, with_2027_sequels(), now=later) == []
+
+
+def test_switched_off_fribb_is_not_downloaded(db):
+    from finalarr.services.fribb import refresh_if_stale
+    from finalarr.services.source_catalog import set_source
+
+    with db.session() as s:
+        set_source(s, "fribb", False)
+        s.commit()
+
+    def download():
+        raise AssertionError("must not download")
+
+    assert not refresh_if_stale(db, download, NOW)
+
+
+def test_switched_off_anilist_is_not_asked(db, mushoku):
+    from finalarr.services.source_catalog import set_source
+
+    with db.session() as s:
+        set_source(s, "anilist", False)
+        s.commit()
+
+    class Refusing:
+        def __getattr__(self, name):
+            raise AssertionError("AniList must not be asked")
+
+    assert run(db, Refusing()) == []

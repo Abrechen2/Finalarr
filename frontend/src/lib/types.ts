@@ -115,6 +115,8 @@ export interface SeriesExtras {
     url: string
   } | null
   errors: string[]
+  /** Source pages to credit and link back to, by source id. */
+  source_links?: Record<string, string>
 }
 
 export interface Page<T> {

@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 
 from finalarr.db.models import AnilistCache, AnilistMapping, FribbId
 from finalarr.db.session import Database
+from finalarr.services.source_catalog import disabled_sources
 
 log = logging.getLogger(__name__)
 
@@ -89,7 +90,7 @@ def refresh_if_stale(
     """Weekly refresh; a failed download keeps the old mapping."""
     moment = now or datetime.now(UTC)
     with db.session() as s:
-        if not fribb_is_stale(s, moment):
+        if "fribb" in disabled_sources(s) or not fribb_is_stale(s, moment):
             return False
     try:
         raw = download()

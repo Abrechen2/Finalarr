@@ -21,6 +21,7 @@ from finalarr.api import (
     instances,
     rules,
     series,
+    sources,
     system,
     webhook,
 )
@@ -197,6 +198,7 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
     app.register_blueprint(dashboard.bp)
     app.register_blueprint(system.bp)
     app.register_blueprint(calendar.bp)
+    app.register_blueprint(sources.bp)
     app.extensions["finalarr.feed_limiter"] = RateLimiter(FEED_READS_PER_MINUTE, 60)
     spa_dir = static_dir or Path(os.environ.get("FINALARR_STATIC_DIR", _DEFAULT_STATIC_DIR))
 

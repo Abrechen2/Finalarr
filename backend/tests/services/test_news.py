@@ -225,3 +225,15 @@ def test_new_feeds_are_listed():
 
     assert FEEDS["anime2you"] == "https://www.anime2you.de/feed/"
     assert FEEDS["crunchyroll"].startswith("https://cr-news-api-service.prd.crunchyrollsvc.com/")
+
+
+@responses.activate
+def test_switched_off_feeds_are_not_read(db):
+    from finalarr.services.source_catalog import set_source
+
+    responses.get(URL, body=LIVECHART)
+    items = fetch_feed(URL)
+    with db.session() as s:
+        set_source(s, "livechart", False)
+        s.commit()
+    assert run(db, items) == []

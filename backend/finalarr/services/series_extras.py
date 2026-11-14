@@ -7,7 +7,7 @@ drops its part and is named in ``errors``.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from typing import Any, Protocol
 
@@ -78,6 +78,8 @@ class _Collector:
         self.sources = sources
         self.now = now
         self.errors: list[str] = []
+        # Source pages to credit and link back to (TVmaze's CC BY-SA, TMDB's terms).
+        self.links: dict[str, str] = {}
 
     def tvmaze_show(self, tvdb_id: int | None) -> dict[str, Any] | None:
         client = self.sources.tvmaze
@@ -93,6 +95,7 @@ class _Collector:
             )
             if show_id is None:
                 return None
+            self.links["tvmaze"] = f"https://www.tvmaze.com/shows/{show_id}"
             body: dict[str, Any] = cache.remember(
                 f"tvmaze:info:{show_id}", SHOW_TTL, lambda: _show_json(client, show_id)
             )
@@ -125,6 +128,7 @@ class _Collector:
             )
             if tv_id is None:
                 return None
+            self.links["tmdb"] = f"https://www.themoviedb.org/tv/{tv_id}"
             body: dict[str, Any] = cache.remember(
                 f"tmdb:extras:{tv_id}:{region}", SHOW_TTL, lambda: _tmdb_json(client, tv_id, region)
             )
@@ -198,8 +202,19 @@ def _anilist_next(media: list[AnilistMedia], season: int | None) -> dict[str, An
 
 
 def series_extras(
-    s: Session, series: m.Series, sources: ExtrasSources, now: datetime
+    s: Session,
+    series: m.Series,
+    sources: ExtrasSources,
+    now: datetime,
+    disabled: frozenset[str] = frozenset(),
 ) -> dict[str, Any]:
+    sources = replace(
+        sources,
+        anilist=None if "anilist" in disabled else sources.anilist,
+        tvmaze=None if "tvmaze" in disabled else sources.tvmaze,
+        tmdb=None if "tmdb" in disabled else sources.tmdb,
+        animeschedule=None if "animeschedule" in disabled else sources.animeschedule,
+    )
     collect = _Collector(sources, now)
     season, anilist_ids = _latest_anilist(s, series)
     media = collect.anilist(anilist_ids)
@@ -232,10 +247,12 @@ def series_extras(
     ]
     return {
         "next_episode": next_episode,
-        "trailer": {"youtube_id": trailer} if trailer else None,
+        "trailer": {"youtube_id": trailer} if trailer and "youtube" not in disabled else None,
         "channel": (show or {}).get("channel") or series.network or None,
         "watch": watch,
         "watch_region": sources.region if tmdb else None,
         "dub": collect.dub(mal_id),
         "errors": collect.errors,
+        "source_links": ({"anilist": f"https://anilist.co/anime/{media[0].id}"} if media else {})
+        | collect.links,
     }

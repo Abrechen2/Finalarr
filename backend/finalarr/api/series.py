@@ -20,6 +20,7 @@ from finalarr.services.reconcile_queue import enqueue
 from finalarr.services.series_extras import series_extras
 from finalarr.services.series_news import series_news
 from finalarr.services.settings_store import load_settings
+from finalarr.services.source_catalog import disabled_sources
 from finalarr.services.waiting import waiting_state
 from finalarr.sources.feeds import fetch_feed
 
@@ -254,7 +255,11 @@ def get_series_news(series_id: int) -> ResponseReturnValue:
 def get_series_extras(series_id: int) -> ResponseReturnValue:
     with database().session() as s:
         return series_extras(
-            s, _load(s, series_id), current_app.extensions["finalarr.extras"], datetime.now(UTC)
+            s,
+            _load(s, series_id),
+            current_app.extensions["finalarr.extras"],
+            datetime.now(UTC),
+            disabled=disabled_sources(s),
         )
 
 

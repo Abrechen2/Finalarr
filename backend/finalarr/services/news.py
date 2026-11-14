@@ -24,6 +24,7 @@ from finalarr.core.news_filter import evidence_sentence, is_season_news, news_ki
 from finalarr.db import models as m
 from finalarr.db.session import Database
 from finalarr.services.settings_store import load_settings
+from finalarr.services.source_catalog import disabled_sources
 from finalarr.sources.feeds import FeedError, FeedItem
 
 log = logging.getLogger(__name__)
@@ -66,9 +67,10 @@ class NewsWatcher:
         with self._db.session() as s:
             if not load_settings(s)["news_feeds"]:
                 return
+            off = disabled_sources(s)
         since = self._clock() - RECENT
         items: list[tuple[str, FeedItem]] = []
-        for name, fetch in self._feeds:
+        for name, fetch in [(n, f) for n, f in self._feeds if n not in off]:
             try:
                 items += [(name, i) for i in fetch() if i.published and i.published >= since]
             except FeedError as error:

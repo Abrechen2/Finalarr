@@ -122,3 +122,17 @@ def test_results_are_cached(db):
     calls = len(jikan.calls)
     run(db, jikan)
     assert len(jikan.calls) == calls
+
+
+def test_switched_off_jikan_is_not_asked(db):
+    from finalarr.services.source_catalog import set_source
+
+    with db.session() as s:
+        set_source(s, "jikan", False)
+        s.commit()
+
+    class Refusing:
+        def __getattr__(self, name):
+            raise AssertionError("Jikan must not be asked")
+
+    assert run(db, Refusing()) == []

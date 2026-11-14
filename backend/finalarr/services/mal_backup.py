@@ -22,6 +22,7 @@ from finalarr.db import models as m
 from finalarr.db.session import Database
 from finalarr.services.enricher import NEWS_WINDOW, record_sequel
 from finalarr.services.season_sources import JsonCache
+from finalarr.services.source_catalog import disabled_sources
 from finalarr.sources.jikan import JikanAnime, JikanError
 
 log = logging.getLogger(__name__)
@@ -54,6 +55,8 @@ class MalSequelWatcher:
 
     def run(self) -> None:
         with self._db.session() as s:
+            if "jikan" in disabled_sources(s):
+                return
             rows = s.execute(
                 select(m.Series.id, m.FribbId.mal_id)
                 .join(m.AnilistMapping, m.AnilistMapping.tvdb_id == m.Series.tvdb_id)

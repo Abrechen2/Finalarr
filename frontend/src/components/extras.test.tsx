@@ -71,13 +71,18 @@ const EXTRAS = {
     url: 'https://animeschedule.net/anime/slime',
   },
   errors: ['tvmaze'],
+  source_links: { anilist: 'https://anilist.co/anime/40', tmdb: 'https://www.themoviedb.org/tv/5' },
 }
 
 test('extras: countdown, channel, watch chips, dub and click-to-load trailer', async () => {
   mockFetch({ 'GET /api/v1/series/3/extras': { body: EXTRAS } })
   renderWithProviders(<SeriesExtras seriesId={3} title="Slime" />)
   expect(await screen.findByText('Nächste Folge: S04E07 übermorgen')).toBeInTheDocument()
-  expect(screen.getByText('laut AniList')).toBeInTheDocument()
+  expect(screen.getByRole('link', { name: 'laut AniList' })).toHaveAttribute(
+    'href',
+    'https://anilist.co/anime/40',
+  )
+  expect(screen.getByRole('link', { name: 'laut TMDB' })).toBeInTheDocument()
   expect(screen.getByText('Läuft bei Tokyo MX')).toBeInTheDocument()
   expect(screen.getByRole('link', { name: 'Crunchyroll' })).toHaveAttribute(
     'href',

@@ -138,3 +138,14 @@ def test_anime_with_a_fribb_mapping_is_left_to_anilist(env):
     source = FakeSource("tvmaze", {TVDB: [Announced(3, None, None)]})
     assert watch(db, source) == []
     assert source.calls == []
+
+
+def test_switched_off_sources_are_not_asked(env):
+    from finalarr.services.source_catalog import set_source
+
+    db, *_ = env
+    with db.session() as s:
+        set_source(s, "tvmaze", False)
+        s.commit()
+    tvmaze = FakeSource("tvmaze", {TVDB: [Announced(3, None, None)]})
+    assert watch(db, tvmaze) == []

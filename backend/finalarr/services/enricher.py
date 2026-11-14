@@ -26,6 +26,7 @@ from sqlalchemy.orm import Session
 from finalarr.core.fingerprint import fingerprint
 from finalarr.db import models as m
 from finalarr.db.session import Database
+from finalarr.services.source_catalog import disabled_sources
 from finalarr.sources.anilist import AnilistError, AnilistMedia
 
 log = logging.getLogger(__name__)
@@ -58,6 +59,8 @@ class AnimeEnricher:
 
     def run(self) -> None:
         with self._db.session() as s:
+            if "anilist" in disabled_sources(s):
+                return
             series_ids = list(s.scalars(select(m.Series.id).where(m.Series.followed.is_(True))))
             anime_tvdb_ids = s.scalars(
                 select(m.Series.tvdb_id).where(

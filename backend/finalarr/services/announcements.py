@@ -25,6 +25,7 @@ from sqlalchemy.orm import Session
 from finalarr.core.fingerprint import fingerprint
 from finalarr.db import models as m
 from finalarr.db.session import Database
+from finalarr.services.source_catalog import disabled_sources
 
 log = logging.getLogger(__name__)
 NEWS_WINDOW = timedelta(days=30)
@@ -70,7 +71,10 @@ class AnnouncementWatcher:
         self._clock = clock
 
     def run(self) -> None:
-        if not self._sources:
+        with self._db.session() as s:
+            off = disabled_sources(s)
+        sources = [source for source in self._sources if source.name not in off]
+        if not sources:
             return
         with self._db.session() as s:
             mapped = exists().where(m.AnilistMapping.tvdb_id == m.Series.tvdb_id)
@@ -82,13 +86,13 @@ class AnnouncementWatcher:
         for series_id, tvdb_id in targets:
             if tvdb_id is None:  # excluded by the query; narrows the type
                 continue
-            merged = self._ask(tvdb_id)
+            merged = self._ask(tvdb_id, sources)
             if merged:
                 self._record(series_id, merged)
 
-    def _ask(self, tvdb_id: int) -> dict[int, _Merged]:
+    def _ask(self, tvdb_id: int, sources: list[SeasonSource]) -> dict[int, _Merged]:
         merged: dict[int, _Merged] = {}
-        for source in self._sources:
+        for source in sources:
             try:
                 answers = source.seasons(tvdb_id)
             except SourceError as error:

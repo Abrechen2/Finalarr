@@ -25,6 +25,8 @@ DEFAULTS: dict[str, Any] = {
     "calendar_announcements": True,
     "calendar_days_back": 14,
     "calendar_days_ahead": 120,
+    # Ids from services.source_catalog the user switched off.
+    "sources_disabled": [],
 }
 
 

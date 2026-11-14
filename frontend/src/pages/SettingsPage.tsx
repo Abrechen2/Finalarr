@@ -6,6 +6,7 @@ import { ChannelsSettings } from './ChannelsSettings'
 import { InstancesSettings } from './InstancesSettings'
 import { SystemSettings } from './SystemSettings'
 import { RulesSettings } from './RulesSettings'
+import { SourcesSettings } from './SourcesSettings'
 import { LANGUAGES } from '../i18n'
 import { THEMES, type Theme, applyTheme, storedTheme } from '../lib/theme'
 
@@ -46,13 +47,14 @@ function Choice<T extends string>(props: {
   )
 }
 
-const TABS = ['sonarr', 'channels', 'rules', 'calendar', 'appearance', 'system'] as const
+const TABS = ['sonarr', 'channels', 'rules', 'calendar', 'sources', 'appearance', 'system'] as const
 type Tab = (typeof TABS)[number]
 const TAB_LABEL = {
   sonarr: 'settings.tabSonarr',
   channels: 'settings.tabChannels',
   rules: 'settings.tabRules',
   calendar: 'settings.tabCalendar',
+  sources: 'settings.tabSources',
   appearance: 'settings.tabAppearance',
   system: 'settings.tabSystem',
 } as const
@@ -61,6 +63,7 @@ const PANELS = {
   channels: ChannelsSettings,
   rules: RulesSettings,
   calendar: CalendarSettings,
+  sources: SourcesSettings,
   appearance: AppearanceSettings,
   system: SystemSettings,
 }
