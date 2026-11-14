@@ -19,7 +19,7 @@ dependencies = [
     "apscheduler>=3.10,<4",
     "apprise>=1.9,<2",
     "defusedxml>=0.7,<1",
-    "icalendar>=6,<7",
+    "icalendar>=6,<8",
 ]
 
 [project.optional-dependencies]
