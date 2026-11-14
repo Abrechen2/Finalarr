@@ -47,8 +47,8 @@ def _sonarr(series: m.Series, season: m.Season) -> dict[str, Any]:
             # Unmonitored episodes do not count while "respect monitoring" is on.
             "listed": len(season.episodes),
             "unmonitored": len(season.episodes) - len(episodes),
-            "aired": sum(1 for e in episodes if (a := _aware(e.air_date_utc)) and a <= now),
-            "on_disk": sum(1 for e in episodes if e.has_file),
+            "aired": sum(1 for e in season.episodes if (a := _aware(e.air_date_utc)) and a <= now),
+            "on_disk": sum(1 for e in season.episodes if e.has_file),
             "finale": finale,
         },
         "url": f"{series.instance.url}/series/{series.title_slug}",
@@ -74,9 +74,11 @@ def _anilist(
         found = anilist.media(ids) if ids else {}
     except AnilistError:
         found = {}
+    sizes = [found[i].episodes for i in ids if i in found]
+    total = sum(n for n in sizes if n) if sizes and all(sizes) and len(sizes) == len(ids) else None
     return {
         "source": "anilist",
-        "count": season.anilist_count,
+        "count": season.anilist_count or total,
         "entries": [
             {
                 "id": i,

@@ -171,4 +171,13 @@ def test_unmonitored_episodes_are_named_not_hidden(db):
         s.commit()
     by = {row["source"]: row for row in sources(db)["sources"]}
     assert by["sonarr"]["count"] == 8
-    assert (by["sonarr"]["detail"]["listed"], by["sonarr"]["detail"]["unmonitored"]) == (12, 4)
+    detail = by["sonarr"]["detail"]
+    assert (detail["listed"], detail["unmonitored"], detail["on_disk"]) == (12, 4, 10)
+
+
+def test_anilist_count_falls_back_to_the_sum_of_its_entries(db):
+    with db.session() as s:
+        s.query(m.Season).one().anilist_count = None
+        s.commit()
+    by = {row["source"]: row for row in sources(db)["sources"]}
+    assert by["anilist"]["count"] == 24
