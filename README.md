@@ -27,6 +27,9 @@ renewals, announced sequels, postponed episodes and the next air date.
 - **Shows what you are waiting for** on every series page: one sentence ("Season 3 is
   announced; the date is still open"), the next episode with a countdown, where to watch
   it, the trailer (loaded only on click) and season/episode news without merchandise.
+- **Follows what you watch**: connect Emby, Jellyfin or Plex, pick whose viewing counts, and
+  Finalarr follows the series you actually watch — and shows who watched which episode and
+  what is still unwatched.
 - **Calendar** in the app and as a subscribable iCal feed — finales only, premieres and
   finales, or every episode.
 - **Channels:** Telegram, Discord, Pushover, a webhook or any
@@ -90,8 +93,8 @@ AnimeSchedule.net), backups, updates and reverse-proxy notes: [docs/DEPLOY.md](d
 
 ## Privacy
 
-Finalarr talks to your Sonarr, the notification channels you configure, and public
-metadata sources: AniList and Fribb's anime-lists (GitHub), MyAnimeList via Jikan, TVmaze,
+Finalarr talks to your Sonarr, your media servers (Emby, Jellyfin, Plex) if you connect
+them, the notification channels you configure, and public metadata sources: AniList and Fribb's anime-lists (GitHub), MyAnimeList via Jikan, TVmaze,
 the news feeds of LiveChart.me, Anime News Network, Anime2You and Crunchyroll, Google News
 (the series title, for the news box; can be switched off), plus TMDB, Trakt and
 AnimeSchedule.net only if you add their keys. Every source can be switched off under

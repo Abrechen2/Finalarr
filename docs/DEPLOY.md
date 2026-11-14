@@ -74,6 +74,21 @@ path and an env file. For your own builds, `DEPLOY_HOST=root@unraid scripts/depl
 [--rc N]` builds amd64, loads it over SSH, restarts the container and waits for `/health`;
 it asks before restarting.
 
+## Media servers (Emby, Jellyfin, Plex)
+
+*Einstellungen → Mediaserver*: add the server address and a key, test, save, then pick the
+users whose viewing counts. Keys:
+
+- **Emby**: Settings → Advanced → API keys → new key.
+- **Jellyfin**: Dashboard → API keys → new key.
+- **Plex**: the X-Plex-Token of the server owner (Plex support article "Finding an
+  authentication token"). Finalarr reads each account's history through it, so Plex Home
+  managed users work without their PIN.
+
+Finalarr matches watched series to Sonarr by TVDB id; series without one, or missing in
+Sonarr, are listed as unmatched and never added to Sonarr. It stores per selected user only
+which episodes were watched and on which day.
+
 ## Connect Sonarr
 
 1. Open Finalarr, sign in with the API key, follow the setup.

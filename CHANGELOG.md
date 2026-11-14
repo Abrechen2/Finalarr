@@ -2,6 +2,33 @@
 
 All notable changes to Finalarr are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versions follow SemVer.
 
+## [0.4.0] – not released yet
+
+Finalarr learns what you actually watch.
+
+### Added
+- **Emby, Jellyfin and Plex**: connect one or more media servers (connection test, token
+  stored encrypted) and pick whose viewing counts — family members and Plex Home managed
+  users included. Finalarr reads which episodes they watched every 30 minutes and matches
+  the series to Sonarr by TVDB id.
+- **Follow automatically**: a series someone watched at least 2 episodes of within 30 days
+  is followed on its own (both numbers adjustable, can be switched off). Each series has a
+  follow mode: automatic, always (followed by hand) or never; what you followed before
+  stays followed. Finalarr never unfollows on its own.
+- **Watched state in the UI**: who watched how much of a series and when, which episodes
+  in the grid are watched and by whom, how many episodes on disk are still unwatched and
+  which one is next; list filters for started, behind and caught-up series and by follow
+  mode; a "Weiterschauen" list on the dashboard. Without a media server none of this shows.
+
+### Security
+- Changing the address of a Sonarr instance or media server now needs the key again, so
+  a stored key can never be sent to a new host.
+
+### Privacy
+- Stored per selected user: which episodes were watched and on which day. No viewing
+  history, playback positions, devices or IP addresses; deselecting a user deletes their
+  data.
+
 ## [0.3.0] – not released yet
 
 The first version that does the whole job: it watches Sonarr, knows how many episodes a
