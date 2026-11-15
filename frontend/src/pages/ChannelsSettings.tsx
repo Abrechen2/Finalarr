@@ -33,25 +33,43 @@ const input = 'mt-1 w-full rounded-card border border-line bg-bg px-2 py-1.5 tex
 const button =
   'rounded-card border border-line px-3 py-1.5 text-sm text-muted hover:text-ink disabled:opacity-60'
 
-export function ChannelForm({ onDone }: { onDone: () => void }) {
+/** Add a channel, or edit one: secrets stay as stored unless new ones are typed in. */
+export function ChannelForm({ onDone, channel }: { onDone: () => void; channel?: ChannelView }) {
   const { t, i18n } = useTranslation()
   const client = useQueryClient()
-  const [kind, setKind] = useState<Kind>('telegram')
-  const [name, setName] = useState('Telegram')
-  const [language, setLanguage] = useState<'de' | 'en'>(i18n.language === 'de' ? 'de' : 'en')
+  const [kind, setKind] = useState<Kind>(channel?.kind ?? 'telegram')
+  const [name, setName] = useState(channel?.name ?? 'Telegram')
+  const [language, setLanguage] = useState<'de' | 'en'>(
+    channel?.language ?? (i18n.language === 'de' ? 'de' : 'en'),
+  )
   const [fields, setFields] = useState<Record<string, string>>({})
-  const [events, setEvents] = useState<EventType[]>([])
-  const [quietFrom, setQuietFrom] = useState('')
-  const [quietTo, setQuietTo] = useState('')
+  const [events, setEvents] = useState<EventType[]>(channel?.event_filter ?? [])
+  const [quietFrom, setQuietFrom] = useState(channel?.quiet_hours?.start ?? '')
+  const [quietTo, setQuietTo] = useState(channel?.quiet_hours?.end ?? '')
   const quiet_hours = quietFrom && quietTo ? { start: quietFrom, end: quietTo } : null
+  const newSecrets = Object.values(fields).some(Boolean)
   const body = () => ({ kind, name, language, fields, event_filter: events, quiet_hours })
+  const editBody = () => ({
+    name,
+    language,
+    event_filter: events,
+    quiet_hours,
+    ...(newSecrets ? { fields } : {}),
+  })
   const test = useMutation({
     mutationFn: () =>
-      apiFetch('/api/v1/channels/test', { method: 'POST', body: JSON.stringify(body()) }),
+      channel && !newSecrets
+        ? apiFetch(`/api/v1/channels/${channel.id}/test`, { method: 'POST' })
+        : apiFetch('/api/v1/channels/test', { method: 'POST', body: JSON.stringify(body()) }),
   })
   const save = useMutation({
     mutationFn: () =>
-      apiFetch('/api/v1/channels', { method: 'POST', body: JSON.stringify(body()) }),
+      channel
+        ? apiFetch(`/api/v1/channels/${channel.id}`, {
+            method: 'PATCH',
+            body: JSON.stringify(editBody()),
+          })
+        : apiFetch('/api/v1/channels', { method: 'POST', body: JSON.stringify(body()) }),
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: ['channels'] })
       onDone()
@@ -74,6 +92,7 @@ export function ChannelForm({ onDone }: { onDone: () => void }) {
           {t('channel.kind')}
           <select
             value={kind}
+            disabled={Boolean(channel)}
             onChange={(e) => {
               const next = e.target.value as Kind
               setKind(next)
@@ -117,7 +136,8 @@ export function ChannelForm({ onDone }: { onDone: () => void }) {
             <input
               type={field.secret ? 'password' : 'text'}
               autoComplete="off"
-              required
+              required={!channel || newSecrets}
+              placeholder={channel ? t('channel.keepSecret') : undefined}
               value={fields[field.name] ?? ''}
               onChange={(e) => setFields({ ...fields, [field.name]: e.target.value })}
               aria-invalid={Boolean(fieldErrors[`fields.${field.name}`])}
@@ -203,6 +223,7 @@ export function ChannelForm({ onDone }: { onDone: () => void }) {
 
 function ChannelRow({ channel }: { channel: ChannelView }) {
   const { t } = useTranslation()
+  const [editing, setEditing] = useState(false)
   const client = useQueryClient()
   const refresh = () => client.invalidateQueries({ queryKey: ['channels'] })
   const patch = useMutation({
@@ -252,6 +273,14 @@ function ChannelRow({ channel }: { channel: ChannelView }) {
           <button
             type="button"
             className={button}
+            aria-expanded={editing}
+            onClick={() => setEditing(!editing)}
+          >
+            {t('channel.edit')}
+          </button>
+          <button
+            type="button"
+            className={button}
             onClick={() => {
               if (window.confirm(t('channel.deleteConfirm', { name: channel.name })))
                 remove.mutate()
@@ -265,6 +294,7 @@ function ChannelRow({ channel }: { channel: ChannelView }) {
         {test.isSuccess && <span className="text-ok">{t('channel.testOk')}</span>}
         {test.isError && <span className="text-bad">{errorText(t, test.error)}</span>}
       </p>
+      {editing && <ChannelForm channel={channel} onDone={() => setEditing(false)} />}
     </li>
   )
 }

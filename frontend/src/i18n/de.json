@@ -283,7 +283,9 @@
     "quietHint": "In dieser Zeit wartet die Meldung und kommt danach (Zeitzone des Containers).",
     "quietFrom": "von",
     "quietTo": "bis",
-    "quietOff": "keine Ruhezeit"
+    "quietOff": "keine Ruhezeit",
+    "edit": "Bearbeiten",
+    "keepSecret": "Leer lassen, um den gespeicherten Wert zu behalten"
   },
   "setup": {
     "instance": "Sonarr verbinden",
