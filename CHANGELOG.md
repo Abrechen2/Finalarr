@@ -2,6 +2,13 @@
 
 All notable changes to Finalarr are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versions follow SemVer.
 
+## [0.4.1] – not released yet
+
+### Changed
+- Frontend builds with Vite 8 (Rolldown) and @vitejs/plugin-react 6; libraries ship as a
+  separate chunk that stays cached across Finalarr updates.
+- Dependencies: Apprise 2, icalendar 7, gunicorn 27, current ESLint plugins.
+
 ## [0.4.0] – 2026-11-15
 
 The first release. Finalarr learns what you actually watch, and it includes everything
