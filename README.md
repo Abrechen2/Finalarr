@@ -12,8 +12,8 @@ when a series or anime you follow has new episodes on disk, when its season fina
 landed and when the season is complete. It also tells you what you are still waiting for:
 renewals, announced sequels, postponed episodes and the next air date.
 
-> **Status:** 0.3 release candidates. It runs daily against a real library, but expect
-> changes until 1.0.
+> **Status:** 0.4, the first release. It runs daily against a real library; expect changes
+> until 1.0.
 
 ## What it does
 
@@ -53,7 +53,7 @@ openssl rand -base64 32 | tr '+/' '-_'        # FINALARR_SECRET_KEY (encrypts st
 ```yaml
 services:
   finalarr:
-    image: ghcr.io/abrechen2/finalarr:latest   # or a release tag such as 0.3.0
+    image: ghcr.io/abrechen2/finalarr:latest   # or a release tag such as 0.4.0
     container_name: finalarr
     restart: unless-stopped
     ports:
@@ -73,8 +73,6 @@ services:
 ```sh
 docker compose up -d   # then open http://<host>:5790 and follow the setup
 ```
-
-Until 0.3.0 is final, only release candidates exist: use `ghcr.io/abrechen2/finalarr:rc-latest`.
 
 ### Unraid
 

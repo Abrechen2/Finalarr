@@ -4,7 +4,8 @@ All notable changes to Finalarr are documented here. Format: [Keep a Changelog](
 
 ## [0.4.0] – not released yet
 
-Finalarr learns what you actually watch.
+The first release. Finalarr learns what you actually watch, and it includes everything
+listed under 0.3.0 below, which was never released on its own.
 
 ### Added
 - **Emby, Jellyfin and Plex**: connect one or more media servers (connection test, token
@@ -29,7 +30,7 @@ Finalarr learns what you actually watch.
   history, playback positions, devices or IP addresses; deselecting a user deletes their
   data.
 
-## [0.3.0] – not released yet
+## [0.3.0] – not released separately, part of 0.4.0
 
 The first version that does the whole job: it watches Sonarr, knows how many episodes a
 season will have, and tells you once — when new episodes are on disk, when the finale has
