@@ -2,7 +2,7 @@
 
 All notable changes to Finalarr are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versions follow SemVer.
 
-## [0.4.0] – not released yet
+## [0.4.0] – 2026-11-15
 
 The first release. Finalarr learns what you actually watch, and it includes everything
 listed under 0.3.0 below, which was never released on its own.
