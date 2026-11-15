@@ -22,3 +22,10 @@ updates:
     directory: /
     schedule: { interval: monthly }
     commit-message: { prefix: chore }
+    # The image runs the Python version CI tests (3.12) and a Node LTS; moving either is
+    # a deliberate change, not a routine bump.
+    ignore:
+      - dependency-name: python
+        update-types: [version-update:semver-major, version-update:semver-minor]
+      - dependency-name: node
+        update-types: [version-update:semver-major]
