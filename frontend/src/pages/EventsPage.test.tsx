@@ -140,7 +140,8 @@ test('check now lists the would-be events', async () => {
     },
   })
   renderDetail()
-  fireEvent.click(await screen.findByRole('button', { name: 'Jetzt prüfen' }))
+  fireEvent.click(await screen.findByRole('button', { name: 'Einstellungen für Staffel 3' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Jetzt prüfen' }))
   expect(await screen.findByText('Slime Staffel 3 komplett (12/12)')).toBeInTheDocument()
 })
 
@@ -151,7 +152,8 @@ test('check now with nothing due, and reload from Sonarr', async () => {
     'POST /api/v1/seasons/3/evaluate': { status: 202, body: { queued: true } },
   })
   renderDetail()
-  fireEvent.click(await screen.findByRole('button', { name: 'Jetzt prüfen' }))
+  fireEvent.click(await screen.findByRole('button', { name: 'Einstellungen für Staffel 3' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Jetzt prüfen' }))
   expect(await screen.findByText('Keine neue Meldung fällig. Zustand: läuft.')).toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: 'Von Sonarr neu laden' }))
   expect(await screen.findByText('Abgleich mit Sonarr ist angestoßen.')).toBeInTheDocument()
@@ -163,7 +165,8 @@ test('check errors are shown', async () => {
     'POST /api/v1/seasons/3/evaluate?dry_run=true': { status: 500, body: {} },
   })
   renderDetail()
-  fireEvent.click(await screen.findByRole('button', { name: 'Jetzt prüfen' }))
+  fireEvent.click(await screen.findByRole('button', { name: 'Einstellungen für Staffel 3' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Jetzt prüfen' }))
   expect(await screen.findByText(/Etwas ist schiefgelaufen/)).toBeInTheDocument()
 })
 

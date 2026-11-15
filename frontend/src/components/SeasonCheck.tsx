@@ -21,7 +21,7 @@ export function SeasonCheck({ seasonId, title }: { seasonId: number; title: stri
   const button =
     'rounded-card border border-line px-3 py-1 text-xs text-muted hover:text-ink disabled:opacity-60'
   return (
-    <div className="mt-3">
+    <div>
       <div className="flex flex-wrap gap-2">
         <button
           type="button"

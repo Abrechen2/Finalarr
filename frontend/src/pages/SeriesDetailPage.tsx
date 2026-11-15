@@ -41,7 +41,7 @@ function SeasonSection({ series, season }: { series: SeriesDetail; season: Seaso
         <span className="text-sm font-bold">
           {season.have}/{season.expected ?? '?'}
         </span>
-        {series.followed && season.number > 0 && (
+        {series.followed && (
           <button
             type="button"
             aria-label={t('season.menu', { title })}
@@ -81,11 +81,14 @@ function SeasonSection({ series, season }: { series: SeriesDetail; season: Seaso
         <AnilistPicker seriesId={series.id} seriesTitle={series.title} season={season} />
       )}
       {menuOpen && (
-        <div id={`season-menu-${season.id}`} className="mt-3 rounded-card border border-line p-3">
-          <SeasonOverride seriesId={series.id} season={season} />
+        <div
+          id={`season-menu-${season.id}`}
+          className="mt-3 flex flex-col gap-3 rounded-card border border-line p-3"
+        >
+          {season.number > 0 && <SeasonOverride seriesId={series.id} season={season} />}
+          <SeasonCheck seasonId={season.id} title={series.title} />
         </div>
       )}
-      {series.followed && <SeasonCheck seasonId={season.id} title={series.title} />}
     </section>
   )
 }
