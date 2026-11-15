@@ -27,7 +27,7 @@ export function SeasonOverride({ seriesId, season }: { seriesId: number; season:
 
   const button = 'rounded-card border border-line px-3 py-1 text-xs text-muted hover:text-ink'
   return (
-    <form onSubmit={submit} className="mt-3 flex flex-wrap items-end gap-2">
+    <form onSubmit={submit} className="flex flex-wrap items-end gap-2">
       <label className="flex flex-col text-xs text-muted">
         {t('rules.override')}
         <input
@@ -69,6 +69,7 @@ export function SeasonOverride({ seriesId, season }: { seriesId: number; season:
         {save.isSuccess && <span className="text-ok">{t('rules.saved')}</span>}
         {save.isError && <span className="text-bad">{t(errorKey(save.error))}</span>}
       </span>
+      <p className="w-full text-xs text-muted">{t('rules.overrideHint')}</p>
     </form>
   )
 }

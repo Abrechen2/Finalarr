@@ -142,8 +142,9 @@
       "override": "manuell"
     },
     "tvdbMissing": "Sonarr kennt diese Staffel noch nicht.",
-    "disputed": "Sonarr listet {{sonarr}} Folgen, AniList nennt {{anilist}}. „Komplett“ wartet auf die größere Zahl, bis du sie unter Regeln festlegst.",
-    "notFollowed": "Du folgst dieser Serie nicht. Folge ihr, damit Finalarr ihre Folgen abruft und Meldungen verschickt."
+    "disputed": "Sonarr listet {{sonarr}} Folgen, AniList nennt {{anilist}}. „Komplett“ wartet auf die größere Zahl, bis du sie über ⋯ festlegst.",
+    "notFollowed": "Du folgst dieser Serie nicht. Folge ihr, damit Finalarr ihre Folgen abruft und Meldungen verschickt.",
+    "menu": "Einstellungen für {{title}}"
   },
   "episode": {
     "file": "vorhanden",
@@ -200,8 +201,8 @@
     "series": "Regeln für diese Serie",
     "includeSpecials": "Specials (Staffel 0) einbeziehen",
     "respectMonitoring": "Nicht überwachte Folgen ignorieren",
-    "override": "Erwartete Folgen festlegen",
-    "overrideHint": "Überschreibt Sonarr und AniList für diese Staffel.",
+    "override": "Folgenzahl selbst festlegen",
+    "overrideHint": "Ersetzt, was Sonarr und AniList sagen. Leer lassen, damit Finalarr sie wieder selbst bestimmt.",
     "save": "Speichern",
     "clear": "Zurücksetzen",
     "takeAnilist": "{{n}} übernehmen (AniList)",
@@ -568,7 +569,7 @@
     "title": "Woher kommt die Folgenzahl?",
     "decision": "Finalarr rechnet mit {{n}} Folgen (Quelle: {{source}}).",
     "decisionUnknown": "Finalarr kennt die Folgenzahl noch nicht und wartet mit „komplett“.",
-    "disputedHint": "Die Quellen nennen verschiedene Zahlen. „Komplett“ wartet auf die größere Zahl, bis du unten eine festlegst.",
+    "disputedHint": "Die Quellen nennen verschiedene Zahlen. „Komplett“ wartet auf die größere Zahl, bis du über ⋯ an der Staffel eine festlegst.",
     "checked": "Zuletzt geprüft: {{time}}",
     "source": "Quelle",
     "episodes": "Folgen",

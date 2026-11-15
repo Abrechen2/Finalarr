@@ -41,7 +41,9 @@ function body(calls: { init?: RequestInit }[]) {
 test('typing a number and saving sends the override', async () => {
   const calls = mockFetch({ 'PATCH /api/v1/seasons/3': { body: {} } })
   renderWithProviders(<SeasonOverride seriesId={1} season={season} />)
-  fireEvent.change(screen.getByLabelText('Erwartete Folgen festlegen'), { target: { value: '13' } })
+  fireEvent.change(screen.getByLabelText('Folgenzahl selbst festlegen'), {
+    target: { value: '13' },
+  })
   fireEvent.click(screen.getByRole('button', { name: 'Speichern' }))
   expect(await screen.findByText('Gespeichert.')).toBeInTheDocument()
   expect(body(calls)).toEqual({ expected_override: 13 })
@@ -63,7 +65,7 @@ test('an existing override can be reset; errors are shown', async () => {
   renderWithProviders(
     <SeasonOverride seriesId={1} season={{ ...season, disputed: false, expected_override: 20 }} />,
   )
-  expect(screen.getByLabelText('Erwartete Folgen festlegen')).toHaveValue(20)
+  expect(screen.getByLabelText('Folgenzahl selbst festlegen')).toHaveValue(20)
   fireEvent.click(screen.getByRole('button', { name: 'Zurücksetzen' }))
   await waitFor(() => expect(body(calls)).toEqual({ expected_override: null }))
   expect(await screen.findByText('Bitte die markierten Felder prüfen.')).toBeInTheDocument()

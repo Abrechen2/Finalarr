@@ -1,4 +1,5 @@
-import { ArrowLeft, ExternalLink } from 'lucide-react'
+import { ArrowLeft, ExternalLink, MoreHorizontal } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { PageTitle } from '../components/EmptyState'
@@ -31,6 +32,7 @@ const NO_DETAILS: SeriesDetails = {
 function SeasonSection({ series, season }: { series: SeriesDetail; season: SeasonDetail }) {
   const { t, i18n } = useTranslation()
   const title = season.number === 0 ? t('season.specials') : t('season.title', { n: season.number })
+  const [menuOpen, setMenuOpen] = useState(false)
   return (
     <section className="rounded-card border border-line bg-surface p-4">
       <div className="mb-3 flex flex-wrap items-center gap-3">
@@ -39,6 +41,18 @@ function SeasonSection({ series, season }: { series: SeriesDetail; season: Seaso
         <span className="text-sm font-bold">
           {season.have}/{season.expected ?? '?'}
         </span>
+        {series.followed && season.number > 0 && (
+          <button
+            type="button"
+            aria-label={t('season.menu', { title })}
+            aria-expanded={menuOpen}
+            aria-controls={`season-menu-${season.id}`}
+            onClick={() => setMenuOpen(!menuOpen)}
+            className={`ml-auto rounded-control border px-1.5 py-0.5 ${menuOpen ? 'border-accent text-ink' : 'border-transparent text-muted hover:text-ink'}`}
+          >
+            <MoreHorizontal size={18} aria-hidden="true" />
+          </button>
+        )}
       </div>
       <p className="mb-3 text-sm text-muted">
         {season.expected && season.expected_source
@@ -66,8 +80,10 @@ function SeasonSection({ series, season }: { series: SeriesDetail; season: Seaso
       {series.followed && series.series_type === 'anime' && season.number > 0 && (
         <AnilistPicker seriesId={series.id} seriesTitle={series.title} season={season} />
       )}
-      {series.followed && season.number > 0 && (
-        <SeasonOverride seriesId={series.id} season={season} />
+      {menuOpen && (
+        <div id={`season-menu-${season.id}`} className="mt-3 rounded-card border border-line p-3">
+          <SeasonOverride seriesId={series.id} season={season} />
+        </div>
       )}
       {series.followed && <SeasonCheck seasonId={season.id} title={series.title} />}
     </section>

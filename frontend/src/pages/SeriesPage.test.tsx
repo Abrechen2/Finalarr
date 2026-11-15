@@ -223,3 +223,16 @@ test('watch and follow-mode filters and badges', async () => {
     expect(calls.map((c) => c.url)).toContain('/api/v1/series?watch=behind&follow=auto'),
   )
 })
+
+test('the episode count override sits behind the season menu', async () => {
+  mockFetch({ 'GET /api/v1/series/1': { body: detail } })
+  renderDetail()
+  await screen.findByRole('heading', { name: 'Slime' })
+  expect(screen.queryByLabelText('Folgenzahl selbst festlegen')).not.toBeInTheDocument()
+  const menu = screen.getByRole('button', { name: 'Einstellungen für Staffel 3' })
+  expect(menu).toHaveAttribute('aria-expanded', 'false')
+  fireEvent.click(menu)
+  expect(menu).toHaveAttribute('aria-expanded', 'true')
+  expect(screen.getByLabelText('Folgenzahl selbst festlegen')).toBeInTheDocument()
+  expect(screen.getByText(/Ersetzt, was Sonarr und AniList sagen/)).toBeInTheDocument()
+})

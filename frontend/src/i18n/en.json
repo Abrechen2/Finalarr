@@ -142,8 +142,9 @@
       "override": "manual"
     },
     "tvdbMissing": "Sonarr does not know this season yet.",
-    "disputed": "Sonarr lists {{sonarr}} episodes, AniList says {{anilist}}. \"Complete\" waits for the larger number until you set it under rules.",
-    "notFollowed": "You do not follow this series. Follow it so Finalarr fetches its episodes and sends reports."
+    "disputed": "Sonarr lists {{sonarr}} episodes, AniList says {{anilist}}. \"Complete\" waits for the larger number until you set it via ⋯.",
+    "notFollowed": "You do not follow this series. Follow it so Finalarr fetches its episodes and sends reports.",
+    "menu": "Settings for {{title}}"
   },
   "episode": {
     "file": "on disk",
@@ -200,8 +201,8 @@
     "series": "Rules for this series",
     "includeSpecials": "Include specials (season 0)",
     "respectMonitoring": "Ignore unmonitored episodes",
-    "override": "Set expected episodes",
-    "overrideHint": "Overrides Sonarr and AniList for this season.",
+    "override": "Set the episode count yourself",
+    "overrideHint": "Replaces what Sonarr and AniList say. Leave it empty to let Finalarr decide again.",
     "save": "Save",
     "clear": "Reset",
     "takeAnilist": "Use {{n}} (AniList)",
@@ -568,7 +569,7 @@
     "title": "Where does the episode count come from?",
     "decision": "Finalarr expects {{n}} episodes (source: {{source}}).",
     "decisionUnknown": "Finalarr does not know the episode count yet and holds back “complete”.",
-    "disputedHint": "The sources name different numbers. “Complete” waits for the larger one until you set one below.",
+    "disputedHint": "The sources name different numbers. “Complete” waits for the larger one until you set one via ⋯ on the season.",
     "checked": "Last checked: {{time}}",
     "source": "Source",
     "episodes": "Episodes",
