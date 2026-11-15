@@ -19,6 +19,10 @@ function lastBody(calls: { init?: RequestInit }[]) {
   return JSON.parse(String(calls.at(-1)?.init?.body))
 }
 
+function patchBody(calls: { init?: RequestInit }[]) {
+  return JSON.parse(String(calls.find((c) => c.init?.method === 'PATCH')?.init?.body))
+}
+
 test('lists channels without secrets and can toggle, test and delete', async () => {
   vi.spyOn(window, 'confirm').mockReturnValue(true)
   const calls = mockFetch({
@@ -111,4 +115,47 @@ test('channel list errors are shown', async () => {
   mockFetch({ 'GET /api/v1/channels': { status: 500, body: {} } })
   renderWithProviders(<ChannelsSettings />)
   expect(await screen.findByRole('alert')).toBeInTheDocument()
+})
+
+test('editing a channel keeps the stored token unless a new one is entered', async () => {
+  const calls = mockFetch({
+    'GET /api/v1/channels': { body: [channel] },
+    'PATCH /api/v1/channels/1': { body: { ...channel, name: 'Telegram' } },
+  })
+  renderWithProviders(<ChannelsSettings />)
+  fireEvent.click(await screen.findByRole('button', { name: 'Bearbeiten' }))
+  const name = screen.getByLabelText('Name')
+  expect(name).toHaveValue('Handy')
+  expect(screen.getByLabelText('Komplett')).toBeChecked()
+  expect(screen.getByLabelText('von')).toHaveValue('22:00')
+  fireEvent.change(name, { target: { value: 'Telegram' } })
+  fireEvent.click(screen.getByLabelText('Finale'))
+  fireEvent.change(screen.getByLabelText('von'), { target: { value: '' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Speichern' }))
+  await waitFor(() => expect(calls.some((c) => c.init?.method === 'PATCH')).toBe(true))
+  expect(patchBody(calls)).toEqual({
+    name: 'Telegram',
+    language: 'de',
+    event_filter: ['season_complete', 'finale_available'],
+    quiet_hours: null,
+  })
+  await waitFor(() => expect(screen.queryByLabelText('Name')).not.toBeInTheDocument())
+})
+
+test('a new token in the edit form is sent along', async () => {
+  const calls = mockFetch({
+    'GET /api/v1/channels': { body: [channel] },
+    'PATCH /api/v1/channels/1': { body: channel },
+  })
+  renderWithProviders(<ChannelsSettings />)
+  fireEvent.click(await screen.findByRole('button', { name: 'Bearbeiten' }))
+  expect(screen.getByLabelText(/^Bot-Token/)).toHaveAttribute(
+    'placeholder',
+    'Leer lassen, um den gespeicherten Wert zu behalten',
+  )
+  fireEvent.change(screen.getByLabelText(/^Bot-Token/), { target: { value: '123:ABC' } })
+  fireEvent.change(screen.getByLabelText(/^Chat-ID/), { target: { value: '42' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Speichern' }))
+  await waitFor(() => expect(calls.some((c) => c.init?.method === 'PATCH')).toBe(true))
+  expect(patchBody(calls).fields).toEqual({ bot_token: '123:ABC', chat_id: '42' })
 })
