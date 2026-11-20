@@ -11,6 +11,9 @@ timeout = 120
 # No access log: the webhook URL path contains its token.
 accesslog = None
 errorlog = "-"
+# gunicorn 27+ would open a control socket in the working directory (/app), which the
+# unprivileged user cannot write; Finalarr does not use it.
+control_socket_disable = True
 
 
 def post_worker_init(worker):
