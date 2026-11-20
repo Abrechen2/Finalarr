@@ -16,4 +16,4 @@ services:
     volumes:
       - ./data:/config
     stop_grace_period: 90s
-    mem_limit: 256m
+    mem_limit: 384m

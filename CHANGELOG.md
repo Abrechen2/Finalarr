@@ -4,6 +4,16 @@ All notable changes to Finalarr are documented here. Format: [Keep a Changelog](
 
 ## [0.4.1] – not released yet
 
+### Fixed
+- **Memory:** the container was killed for exceeding its memory limit every one or two
+  days. Python freed its objects, but glibc kept the freed memory and the many
+  short-lived objects of each sync fragmented its heap; the weekly refresh of Fribb's
+  anime list then added a 79 MB peak on top. Background jobs now hand free memory back
+  to the system, the image limits glibc to two arenas, and the Fribb list is parsed once
+  and stored with bulk inserts (peak 32 MB). Measured on a 700-series library: flat at
+  ~124 MB instead of growing past 250 MB. A job that grows the process by 30 MB or more
+  is now logged. The Compose example allows 384 MB.
+
 ### Changed
 - Frontend builds with Vite 8 (Rolldown) and @vitejs/plugin-react 6; libraries ship as a
   separate chunk that stays cached across Finalarr updates.

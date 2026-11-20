@@ -438,3 +438,35 @@ def test_switched_off_anilist_is_not_asked(db, mushoku):
             raise AssertionError("AniList must not be asked")
 
     assert run(db, Refusing()) == []
+
+
+def test_refresh_parses_the_download_once(db, monkeypatch):
+    # The list is ~7.5 MB of JSON; parsing it twice doubled the refresh's memory peak.
+    import json as json_module
+
+    from finalarr.services import fribb
+
+    calls = []
+    real = json_module.loads
+    monkeypatch.setattr(fribb.json, "loads", lambda raw: calls.append(1) or real(raw))
+    assert fribb.refresh_if_stale(db, lambda: FRIBB.read_bytes(), NOW)
+    assert len(calls) == 1
+
+
+def test_storing_a_large_list_needs_little_memory(db):
+    # 7k mappings and 19k id pairs in production: ORM objects for all of them pushed the
+    # container past its memory limit (2026-11-20).
+    import tracemalloc
+
+    rows = [(100_000 + i, 1, 500_000 + i) for i in range(20_000)]
+    ids = [(500_000 + i, 900_000 + i) for i in range(20_000)]
+    tracemalloc.start()
+    with db.session() as s:
+        store_fribb(s, rows, NOW, ids=ids)
+        s.commit()
+    _, peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+    with db.session() as s:
+        assert s.query(m.AnilistMapping).count() == 20_000
+        assert s.query(m.FribbId).count() == 20_000
+    assert peak < 12 * 1024 * 1024, f"peak {peak / 1024 / 1024:.1f} MB"

@@ -21,6 +21,7 @@ from sqlalchemy import select
 
 from finalarr.db.models import SonarrInstance
 from finalarr.db.session import Database
+from finalarr.memory import tracked
 from finalarr.services.reconcile_queue import FULL_SYNC, enqueue, take_all
 from finalarr.services.settings_store import load_settings
 
@@ -78,7 +79,11 @@ class SchedulerService:
             },
         )
         scheduler.add_job(
-            self.drain, "interval", seconds=DRAIN_SECONDS, id="drain", replace_existing=True
+            tracked("drain", self.drain),
+            "interval",
+            seconds=DRAIN_SECONDS,
+            id="drain",
+            replace_existing=True,
         )
         scheduler.add_job(
             self.queue_full_syncs,
@@ -90,7 +95,7 @@ class SchedulerService:
         first_run = datetime.now(UTC) + timedelta(seconds=EXTRA_JOB_DELAY_SECONDS)
         for job_id, func, seconds in self._extra_jobs:
             scheduler.add_job(
-                func,
+                tracked(job_id, func),
                 "interval",
                 seconds=seconds,
                 id=job_id,

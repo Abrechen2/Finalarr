@@ -8,11 +8,12 @@ from __future__ import annotations
 
 import json
 import logging
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from datetime import UTC, datetime, timedelta
+from typing import Any
 
 import requests
-from sqlalchemy import delete
+from sqlalchemy import delete, insert
 from sqlalchemy.orm import Session
 
 from finalarr.db.models import AnilistCache, AnilistMapping, FribbId
@@ -27,11 +28,19 @@ META_KEY = "meta:fribb"
 DOWNLOAD_TIMEOUT = 60
 
 Mapping = tuple[int, int, int]  # (tvdb_id, tvdb_season, anilist_id)
+Entries = list[dict[str, Any]]
+# Rows per INSERT: big enough to be fast, small enough to keep the peak low.
+INSERT_CHUNK = 2000
 
 
-def parse_fribb(raw: bytes) -> list[Mapping]:
+def _entries(raw: bytes | Entries) -> Entries:
+    entries: Entries = json.loads(raw) if isinstance(raw, bytes | bytearray) else raw
+    return entries
+
+
+def parse_fribb(raw: bytes | Entries) -> list[Mapping]:
     rows: set[Mapping] = set()
-    for entry in json.loads(raw):
+    for entry in _entries(raw):
         tvdb, anilist = entry.get("tvdb_id"), entry.get("anilist_id")
         season = (entry.get("season") or {}).get("tvdb")
         if isinstance(tvdb, int) and isinstance(anilist, int) and isinstance(season, int):
@@ -39,10 +48,10 @@ def parse_fribb(raw: bytes) -> list[Mapping]:
     return sorted(rows)
 
 
-def parse_fribb_ids(raw: bytes) -> list[tuple[int, int]]:
+def parse_fribb_ids(raw: bytes | Entries) -> list[tuple[int, int]]:
     """(anilist_id, mal_id) pairs, including entries Fribb has not mapped to TVDB yet."""
     pairs: dict[int, int] = {}
-    for entry in json.loads(raw):
+    for entry in _entries(raw):
         anilist, mal = entry.get("anilist_id"), entry.get("mal_id")
         if isinstance(anilist, int) and isinstance(mal, int):
             pairs[anilist] = mal
@@ -61,15 +70,31 @@ def store_fribb(
     now: datetime,
     ids: list[tuple[int, int]] | None = None,
 ) -> None:
+    # Plain multi-row INSERTs in chunks: ORM objects for ~26k rows cost ~80 MB at peak.
     session.execute(delete(AnilistMapping).where(AnilistMapping.source == "fribb"))
     if ids is not None:
         session.execute(delete(FribbId))
-        session.add_all(FribbId(anilist_id=a, mal_id=mal) for a, mal in ids)
-    session.add_all(
-        AnilistMapping(tvdb_id=t, tvdb_season=s, anilist_id=a, source="fribb", fetched_at=now)
-        for t, s, a in rows
+        _insert(session, FribbId, ({"anilist_id": a, "mal_id": mal} for a, mal in ids))
+    _insert(
+        session,
+        AnilistMapping,
+        (
+            {"tvdb_id": t, "tvdb_season": s, "anilist_id": a, "source": "fribb", "fetched_at": now}
+            for t, s, a in rows
+        ),
     )
     session.merge(AnilistCache(key=META_KEY, body_json="{}", expires_at=now + REFRESH_AFTER))
+
+
+def _insert(session: Session, model: Any, values: Iterable[dict[str, Any]]) -> None:
+    chunk: list[dict[str, Any]] = []
+    for row in values:
+        chunk.append(row)
+        if len(chunk) == INSERT_CHUNK:
+            session.execute(insert(model), chunk)
+            chunk = []
+    if chunk:
+        session.execute(insert(model), chunk)
 
 
 def fribb_is_stale(session: Session, now: datetime) -> bool:
@@ -93,8 +118,9 @@ def refresh_if_stale(
         if "fribb" in disabled_sources(s) or not fribb_is_stale(s, moment):
             return False
     try:
-        raw = download()
-        rows, ids = parse_fribb(raw), parse_fribb_ids(raw)
+        entries = _entries(download())  # parsed once: the list is ~7.5 MB of JSON
+        rows, ids = parse_fribb(entries), parse_fribb_ids(entries)
+        del entries
     except (requests.RequestException, ValueError) as error:
         log.warning("Fribb anime-lists refresh failed: %s", error)
         return False

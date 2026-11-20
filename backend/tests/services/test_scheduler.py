@@ -137,3 +137,20 @@ def test_run_soon_triggers_an_extra_job(env):
     service.run_soon("anilist")
     assert ran.wait(5)
     service.shutdown()
+
+
+def test_jobs_run_with_memory_tracking(env, tmp_path):
+    db, reconciler, _service, _ = env
+    service = SchedulerService(
+        db,
+        reconciler,
+        lock_path=tmp_path / "other.lock",
+        extra_jobs=[("news", lambda: None, 3600)],
+    )
+    try:
+        assert service.start(retry=False)
+        jobs = {job.id: job.func for job in service._scheduler.get_jobs()}
+        assert hasattr(jobs["news"], "__wrapped__")
+        assert hasattr(jobs["drain"], "__wrapped__")
+    finally:
+        service.shutdown()
