@@ -205,3 +205,23 @@ def test_disabled_channel_is_not_sent_to(env):
     assert sender.sent == []
     assert deliveries(db)[0][1] == "failed"
     assert deliveries(db)[0][3] == "Channel disabled"
+
+
+def test_quiet_hours_end_at_local_time_after_a_database_round_trip(env):
+    # SQLite drops the offset: 09:00 Berlin was stored as "09:00" and read back as UTC,
+    # so messages came an hour late in winter and two in summer (2026-11-21).
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+
+    db, box, sender, worker, clock = env
+    worker._zone = ZoneInfo("Europe/Berlin")
+    add_channel(db, box, quiet_hours_json='{"start": "21:00", "end": "09:00"}')
+    clock["now"] = datetime(2026, 11, 21, 2, 13, tzinfo=UTC)  # 03:13 in Berlin
+    add_event(db, kind="season_complete")
+    worker.run()
+    with db.session() as s:
+        stored = s.scalar(select(m.Delivery)).next_attempt_at
+    assert stored.replace(tzinfo=UTC) == datetime(2026, 11, 21, 8, 0, tzinfo=UTC)
+    clock["now"] = datetime(2026, 11, 21, 8, 0, 30, tzinfo=UTC)  # 09:00:30 in Berlin
+    worker.run()
+    assert len(sender.sent) == 1

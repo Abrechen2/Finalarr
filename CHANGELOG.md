@@ -13,6 +13,8 @@ All notable changes to Finalarr are documented here. Format: [Keep a Changelog](
   and stored with bulk inserts (peak 32 MB). Measured on a 700-series library: flat at
   ~124 MB instead of growing past 250 MB. A job that grows the process by 30 MB or more
   is now logged. The Compose example allows 384 MB.
+- **Quiet hours** ended an hour late in winter (two in summer): the end of the window was
+  stored in local time, and SQLite drops the offset, so it was read back as UTC.
 - gunicorn 27 logged "Permission denied" on every start for its control socket, which
   Finalarr does not use; it is switched off.
 

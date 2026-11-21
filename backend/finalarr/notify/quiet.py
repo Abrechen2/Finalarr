@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from datetime import datetime, time, timedelta, tzinfo
+from datetime import UTC, datetime, time, timedelta, tzinfo
 
 _HHMM = re.compile(r"^([01]\d|2[0-3]):([0-5]\d)$")
 
@@ -38,4 +38,5 @@ def quiet_until(quiet: QuietHours, now: datetime, zone: tzinfo) -> datetime | No
     if not inside:
         return None
     end_day = local.date() + timedelta(days=1) if overnight and clock >= start else local.date()
-    return datetime.combine(end_day, end, tzinfo=zone)
+    # UTC: SQLite stores datetimes without their offset and Finalarr reads them as UTC.
+    return datetime.combine(end_day, end, tzinfo=zone).astimezone(UTC)
