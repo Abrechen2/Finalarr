@@ -2,6 +2,54 @@
 
 All notable changes to Finalarr are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versions follow SemVer.
 
+## [0.5.0] – unreleased
+
+### Added
+- **Watched tab**: for everyone or one person, episodes and hours watched, this week and
+  month, a chart of episodes per week, and every started series with what is still
+  missing: behind, untouched for over 30 days, caught up, finished, or not followed. Each
+  row names the next unwatched episode; filters and sorting by last watched, most
+  unwatched or title.
+- **Episode counts for live action** from TVmaze, TMDB and Trakt (Forgejo #22): when they
+  know more episodes than Sonarr lists, the season waits for them instead of being
+  reported complete, as AniList already did for anime.
+- Before a new version migrates the database, it is copied to
+  `backups/finalarr-before-<revision>-<time>.db` (the newest five are kept).
+- The system tab shows when each background job last ran, the error of a failed run, and
+  flags a job without a good run for two intervals.
+- A page that crashes shows a message instead of a blank app; unknown addresses get a
+  not-found page.
+- `e2e/jellyfin/run.sh`: acceptance test against a real Jellyfin in a throwaway container.
+
+### Fixed
+- **Jellyfin 12 connections failed** with "rejected the token": it accepts the key only in
+  the `Authorization` header now. Older Jellyfin versions take it as well; Emby is
+  unchanged.
+- **Database upgrades could delete rows**: rebuilding a table during a migration cascaded
+  into its children (the 0.4.0 upgrade re-created all seasons and episodes, and unlinked
+  some events from their season). Foreign keys are off while migrations run and checked
+  afterwards; a test upgrades a populated first-version database to the current one.
+- A series missing from a single Sonarr answer was deleted with its follow state,
+  overrides and watch history. It now goes only when two full syncs in a row miss it, and
+  an empty list removes nothing.
+- A Sonarr key or media-server token the current `FINALARR_SECRET_KEY` cannot decrypt is
+  shown as that connection's error instead of stopping the sync.
+- Selecting a second media-server user while a sync ran left them at zero episodes for up
+  to 30 minutes; the sync now runs again right away.
+- Failed actions on Sonarr instances and media servers (disable, sync, rotate, delete)
+  are shown. Removing a media server, which deletes its watch history, asks first.
+- The page language is set from the first render (screen readers), not only after a
+  language switch.
+
+### Changed
+- The interface uses the full window width: series in two columns from 1400 px, the
+  series page puts news beside the details.
+- On phones, About moved from the bottom bar into the header to make room for Watched.
+- Python libraries are pinned with hashes, so a release candidate and its final build
+  ship the same versions; the release workflow also start-tests the pushed image digest.
+- Docs: restore checklist, the delivery guarantee (at most a rare duplicate after a crash
+  between sending and recording), English menu names.
+
 ## [0.4.1] – 2026-11-23
 
 ### Fixed

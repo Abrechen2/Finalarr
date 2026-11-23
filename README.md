@@ -12,8 +12,8 @@ when a series or anime you follow has new episodes on disk, when its season fina
 landed and when the season is complete. It also tells you what you are still waiting for:
 renewals, announced sequels, postponed episodes and the next air date.
 
-> **Status:** 0.4, the first release. It runs daily against a real library; expect changes
-> until 1.0.
+> **Status:** 0.5. It runs daily against a real library with Sonarr, Emby and Jellyfin
+> (Plex is implemented but not yet tested against a real server); expect changes until 1.0.
 
 ## What it does
 
@@ -29,7 +29,8 @@ renewals, announced sequels, postponed episodes and the next air date.
   it, the trailer (loaded only on click) and season/episode news without merchandise.
 - **Follows what you watch**: connect Emby, Jellyfin or Plex, pick whose viewing counts, and
   Finalarr follows the series you actually watch — and shows who watched which episode and
-  what is still unwatched.
+  what is still unwatched. The *Watched* tab adds stats and a list of what you are behind
+  on.
 - **Calendar** in the app and as a subscribable iCal feed — finales only, premieres and
   finales, or every episode.
 - **Channels:** Telegram, Discord, Pushover, a webhook or any
@@ -53,7 +54,7 @@ openssl rand -base64 32 | tr '+/' '-_'        # FINALARR_SECRET_KEY (encrypts st
 ```yaml
 services:
   finalarr:
-    image: ghcr.io/abrechen2/finalarr:latest   # or a release tag such as 0.4.0
+    image: ghcr.io/abrechen2/finalarr:latest   # or a release tag such as 0.5.0
     container_name: finalarr
     restart: unless-stopped
     ports:
