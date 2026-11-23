@@ -287,7 +287,7 @@ export function SeriesPage() {
         ) : (
           <EmptyState title={t('series.emptyTitle')}>{t('series.emptyBody')}</EmptyState>
         ))}
-      <ul className="flex flex-col gap-2">
+      <ul className="grid gap-2 min-[1400px]:grid-cols-2">
         {items.map((series) => (
           <SeriesRow key={series.id} series={series} />
         ))}

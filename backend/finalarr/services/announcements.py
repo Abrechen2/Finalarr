@@ -55,6 +55,7 @@ class _Merged:
     start: date | None = None
     episodes: int | None = None
     sources: tuple[str, ...] = ()
+    counted_by: str | None = None
 
 
 class AnnouncementWatcher:
@@ -102,7 +103,9 @@ class AnnouncementWatcher:
                 entry = merged.setdefault(answer.season, _Merged())
                 starts = [d for d in (entry.start, answer.start) if d is not None]
                 entry.start = min(starts) if starts else None
-                entry.episodes = entry.episodes or answer.episodes
+                if answer.episodes and answer.episodes > (entry.episodes or 0):
+                    # The largest count wins: "complete" too early is the worse mistake.
+                    entry.episodes, entry.counted_by = answer.episodes, source.name
                 entry.sources = tuple(sorted({*entry.sources, source.name}))
         return merged
 
@@ -113,6 +116,10 @@ class AnnouncementWatcher:
             if series is None:
                 return
             listed = {season.number for season in series.seasons if season.episodes}
+            for season in series.seasons:
+                info = merged.get(season.number)
+                if season.number > 0 and info is not None and info.episodes:
+                    season.external_count, season.external_source = info.episodes, info.counted_by
             created = [
                 event
                 for number, info in sorted(merged.items())

@@ -247,6 +247,7 @@ def season_input(series: m.Series, season: m.Season) -> SeasonInput:
         ),
         expected_override=season.expected_override,
         anilist_count=season.anilist_count,
+        external_count=season.external_count,
         include_specials=series.include_specials,
         respect_monitoring=series.respect_monitoring,
         anilist_start=season.anilist_start,
@@ -307,10 +308,11 @@ def _store_result(season: m.Season, result: Evaluation, now: datetime) -> None:
     season.memory_json = dump_memory(result.memory)
     season.expected_count = result.expected_count
     season.disputed = result.disputed
+    second = "anilist" if season.anilist_count is not None else season.external_source
     season.expected_source = (
         "override"
         if season.expected_override is not None
-        else "anilist"
+        else second
         if result.disputed or (result.expected_count and not season.episodes)
         else "sonarr"
         if result.expected_count

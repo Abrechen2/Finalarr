@@ -1,0 +1,8 @@
+# Forgejo #22: TVDB lists only 6 of a live-action season's 10 episodes; TVmaze knows 10.
+# Without the second number "complete" would fire at 6.
+season: {number: 2, external_count: 10}
+episodes: {count: 6, first_air: 2026-01-05, interval_days: 7}
+runs:
+  - {now: 2026-01-01, files: "", expect: {state: scheduled, disputed: true, events: []}}
+  - {now: 2026-03-01, files: "1-6", expect: {state: airing, disputed: true, events: [{type: episodes_available, episodes: "1-6", have: 6, expected: 10}]}}
+  - {now: 2026-03-02, files: "1-6", expect: {state: airing, disputed: true, events: []}}

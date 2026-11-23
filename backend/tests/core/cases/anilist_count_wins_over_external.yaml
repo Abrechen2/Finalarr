@@ -1,0 +1,6 @@
+# Anime: AniList's count decides even when another source says something else.
+season: {number: 1, anilist_count: 12, external_count: 24}
+episodes: {count: 12, first_air: 2026-01-05, interval_days: 7}
+runs:
+  - {now: 2026-01-01, files: "", expect: {state: scheduled, disputed: false, events: []}}
+  - {now: 2026-04-01, files: "1-12", expect: {state: complete, disputed: false, events: [{type: season_complete, have: 12, expected: 12, finale: 12}]}}

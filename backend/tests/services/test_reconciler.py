@@ -380,3 +380,22 @@ def test_a_removed_date_is_a_delay_to_unknown(env):
     reconciler.reconcile(1)
     [(_kind, payload)] = [(t, p) for t, p in events(db) if t == "episode_delayed"]
     assert payload["new"] is None
+
+
+def test_an_external_episode_count_disputes_a_short_tvdb_listing(env):
+    db, sonarr, reconciler, _ = env
+    sonarr.add(make_series(1, "Severance"), make_episodes(1, 1, 6, set()))
+    reconciler.reconcile(1)
+    follow(db, 1)
+    with db.session() as s:
+        season = s.scalar(select(m.Season).where(m.Season.number == 1))
+        season.external_count, season.external_source = 10, "tvmaze"
+        s.commit()
+    reconciler.reconcile(1)
+    with db.session() as s:
+        season = s.scalar(select(m.Season).where(m.Season.number == 1))
+        assert (season.expected_count, season.disputed, season.expected_source) == (
+            10,
+            True,
+            "tvmaze",
+        )

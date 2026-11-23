@@ -162,6 +162,8 @@ def series_detail(series: Series) -> dict[str, Any]:
             "expected_source": season.expected_source,
             "expected_override": season.expected_override,
             "anilist_count": season.anilist_count,
+            "external_count": season.external_count,
+            "external_source": season.external_source,
             "parts_mode": season.parts_mode,
             "anilist_ids": anilist.get(season.number, ([], False))[0],
             "anilist_pinned": anilist.get(season.number, ([], False))[1],

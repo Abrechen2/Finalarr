@@ -69,6 +69,7 @@ def build_input(case: dict[str, Any], run: dict[str, Any]) -> SeasonInput:
         episodes=episodes,
         expected_override=season.get("expected_override"),
         anilist_count=run.get("anilist_count", season.get("anilist_count")),
+        external_count=run.get("external_count", season.get("external_count")),
         include_specials=season.get("include_specials", False),
         anilist_start=season.get("anilist_start"),
         parts=tuple(

@@ -50,6 +50,8 @@ class SeasonInput:
     episodes: tuple[Episode, ...]
     expected_override: int | None = None
     anilist_count: int | None = None
+    # Episode count from TVmaze/TMDB/Trakt for seasons AniList does not cover.
+    external_count: int | None = None
     include_specials: bool = False
     respect_monitoring: bool = True
     # AniList start date, used for announcements before Sonarr lists episodes.

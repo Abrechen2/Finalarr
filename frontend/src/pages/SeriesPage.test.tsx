@@ -240,3 +240,20 @@ test('the episode count override sits behind the season menu', async () => {
   expect(screen.getByRole('button', { name: 'Jetzt prüfen' })).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Von Sonarr neu laden' })).toBeInTheDocument()
 })
+
+test('a live-action dispute names the external source', async () => {
+  const live = {
+    ...detail,
+    series_type: 'standard' as const,
+    seasons: detail.seasons.map((s) =>
+      s.disputed
+        ? { ...s, anilist_count: null, external_count: 10, external_source: 'tvmaze' as const }
+        : s,
+    ),
+  }
+  mockFetch({ 'GET /api/v1/series/1': { body: live } })
+  renderDetail()
+  expect(await screen.findByRole('note')).toHaveTextContent(
+    'Sonarr listet 1 Folgen, TVmaze nennt 10',
+  )
+})

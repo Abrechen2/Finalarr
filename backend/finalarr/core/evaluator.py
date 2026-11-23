@@ -89,18 +89,24 @@ def _snapshot(
     return _Snapshot(counted, expected, disputed, with_file, stable_runs, state, now.date())
 
 
-def _expected_count(season: SeasonInput, counted: int) -> tuple[int | None, bool]:
-    """Override wins; AniList counting more than Sonarr lists is a dispute (split cours).
+def _second_count(season: SeasonInput) -> int | None:
+    """AniList for anime; otherwise TVmaze/TMDB/Trakt (live action, Forgejo #22)."""
+    return season.anilist_count if season.anilist_count is not None else season.external_count
 
-    AniList is compared with every listed episode; episodes left out of the
-    expected set (unmonitored) are subtracted from its count again.
+
+def _expected_count(season: SeasonInput, counted: int) -> tuple[int | None, bool]:
+    """Override wins; a second source counting more than Sonarr lists is a dispute
+    (split cours, or TVDB listing only part of a season).
+
+    The second count is compared with every listed episode; episodes left out of the
+    expected set (unmonitored) are subtracted from it again.
     """
     if season.expected_override is not None:
         return season.expected_override, False
     listed = len(season.episodes)
-    anilist = season.anilist_count
-    if anilist is not None and anilist > listed:
-        return anilist - (listed - counted), listed > 0
+    second = _second_count(season)
+    if second is not None and second > listed:
+        return second - (listed - counted), listed > 0
     return (counted or None), False
 
 
@@ -133,7 +139,7 @@ def _finale_ids(season: SeasonInput, snap: _Snapshot) -> frozenset[int]:
         return frozenset()
     last = max(dated, key=lambda d: (d[0], d[1]))[2]
     listed = len(season.episodes)
-    corroborated = season.expected_override is not None or season.anilist_count == listed
+    corroborated = season.expected_override is not None or _second_count(season) == listed
     if (
         corroborated
         and last.finale_type is None

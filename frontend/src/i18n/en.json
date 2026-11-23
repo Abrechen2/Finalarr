@@ -139,12 +139,16 @@
     "source": {
       "sonarr": "Sonarr",
       "anilist": "AniList",
-      "override": "manual"
+      "override": "manual",
+      "tvmaze": "TVmaze",
+      "tmdb": "TMDB",
+      "trakt": "Trakt"
     },
     "tvdbMissing": "Sonarr does not know this season yet.",
     "disputed": "Sonarr lists {{sonarr}} episodes, AniList says {{anilist}}. \"Complete\" waits for the larger number until you set it via ⋯.",
     "notFollowed": "You do not follow this series. Follow it so Finalarr fetches its episodes and sends reports.",
-    "menu": "Settings for {{title}}"
+    "menu": "Settings for {{title}}",
+    "disputedExternal": "Sonarr lists {{sonarr}} episodes, {{source}} says {{other}}. \"Complete\" waits for the larger number until you set it via ⋯."
   },
   "episode": {
     "file": "on disk",

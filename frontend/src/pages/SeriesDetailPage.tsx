@@ -64,7 +64,16 @@ function SeasonSection({ series, season }: { series: SeriesDetail; season: Seaso
       </p>
       {season.disputed && (
         <p role="note" className="mb-3 rounded-card border border-bad px-3 py-2 text-sm text-bad">
-          {t('season.disputed', { sonarr: season.episodes.length, anilist: season.anilist_count })}
+          {season.anilist_count === null && season.external_count
+            ? t('season.disputedExternal', {
+                sonarr: season.episodes.length,
+                other: season.external_count,
+                source: t(`season.source.${season.external_source ?? 'tvmaze'}`),
+              })
+            : t('season.disputed', {
+                sonarr: season.episodes.length,
+                anilist: season.anilist_count,
+              })}
         </p>
       )}
       {season.state === 'unknown' && season.episodes.length === 0 && (
@@ -191,10 +200,15 @@ export function SeriesDetailPage() {
           )}
         </div>
       </div>
-      <WaitingCard waiting={series.waiting} />
-      <WatchPanel series={series} />
-      <SeriesExtras seriesId={series.id} title={series.title} />
-      <SeriesNews seriesId={series.id} />
+      {/* Wide screens: what you wait for and watch on the left, news beside it. */}
+      <div className="min-[1400px]:grid min-[1400px]:grid-cols-2 min-[1400px]:gap-4">
+        <div>
+          <WaitingCard waiting={series.waiting} />
+          <WatchPanel series={series} />
+          <SeriesExtras seriesId={series.id} title={series.title} />
+        </div>
+        <SeriesNews seriesId={series.id} />
+      </div>
       <div className="flex flex-col gap-3">
         {seasons.map((season) => (
           <SeasonSection key={season.id} series={series} season={season} />

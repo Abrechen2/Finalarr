@@ -70,7 +70,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Logo size={28} />
           <Wordmark />
         </header>
-        <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 min-[900px]:px-8">
+        <main className="w-full min-w-0 flex-1 px-4 py-8 min-[900px]:px-8 min-[1600px]:px-12">
           {children}
         </main>
         <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-4 py-4 min-[900px]:px-8">

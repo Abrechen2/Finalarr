@@ -149,3 +149,15 @@ def test_switched_off_sources_are_not_asked(env):
         s.commit()
     tvmaze = FakeSource("tvmaze", {TVDB: [Announced(3, None, None)]})
     assert watch(db, tvmaze) == []
+
+
+def test_listed_seasons_get_the_largest_external_episode_count(env):
+    # Forgejo #22: TVDB often lists only part of a live-action season; the count from
+    # TVmaze/TMDB lets "complete" wait for the rest.
+    db, *_ = env
+    tvmaze = FakeSource("tvmaze", {TVDB: [Announced(2, date(2025, 1, 17), 8)]})
+    tmdb = FakeSource("tmdb", {TVDB: [Announced(2, date(2025, 1, 17), 10)]})
+    watch(db, tvmaze, tmdb)
+    with db.session() as s:
+        season = s.scalar(select(m.Season).where(m.Season.number == 2))
+        assert (season.external_count, season.external_source) == (10, "tmdb")

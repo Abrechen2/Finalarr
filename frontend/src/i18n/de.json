@@ -139,12 +139,16 @@
     "source": {
       "sonarr": "Sonarr",
       "anilist": "AniList",
-      "override": "manuell"
+      "override": "manuell",
+      "tvmaze": "TVmaze",
+      "tmdb": "TMDB",
+      "trakt": "Trakt"
     },
     "tvdbMissing": "Sonarr kennt diese Staffel noch nicht.",
     "disputed": "Sonarr listet {{sonarr}} Folgen, AniList nennt {{anilist}}. „Komplett“ wartet auf die größere Zahl, bis du sie über ⋯ festlegst.",
     "notFollowed": "Du folgst dieser Serie nicht. Folge ihr, damit Finalarr ihre Folgen abruft und Meldungen verschickt.",
-    "menu": "Einstellungen für {{title}}"
+    "menu": "Einstellungen für {{title}}",
+    "disputedExternal": "Sonarr listet {{sonarr}} Folgen, {{source}} nennt {{other}}. „Komplett“ wartet auf die größere Zahl, bis du sie über ⋯ festlegst."
   },
   "episode": {
     "file": "vorhanden",

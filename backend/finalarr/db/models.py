@@ -141,6 +141,9 @@ class Season(Base):
     expected_source: Mapped[str | None] = mapped_column(String(20))
     expected_override: Mapped[int | None] = mapped_column(Integer)
     anilist_count: Mapped[int | None] = mapped_column(Integer)
+    # Live action (no AniList): the largest episode count TVmaze/TMDB/Trakt report.
+    external_count: Mapped[int | None] = mapped_column(Integer)
+    external_source: Mapped[str | None] = mapped_column(String(20))
     anilist_start: Mapped[date | None] = mapped_column(Date)
     disputed: Mapped[bool] = mapped_column(Boolean, default=False)
     parts_mode: Mapped[str] = mapped_column(String(10), default="season")

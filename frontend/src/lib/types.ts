@@ -61,9 +61,11 @@ export interface EpisodeDetail {
 }
 
 export interface SeasonDetail extends SeasonSummary {
-  expected_source: 'sonarr' | 'anilist' | 'override' | null
+  expected_source: 'sonarr' | 'anilist' | 'override' | 'tvmaze' | 'tmdb' | 'trakt' | null
   expected_override: number | null
   anilist_count: number | null
+  external_count?: number | null
+  external_source?: 'tvmaze' | 'tmdb' | 'trakt' | null
   parts_mode: 'season' | 'parts'
   anilist_ids: number[]
   anilist_pinned: boolean
