@@ -35,7 +35,8 @@ All notable changes to Finalarr are documented here. Format: [Keep a Changelog](
 - A Sonarr key or media-server token the current `FINALARR_SECRET_KEY` cannot decrypt is
   shown as that connection's error instead of stopping the sync.
 - Selecting a second media-server user while a sync ran left them at zero episodes for up
-  to 30 minutes; the sync now runs again right away.
+  to 30 minutes; the sync now runs again right away. The same race could delay a Sonarr
+  webhook by a few seconds, and made a scheduler test fail now and then (Forgejo #26).
 - Failed actions on Sonarr instances and media servers (disable, sync, rotate, delete)
   are shown. Removing a media server, which deletes its watch history, asks first.
 - The page language is set from the first render (screen readers), not only after a

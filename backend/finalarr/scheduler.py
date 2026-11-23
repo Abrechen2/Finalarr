@@ -126,8 +126,7 @@ class SchedulerService:
 
     def nudge(self) -> None:
         """Run the drain job now instead of waiting for its next tick."""
-        if self.running and self._scheduler is not None:
-            self._scheduler.modify_job("drain", next_run_time=datetime.now(UTC))
+        self.run_soon("drain")
 
     def _watched(self, job_id: str, job: Callable[[], None]) -> Callable[[], None]:
         """Record each run's end and error. The job counts as busy until APScheduler has

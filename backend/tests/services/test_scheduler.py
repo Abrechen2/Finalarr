@@ -92,8 +92,21 @@ def test_only_one_scheduler_holds_the_lock(env):
     other.shutdown()
 
 
-def test_start_queues_an_initial_full_sync_and_nudge_drains_quickly(env):
+def _slow_slot_release(monkeypatch):
+    """APScheduler frees a job's only slot after the function returned; a run asked for
+    before that is skipped. Widen that gap so tests do not depend on timing (#26)."""
+    release_slot = BaseExecutor._run_job_success
+
+    def slow_release(self, job_id, events):
+        time.sleep(0.3)
+        release_slot(self, job_id, events)
+
+    monkeypatch.setattr(BaseExecutor, "_run_job_success", slow_release)
+
+
+def test_start_queues_an_initial_full_sync_and_nudge_drains_quickly(env, monkeypatch):
     db, reconciler, service, _ = env
+    _slow_slot_release(monkeypatch)
     assert service.start(retry=False)
     assert service.running
     assert reconciler.done.wait(10)
@@ -102,8 +115,8 @@ def test_start_queues_an_initial_full_sync_and_nudge_drains_quickly(env):
     with db.session() as s:
         enqueue(s, 1, 42)
         s.commit()
-    service.nudge()
-    assert reconciler.done.wait(5)
+    service.nudge()  # the drain that ran the full sync may still hold its slot
+    assert reconciler.done.wait(3)  # well before the next 5-second tick
     assert (1, 42) in reconciler.calls
 
 
@@ -163,15 +176,7 @@ def test_run_soon_during_a_run_runs_again_afterwards(env, monkeypatch):
     # Selecting a second media-server user while the sync for the first one runs must
     # not wait for the next interval (30 minutes).
     db, reconciler, _, tmp_path = env
-    # APScheduler frees the job's only slot after the function returned; a rerun asked
-    # for before that is skipped. Widen that gap so the test does not depend on timing.
-    release_slot = BaseExecutor._run_job_success
-
-    def slow_release(self, job_id, events):
-        time.sleep(0.3)
-        release_slot(self, job_id, events)
-
-    monkeypatch.setattr(BaseExecutor, "_run_job_success", slow_release)
+    _slow_slot_release(monkeypatch)
     started, release, runs = threading.Event(), threading.Event(), []
 
     def job():
