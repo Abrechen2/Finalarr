@@ -2,7 +2,7 @@
 
 All notable changes to Finalarr are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versions follow SemVer.
 
-## [0.4.1] – not released yet
+## [0.4.1] – 2026-11-23
 
 ### Fixed
 - **Memory:** the container was killed for exceeding its memory limit every one or two
