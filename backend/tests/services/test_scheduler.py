@@ -1,4 +1,5 @@
 import threading
+import time
 
 import pytest
 
@@ -154,3 +155,30 @@ def test_jobs_run_with_memory_tracking(env, tmp_path):
         assert hasattr(jobs["drain"], "__wrapped__")
     finally:
         service.shutdown()
+
+
+def test_run_soon_during_a_run_runs_again_afterwards(env):
+    # Selecting a second media-server user while the sync for the first one runs must
+    # not wait for the next interval (30 minutes).
+    db, reconciler, _, tmp_path = env
+    started, release, runs = threading.Event(), threading.Event(), []
+
+    def job():
+        runs.append(1)
+        started.set()
+        release.wait(5)
+
+    service = SchedulerService(
+        db, reconciler, lock_path=tmp_path / "again.lock", extra_jobs=[("media", job, 3600)]
+    )
+    assert service.start(retry=False)
+    service.run_soon("media")
+    assert started.wait(5)
+    service.run_soon("media")  # while it runs
+    release.set()
+    for _ in range(50):
+        if len(runs) >= 2:
+            break
+        time.sleep(0.1)
+    service.shutdown()
+    assert len(runs) == 2

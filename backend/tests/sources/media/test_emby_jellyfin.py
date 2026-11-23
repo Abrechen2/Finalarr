@@ -60,6 +60,11 @@ def test_jellyfin_uses_the_items_route_with_user_id():
     items = JellyfinClient(URL, "key").watched("u1")
     assert items[0].series_tvdb == 55
     assert "userId=u1" in responses.calls[0].request.url
+    # Jellyfin 12 rejects X-Emby-Token and ?api_key; only this header is accepted.
+    headers = responses.calls[0].request.headers
+    assert headers["Authorization"].startswith('MediaBrowser Client="Finalarr"')
+    assert headers["Authorization"].endswith('Token="key"')
+    assert "X-Emby-Token" not in headers
 
 
 @responses.activate

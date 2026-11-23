@@ -15,6 +15,7 @@ from finalarr.sources.media.base import (
     get_json,
     tvdb_id,
 )
+from finalarr.version import get_version
 
 SERIES_BATCH = 50
 
@@ -38,9 +39,12 @@ class EmbyClient:
         page_size: int = DEFAULT_PAGE_SIZE,
     ) -> None:
         self._url = url.rstrip("/")
-        self._headers = {"X-Emby-Token": token, "Accept": "application/json"}
+        self._headers = {**self._auth(token), "Accept": "application/json"}
         self._http = session or requests.Session()
         self._page = page_size
+
+    def _auth(self, token: str) -> dict[str, str]:
+        return {"X-Emby-Token": token}
 
     def _items_route(self, user_id: str) -> tuple[str, dict[str, str]]:
         return f"/Users/{user_id}/Items", {}
@@ -116,6 +120,16 @@ class EmbyClient:
 
 class JellyfinClient(EmbyClient):
     name = "Jellyfin"
+
+    def _auth(self, token: str) -> dict[str, str]:
+        # Jellyfin 12 accepts the key only in this header (no X-Emby-Token, no ?api_key);
+        # older versions take it as well.
+        return {
+            "Authorization": (
+                'MediaBrowser Client="Finalarr", Device="Finalarr", DeviceId="finalarr", '
+                f'Version="{get_version()}", Token="{token}"'
+            )
+        }
 
     def _items_route(self, user_id: str) -> tuple[str, dict[str, str]]:
         # /Users/{id}/Items is deprecated since Jellyfin 10.9.

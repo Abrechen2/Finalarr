@@ -9,6 +9,7 @@ is durable (``reconcile_requests``), so a crash loses latency, not data.
 from __future__ import annotations
 
 import fcntl
+import functools
 import logging
 import threading
 from collections.abc import Callable
@@ -54,6 +55,10 @@ class SchedulerService:
         self._scheduler: BackgroundScheduler | None = None
         self._retry: threading.Timer | None = None
         self._stopped = False
+        # Extra jobs running now, and those asked to run again once they finish.
+        self._jobs_lock = threading.Lock()
+        self._busy: set[str] = set()
+        self._again: set[str] = set()
 
     @property
     def running(self) -> bool:
@@ -95,7 +100,7 @@ class SchedulerService:
         first_run = datetime.now(UTC) + timedelta(seconds=EXTRA_JOB_DELAY_SECONDS)
         for job_id, func, seconds in self._extra_jobs:
             scheduler.add_job(
-                tracked(job_id, func),
+                self._repeatable(job_id, tracked(job_id, func)),
                 "interval",
                 seconds=seconds,
                 id=job_id,
@@ -114,10 +119,34 @@ class SchedulerService:
         if self.running and self._scheduler is not None:
             self._scheduler.modify_job("drain", next_run_time=datetime.now(UTC))
 
+    def _repeatable(self, job_id: str, job: Callable[[], None]) -> Callable[[], None]:
+        @functools.wraps(job)
+        def run() -> None:
+            with self._jobs_lock:
+                self._busy.add(job_id)
+            try:
+                job()
+            finally:
+                with self._jobs_lock:
+                    self._busy.discard(job_id)
+                    again = job_id in self._again
+                    self._again.discard(job_id)
+                if again:
+                    self.run_soon(job_id)
+
+        return run
+
     def run_soon(self, job_id: str) -> None:
-        """Run a job now instead of waiting for its interval (no-op when stopped)."""
-        if self.running and self._scheduler is not None:
-            self._scheduler.modify_job(job_id, next_run_time=datetime.now(UTC))
+        """Run a job now instead of waiting for its interval (no-op when stopped). Asked
+        while it runs, it runs once more afterwards: the running pass may have missed
+        the change that asked."""
+        if not self.running or self._scheduler is None:
+            return
+        with self._jobs_lock:
+            if job_id in self._busy:
+                self._again.add(job_id)
+                return
+        self._scheduler.modify_job(job_id, next_run_time=datetime.now(UTC))
 
     def shutdown(self) -> None:
         self._stopped = True
