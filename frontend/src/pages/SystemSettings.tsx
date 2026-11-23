@@ -6,7 +6,16 @@ import { formatDate } from '../lib/format'
 interface SystemStatus {
   version: string
   db: string
-  scheduler: { running: boolean; jobs: { id: string; next_run: string | null }[] }
+  scheduler: {
+    running: boolean
+    jobs: {
+      id: string
+      next_run: string | null
+      last_run?: string | null
+      error?: string | null
+      overdue?: boolean
+    }[]
+  }
 }
 
 export function SystemSettings() {
@@ -42,14 +51,26 @@ export function SystemSettings() {
           <thead>
             <tr className="text-left text-muted">
               <th className="pr-6 font-normal">{t('system.job')}</th>
-              <th className="font-normal">{t('system.nextRun')}</th>
+              <th className="pr-6 font-normal">{t('system.nextRun')}</th>
+              <th className="font-normal">{t('system.lastRun')}</th>
             </tr>
           </thead>
           <tbody>
             {s.scheduler.jobs.map((job) => (
               <tr key={job.id}>
                 <td className="pr-6 font-mono">{job.id}</td>
-                <td>{job.next_run ? formatDate(job.next_run, i18n.language, true) : '–'}</td>
+                <td className="pr-6">
+                  {job.next_run ? formatDate(job.next_run, i18n.language, true) : '–'}
+                </td>
+                <td>
+                  {job.last_run ? formatDate(job.last_run, i18n.language, true) : '–'}
+                  {job.overdue && (
+                    <span title={t('system.overdueHint')} className="ml-2 font-medium text-bad">
+                      {t('system.overdue')}
+                    </span>
+                  )}
+                  {job.error && <p className="text-xs text-bad">{job.error}</p>}
+                </td>
               </tr>
             ))}
           </tbody>

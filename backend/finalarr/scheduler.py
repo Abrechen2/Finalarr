@@ -22,6 +22,7 @@ from sqlalchemy import select
 
 from finalarr.db.models import SonarrInstance
 from finalarr.db.session import Database
+from finalarr.logging_setup import redact
 from finalarr.memory import tracked
 from finalarr.services.reconcile_queue import FULL_SYNC, enqueue, take_all
 from finalarr.services.settings_store import load_settings
@@ -31,6 +32,8 @@ log = logging.getLogger(__name__)
 DRAIN_SECONDS = 5
 JOB_TIMEOUT_GRACE = 60
 EXTRA_JOB_DELAY_SECONDS = 20
+# A job with no good run for this many intervals is shown as overdue.
+OVERDUE_INTERVALS = 2
 
 
 class _Reconciler(Protocol):
@@ -59,6 +62,10 @@ class SchedulerService:
         self._jobs_lock = threading.Lock()
         self._busy: set[str] = set()
         self._again: set[str] = set()
+        # Per job: when the last run ended and its error, and the last run without one.
+        self._last_run: dict[str, tuple[datetime, str | None]] = {}
+        self._last_ok: dict[str, datetime] = {}
+        self.started_at: datetime | None = None
 
     @property
     def running(self) -> bool:
@@ -84,14 +91,14 @@ class SchedulerService:
             },
         )
         scheduler.add_job(
-            tracked("drain", self.drain),
+            self._watched("drain", tracked("drain", self.drain)),
             "interval",
             seconds=DRAIN_SECONDS,
             id="drain",
             replace_existing=True,
         )
         scheduler.add_job(
-            self.queue_full_syncs,
+            self._watched("full_sync", self.queue_full_syncs),
             "interval",
             minutes=interval,
             id="full_sync",
@@ -100,7 +107,7 @@ class SchedulerService:
         first_run = datetime.now(UTC) + timedelta(seconds=EXTRA_JOB_DELAY_SECONDS)
         for job_id, func, seconds in self._extra_jobs:
             scheduler.add_job(
-                self._repeatable(job_id, tracked(job_id, func)),
+                self._watched(job_id, tracked(job_id, func)),
                 "interval",
                 seconds=seconds,
                 id=job_id,
@@ -109,6 +116,7 @@ class SchedulerService:
             )
         scheduler.start()
         self._scheduler = scheduler
+        self.started_at = datetime.now(UTC)
         self.queue_full_syncs()
         self.nudge()
         log.info("Scheduler started (full sync every %s min)", interval)
@@ -119,15 +127,25 @@ class SchedulerService:
         if self.running and self._scheduler is not None:
             self._scheduler.modify_job("drain", next_run_time=datetime.now(UTC))
 
-    def _repeatable(self, job_id: str, job: Callable[[], None]) -> Callable[[], None]:
+    def _watched(self, job_id: str, job: Callable[[], None]) -> Callable[[], None]:
+        """Record each run's end and error; run again if asked to while running."""
+
         @functools.wraps(job)
         def run() -> None:
             with self._jobs_lock:
                 self._busy.add(job_id)
+            error: str | None = None
             try:
                 job()
+            except Exception as failure:
+                error = f"{type(failure).__name__}: {failure}"
+                raise  # APScheduler logs it with the traceback
             finally:
+                now = datetime.now(UTC)
                 with self._jobs_lock:
+                    self._last_run[job_id] = (now, error)
+                    if error is None:
+                        self._last_ok[job_id] = now
                     self._busy.discard(job_id)
                     again = job_id in self._again
                     self._again.discard(job_id)
@@ -135,6 +153,12 @@ class SchedulerService:
                     self.run_soon(job_id)
 
         return run
+
+    def last_run(self, job_id: str) -> tuple[datetime | None, str | None, datetime | None]:
+        """End of the last run, its error, end of the last run without one."""
+        with self._jobs_lock:
+            ended, error = self._last_run.get(job_id, (None, None))
+            return ended, error, self._last_ok.get(job_id)
 
     def run_soon(self, job_id: str) -> None:
         """Run a job now instead of waiting for its interval (no-op when stopped). Asked
@@ -214,7 +238,26 @@ def describe_jobs(service: SchedulerService | None) -> list[dict[str, Any]]:
     """Job list for the system status endpoint."""
     if service is None or not service.running or service._scheduler is None:
         return []
-    return [
-        {"id": job.id, "next_run": job.next_run_time.isoformat() if job.next_run_time else None}
-        for job in service._scheduler.get_jobs()
-    ]
+    now = datetime.now(UTC)
+    started = service.started_at or now
+    jobs = []
+    for job in service._scheduler.get_jobs():
+        ended, error, ok = service.last_run(job.id)
+        interval = getattr(job.trigger, "interval", None)
+        jobs.append(
+            {
+                "id": job.id,
+                "next_run": job.next_run_time.isoformat() if job.next_run_time else None,
+                "last_run": ended.isoformat() if ended else None,
+                "error": redact(error) if error else None,
+                "overdue": interval is not None and overdue(ok, started, interval, now),
+            }
+        )
+    return jobs
+
+
+def overdue(
+    last_ok: datetime | None, started: datetime, interval: timedelta, now: datetime
+) -> bool:
+    """No good run for two intervals (counted from the start when there was none)."""
+    return now - (last_ok or started) > OVERDUE_INTERVALS * interval

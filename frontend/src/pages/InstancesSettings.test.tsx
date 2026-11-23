@@ -91,8 +91,20 @@ test('system tab shows version, jobs and logs', async () => {
         scheduler: {
           running: true,
           jobs: [
-            { id: 'drain', next_run: '2026-11-13T10:00:05Z' },
-            { id: 'x', next_run: null },
+            {
+              id: 'drain',
+              next_run: '2026-11-13T10:00:05Z',
+              last_run: '2026-11-13T10:00:00Z',
+              error: null,
+              overdue: false,
+            },
+            {
+              id: 'anilist',
+              next_run: null,
+              last_run: '2026-11-13T09:00:00Z',
+              error: 'RuntimeError: AniList is down',
+              overdue: true,
+            },
           ],
         },
         instances: [],
@@ -104,6 +116,11 @@ test('system tab shows version, jobs and logs', async () => {
   expect(await screen.findByText('0.3.0')).toBeInTheDocument()
   expect(screen.getByText('läuft')).toBeInTheDocument()
   expect(screen.getByText('drain')).toBeInTheDocument()
+  expect(screen.getByText('RuntimeError: AniList is down')).toBeInTheDocument()
+  expect(screen.getByText('überfällig')).toHaveAttribute(
+    'title',
+    'Seit zwei Intervallen kein erfolgreicher Lauf',
+  )
   expect(await screen.findByText(/line one/)).toBeInTheDocument()
   fireEvent.click(screen.getByRole('button', { name: 'Neu laden' }))
 })

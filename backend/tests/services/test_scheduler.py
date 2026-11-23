@@ -1,11 +1,12 @@
 import threading
 import time
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
 from finalarr.db import models as m
 from finalarr.db.session import Database
-from finalarr.scheduler import SchedulerService
+from finalarr.scheduler import SchedulerService, describe_jobs, overdue
 from finalarr.services.reconcile_queue import enqueue
 
 
@@ -182,3 +183,38 @@ def test_run_soon_during_a_run_runs_again_afterwards(env):
         time.sleep(0.1)
     service.shutdown()
     assert len(runs) == 2
+
+
+def test_jobs_report_their_last_run_and_error(env):
+    db, reconciler, _, tmp_path = env
+    done = threading.Event()
+
+    def broken():
+        done.set()
+        raise RuntimeError("AniList is down")
+
+    service = SchedulerService(
+        db, reconciler, lock_path=tmp_path / "jobs.lock", extra_jobs=[("anilist", broken, 3600)]
+    )
+    assert service.start(retry=False)
+    service.run_soon("anilist")
+    assert done.wait(5)
+    for _ in range(50):
+        jobs = {job["id"]: job for job in describe_jobs(service)}
+        if jobs["anilist"]["last_run"]:
+            break
+        time.sleep(0.1)
+    service.shutdown()
+    assert jobs["anilist"]["error"] == "RuntimeError: AniList is down"
+    assert jobs["anilist"]["overdue"] is False
+    assert jobs["drain"]["error"] is None
+
+
+def test_a_job_without_a_good_run_for_two_intervals_is_overdue():
+    now = datetime(2026, 11, 23, 12, tzinfo=UTC)
+    started = now - timedelta(hours=5)
+    assert overdue(None, started, timedelta(hours=1), now) is True
+    assert overdue(now - timedelta(minutes=30), started, timedelta(hours=1), now) is False
+    assert overdue(now - timedelta(hours=3), started, timedelta(hours=1), now) is True
+    # Freshly started: no run yet is fine.
+    assert overdue(None, now - timedelta(minutes=10), timedelta(hours=1), now) is False

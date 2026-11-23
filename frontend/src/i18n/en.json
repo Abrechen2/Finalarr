@@ -358,7 +358,10 @@
     "nextRun": "next run",
     "logs": "Log (last lines)",
     "reload": "Reload",
-    "apiKeyHint": "Change the API key through FINALARR_API_KEY and a restart; all sessions end then."
+    "apiKeyHint": "Change the API key through FINALARR_API_KEY and a restart; all sessions end then.",
+    "lastRun": "last run",
+    "overdue": "overdue",
+    "overdueHint": "No successful run for two intervals"
   },
   "calendar": {
     "title": "Calendar",

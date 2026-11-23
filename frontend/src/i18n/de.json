@@ -358,7 +358,10 @@
     "nextRun": "nächster Lauf",
     "logs": "Log (letzte Zeilen)",
     "reload": "Neu laden",
-    "apiKeyHint": "Den API-Schlüssel änderst du über FINALARR_API_KEY und einen Neustart; alle Sitzungen enden dann."
+    "apiKeyHint": "Den API-Schlüssel änderst du über FINALARR_API_KEY und einen Neustart; alle Sitzungen enden dann.",
+    "lastRun": "letzter Lauf",
+    "overdue": "überfällig",
+    "overdueHint": "Seit zwei Intervallen kein erfolgreicher Lauf"
   },
   "calendar": {
     "title": "Kalender",
