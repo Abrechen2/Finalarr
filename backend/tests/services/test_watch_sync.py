@@ -208,3 +208,14 @@ def test_servers_without_play_dates_use_the_day_finalarr_first_sees_an_episode(e
             )
             == NOW.date()
         )
+
+
+def test_a_token_that_cannot_be_decrypted_is_an_error_not_a_crash(env):
+    db, _ = env
+    other_key = SecretBox(Fernet.generate_key().decode())
+    with db.session() as s:
+        s.scalar(select(m.MediaServer)).token_enc = other_key.encrypt("t")
+        s.commit()
+    WatchSync(db, env[1], clock=lambda: NOW).run()
+    with db.session() as s:
+        assert "FINALARR_SECRET_KEY" in s.scalar(select(m.MediaServer)).last_error

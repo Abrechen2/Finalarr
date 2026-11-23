@@ -23,7 +23,7 @@ from finalarr.core.evaluator import evaluate
 from finalarr.core.fingerprint import fingerprint
 from finalarr.core.model import Episode as CoreEpisode
 from finalarr.core.model import Evaluation, Part, Policy, SeasonInput, SeasonMemory
-from finalarr.crypto import SecretBox
+from finalarr.crypto import SecretBox, SecretDecryptError
 from finalarr.db import models as m
 from finalarr.db.session import Database
 from finalarr.services.reconcile_queue import FULL_SYNC
@@ -64,19 +64,22 @@ class Reconciler:
         self._client_factory = client_factory or default_client_factory(box)
         self._clock = clock
         self._on_events = on_events
+        # Per instance: series the last full sync did not list. Removed only when the
+        # next one misses them too, so one short answer from Sonarr costs nothing.
+        self._missing: dict[int, set[int]] = {}
 
     def reconcile(self, instance_id: int, sonarr_series_id: int = FULL_SYNC) -> None:
         with self._db.session() as s:
             instance = s.get(m.SonarrInstance, instance_id)
             if instance is None or not instance.enabled:
                 return
-            client = self._client_factory(instance)
         try:
+            client = self._client_factory(instance)
             if sonarr_series_id == FULL_SYNC:
                 self._full(instance_id, client)
             else:
                 self._one(instance_id, client, sonarr_series_id)
-        except SonarrError as error:
+        except (SonarrError, SecretDecryptError) as error:
             log.warning("Reconcile of instance %s failed: %s", instance_id, error)
             self._mark(instance_id, str(error))
             return
@@ -92,6 +95,16 @@ class Reconciler:
                 instance.last_sync_at = self._clock()
             s.commit()
 
+    def _gone(self, instance_id: int, known: set[int], listed: set[int]) -> set[int]:
+        """Series to delete: missing from this full sync and the one before."""
+        if not listed and known:
+            log.warning("Sonarr %s listed no series; keeping all %d", instance_id, len(known))
+            return set()
+        missing = known - listed
+        gone = missing & self._missing.get(instance_id, set())
+        self._missing[instance_id] = missing - gone
+        return gone
+
     def _full(self, instance_id: int, client: Any) -> None:
         labels = client.tags()
         remote = client.series_list()
@@ -100,7 +113,7 @@ class Reconciler:
                 row.sonarr_id: row
                 for row in s.scalars(select(m.Series).where(m.Series.instance_id == instance_id))
             }
-            for gone in set(known) - {r.id for r in remote}:
+            for gone in self._gone(instance_id, set(known), {r.id for r in remote}):
                 s.delete(known[gone])
             followed = []
             for series in remote:

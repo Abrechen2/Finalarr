@@ -16,7 +16,7 @@ from typing import Any
 from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
-from finalarr.crypto import SecretBox
+from finalarr.crypto import SecretBox, SecretDecryptError
 from finalarr.db import models as m
 from finalarr.db.session import Database
 from finalarr.services.reconcile_queue import enqueue
@@ -68,14 +68,14 @@ class WatchSync:
     def sync_server(self, server_id: int) -> None:
         with self._db.session() as s:
             server = s.get_one(m.MediaServer, server_id)
-            client = self._client_factory(server)
             selected = {u.remote_id for u in server.users if u.selected}
         try:
+            client = self._client_factory(server)
             users = client.users()
             watched = {
                 u.remote_id: client.watched(u.remote_id) for u in users if u.remote_id in selected
             }
-        except MediaError as error:
+        except (MediaError, SecretDecryptError) as error:
             log.warning("Media server %s: %s", server_id, error)
             self._mark(server_id, str(error))
             return

@@ -142,8 +142,38 @@ def test_series_and_episodes_removed_in_sonarr_are_removed(env):
     sonarr.episodes_by_series[1] = make_episodes(1, 1, 2, set())
     reconciler.reconcile(1)
     with db.session() as s:
-        assert s.scalars(select(m.Series.title)).all() == ["Slime"]
+        # One sync without the series could be a glitch; it goes after the second.
+        assert sorted(s.scalars(select(m.Series.title))) == ["Gone", "Slime"]
         assert s.scalars(select(m.Episode.number).order_by(m.Episode.number)).all() == [1, 2]
+    reconciler.reconcile(1)
+    with db.session() as s:
+        assert s.scalars(select(m.Series.title)).all() == ["Slime"]
+
+
+def test_a_series_missing_from_one_sync_only_is_kept(env):
+    db, sonarr, reconciler, _ = env
+    sonarr.add(make_series(1, "Slime"))
+    reconciler.reconcile(1)
+    follow(db, 1)
+    slime = sonarr.series_by_id.pop(1)
+    reconciler.reconcile(1)
+    sonarr.series_by_id[1] = slime
+    reconciler.reconcile(1)
+    sonarr.series_by_id.pop(1)
+    reconciler.reconcile(1)
+    with db.session() as s:
+        assert s.scalar(select(m.Series.followed)) is True
+
+
+def test_an_empty_series_list_never_removes_anything(env):
+    db, sonarr, reconciler, _ = env
+    sonarr.add(make_series(1, "Slime"))
+    reconciler.reconcile(1)
+    sonarr.series_by_id.clear()
+    for _ in range(3):
+        reconciler.reconcile(1)
+    with db.session() as s:
+        assert s.scalars(select(m.Series.title)).all() == ["Slime"]
 
 
 def test_sonarr_down_records_the_error_and_success_clears_it(env):
@@ -399,3 +429,13 @@ def test_an_external_episode_count_disputes_a_short_tvdb_listing(env):
             True,
             "tvmaze",
         )
+
+
+def test_a_key_that_cannot_be_decrypted_is_recorded(env):
+    db, _, _, _ = env
+    from cryptography.fernet import Fernet
+
+    reconciler = Reconciler(db, SecretBox(Fernet.generate_key().decode()))
+    reconciler.reconcile(1)
+    with db.session() as s:
+        assert "FINALARR_SECRET_KEY" in s.get(m.SonarrInstance, 1).last_error
