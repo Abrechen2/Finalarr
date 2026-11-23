@@ -10,11 +10,13 @@ import { OnboardingPage } from './pages/OnboardingPage'
 import { SeriesDetailPage } from './pages/SeriesDetailPage'
 import { SeriesPage } from './pages/SeriesPage'
 import { SettingsPage } from './pages/SettingsPage'
+import { WatchTrackerPage } from './pages/WatchTrackerPage'
 
 const PAGES = [
   { path: '/', element: <DashboardPage /> },
   { path: '/series', element: <SeriesPage /> },
   { path: '/series/:id', element: <SeriesDetailPage /> },
+  { path: '/watch', element: <WatchTrackerPage /> },
   { path: '/calendar', element: <CalendarPage /> },
   { path: '/events', element: <EventsPage /> },
   { path: '/settings', element: <SettingsPage /> },

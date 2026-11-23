@@ -6,7 +6,8 @@
     "events": "Events",
     "settings": "Settings",
     "about": "About",
-    "calendar": "Calendar"
+    "calendar": "Calendar",
+    "watch": "Watched"
   },
   "brand": {
     "credit": "A project by",
@@ -602,5 +603,57 @@
     },
     "unknownCount": "?",
     "unmonitored": "{{count}} of them unmonitored, they do not count"
+  },
+  "tracker": {
+    "title": "Watched",
+    "user": "Who",
+    "everyone": "Everyone",
+    "emptyTitle": "No media server connected",
+    "empty": "Connect Emby, Jellyfin or Plex and pick whose viewing counts:",
+    "total": "Episodes watched",
+    "hours_one": "{{count}} hour",
+    "hours_other": "{{count}} hours",
+    "thisWeek": "This week",
+    "thisMonth": "This month",
+    "started": "Series started",
+    "startedHint": "{{behind}} behind, {{finished}} finished",
+    "undated_one": "{{count}} episode from the first sync has no date; it counts only in the total.",
+    "undated_other": "{{count}} episodes from the first sync have no date; they count only in the total.",
+    "weekly_one": "Episodes per week, last week",
+    "weekly_other": "Episodes per week, last {{count}} weeks",
+    "weekBar_one": "Week of {{week}}: {{count}} episode",
+    "weekBar_other": "Week of {{week}}: {{count}} episodes",
+    "missingTitle": "Still to watch",
+    "sort": "Sort",
+    "sorts": {
+      "recent": "Last watched",
+      "open": "Most unwatched",
+      "title": "Title A–Z"
+    },
+    "filter": "Selection",
+    "filters": {
+      "all": "All ({{count}})",
+      "behind": "Behind ({{count}})",
+      "abandoned": "Dropped ({{count}})",
+      "caught_up": "Caught up ({{count}})",
+      "finished": "Finished ({{count}})",
+      "unknown": "Not followed ({{count}})"
+    },
+    "state": {
+      "behind": "Behind",
+      "abandoned": "Untouched for over 30 days",
+      "caught_up": "Caught up",
+      "finished": "Finished",
+      "unknown": "Not followed"
+    },
+    "missing_one": "{{count}} unwatched · next {{next}}",
+    "missing_other": "{{count}} unwatched · next {{next}}",
+    "nothingMissing": "Everything on disk watched.",
+    "unknownDetail": "Episode list unknown: Finalarr knows the episodes of followed series only.",
+    "watched_one": "{{count}} episode watched",
+    "watched_other": "{{count}} episodes watched",
+    "watchedLast_one": "{{count}} episode watched, last {{when}}",
+    "watchedLast_other": "{{count}} episodes watched, last {{when}}",
+    "none": "Nothing in this selection."
   }
 }

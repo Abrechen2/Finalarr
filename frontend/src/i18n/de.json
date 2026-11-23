@@ -6,7 +6,8 @@
     "events": "Ereignisse",
     "settings": "Einstellungen",
     "about": "Über",
-    "calendar": "Kalender"
+    "calendar": "Kalender",
+    "watch": "Gesehen"
   },
   "brand": {
     "credit": "Ein Projekt von",
@@ -602,5 +603,57 @@
     },
     "unknownCount": "?",
     "unmonitored": "{{count}} davon nicht überwacht, sie zählen nicht mit"
+  },
+  "tracker": {
+    "title": "Gesehen",
+    "user": "Wer",
+    "everyone": "Alle",
+    "emptyTitle": "Kein Medienserver verbunden",
+    "empty": "Verbinde Emby, Jellyfin oder Plex und wähle, wessen Schauen zählt:",
+    "total": "Folgen gesehen",
+    "hours_one": "{{count}} Stunde",
+    "hours_other": "{{count}} Stunden",
+    "thisWeek": "Diese Woche",
+    "thisMonth": "Diesen Monat",
+    "started": "Serien angefangen",
+    "startedHint": "{{behind}} hinterher, {{finished}} fertig",
+    "undated_one": "{{count}} Folge aus der ersten Synchronisierung hat kein Datum; sie zählt nur in der Summe.",
+    "undated_other": "{{count}} Folgen aus der ersten Synchronisierung haben kein Datum; sie zählen nur in der Summe.",
+    "weekly_one": "Folgen pro Woche, letzte Woche",
+    "weekly_other": "Folgen pro Woche, letzte {{count}} Wochen",
+    "weekBar_one": "Woche ab {{week}}: {{count}} Folge",
+    "weekBar_other": "Woche ab {{week}}: {{count}} Folgen",
+    "missingTitle": "Was noch fehlt",
+    "sort": "Sortierung",
+    "sorts": {
+      "recent": "Zuletzt geschaut",
+      "open": "Meiste ungesehen",
+      "title": "Titel A–Z"
+    },
+    "filter": "Auswahl",
+    "filters": {
+      "all": "Alle ({{count}})",
+      "behind": "Hinterher ({{count}})",
+      "abandoned": "Liegen gelassen ({{count}})",
+      "caught_up": "Aufgeholt ({{count}})",
+      "finished": "Fertig geschaut ({{count}})",
+      "unknown": "Nicht verfolgt ({{count}})"
+    },
+    "state": {
+      "behind": "Hinterher",
+      "abandoned": "Seit über 30 Tagen liegen gelassen",
+      "caught_up": "Aufgeholt",
+      "finished": "Fertig geschaut",
+      "unknown": "Nicht verfolgt"
+    },
+    "missing_one": "{{count}} ungesehen · als Nächstes {{next}}",
+    "missing_other": "{{count}} ungesehen · als Nächstes {{next}}",
+    "nothingMissing": "Alles Vorhandene gesehen.",
+    "unknownDetail": "Folgenliste unbekannt: Finalarr kennt die Folgen nur von verfolgten Serien.",
+    "watched_one": "{{count}} Folge gesehen",
+    "watched_other": "{{count}} Folgen gesehen",
+    "watchedLast_one": "{{count}} Folge gesehen, zuletzt {{when}}",
+    "watchedLast_other": "{{count}} Folgen gesehen, zuletzt {{when}}",
+    "none": "Nichts in dieser Auswahl."
   }
 }

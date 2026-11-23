@@ -1,6 +1,7 @@
 import {
   CalendarCheck,
   CalendarDays,
+  Eye,
   Info,
   LayoutDashboard,
   ListVideo,
@@ -8,17 +9,19 @@ import {
 } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { NavLink } from 'react-router'
+import { Link, NavLink } from 'react-router'
 import { A2Credit } from './A2Credit'
 import { Logo } from './Logo'
 
 const NAV = [
   { to: '/', key: 'nav.dashboard', icon: LayoutDashboard },
   { to: '/series', key: 'nav.series', icon: ListVideo },
+  { to: '/watch', key: 'nav.watch', icon: Eye },
   { to: '/calendar', key: 'nav.calendar', icon: CalendarDays },
   { to: '/events', key: 'nav.events', icon: CalendarCheck },
   { to: '/settings', key: 'nav.settings', icon: Settings },
-  { to: '/about', key: 'nav.about', icon: Info },
+  // On phones the bottom bar has no room for it; the header links it instead.
+  { to: '/about', key: 'nav.about', icon: Info, wideOnly: true },
 ] as const
 
 function linkClass({ isActive }: { isActive: boolean }) {
@@ -52,12 +55,14 @@ export function AppShell({ children }: { children: ReactNode }) {
           aria-label={t('nav.label')}
           className="fixed inset-x-0 bottom-0 z-10 flex justify-around border-t border-line bg-bg py-2 min-[900px]:static min-[900px]:flex-col min-[900px]:justify-start min-[900px]:gap-1 min-[900px]:border-0 min-[900px]:bg-transparent min-[900px]:py-0"
         >
-          {NAV.map(({ to, key, icon: Icon }) => (
+          {NAV.map(({ to, key, icon: Icon, ...item }) => (
             <NavLink
               key={to}
               to={to}
               end={to === '/' || to === '/settings' || to === '/about'}
-              className={linkClass}
+              className={(state) =>
+                `${linkClass(state)}${'wideOnly' in item ? ' max-[899px]:hidden' : ''}`
+              }
             >
               <Icon size={18} aria-hidden="true" />
               {t(key)}
@@ -69,6 +74,13 @@ export function AppShell({ children }: { children: ReactNode }) {
         <header className="flex items-center gap-3 border-b border-line px-4 py-3 min-[900px]:hidden">
           <Logo size={28} />
           <Wordmark />
+          <Link
+            to="/about"
+            aria-label={t('nav.about')}
+            className="ml-auto text-muted hover:text-ink"
+          >
+            <Info size={20} aria-hidden="true" />
+          </Link>
         </header>
         <main className="w-full min-w-0 flex-1 px-4 py-8 min-[900px]:px-8 min-[1600px]:px-12">
           {children}

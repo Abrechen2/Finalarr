@@ -24,6 +24,7 @@ from finalarr.api import (
     series,
     sources,
     system,
+    watch,
     webhook,
 )
 from finalarr.api.common import register_error_handler
@@ -207,6 +208,7 @@ def create_app(settings: Settings | None = None, static_dir: Path | None = None)
     app.register_blueprint(calendar.bp)
     app.register_blueprint(sources.bp)
     app.register_blueprint(media_servers.bp)
+    app.register_blueprint(watch.bp)
     app.extensions["finalarr.feed_limiter"] = RateLimiter(FEED_READS_PER_MINUTE, 60)
     spa_dir = static_dir or Path(os.environ.get("FINALARR_STATIC_DIR", _DEFAULT_STATIC_DIR))
 
