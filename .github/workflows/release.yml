@@ -115,6 +115,9 @@ jobs:
           cache-to: type=gha,mode=max
           provenance: mode=max
           sbom: true
+      - name: Start test of the pushed arm64 image (exact digest)
+        if: steps.v.outputs.prerelease == 'false'
+        run: docker/start-test.sh "${{ steps.v.outputs.image }}@${{ steps.arm.outputs.digest }}" --platform linux/arm64
       - name: Join the tested amd64 image and arm64
         id: final
         if: steps.v.outputs.prerelease == 'false'
@@ -123,15 +126,13 @@ jobs:
           VERSION: ${{ steps.v.outputs.version }}
           RC: ${{ steps.v.outputs.rc }}
           MINOR: ${{ steps.v.outputs.minor }}
+          ARM: ${{ steps.arm.outputs.digest }}
         run: |
+          # Exactly the arm64 digest that passed the start test above.
           docker buildx imagetools create \
             -t "$IMAGE:$VERSION" -t "$IMAGE:$MINOR" -t "$IMAGE:latest" \
-            "$IMAGE:$RC" "$IMAGE:$VERSION-arm64"
+            "$IMAGE:$RC" "$IMAGE@$ARM"
           echo "digest=$(docker buildx imagetools inspect "$IMAGE:$VERSION" --format '{{json .Manifest.Digest}}' | tr -d '"')" >> "$GITHUB_OUTPUT"
-
-      - name: Start test of the pushed arm64 image (exact digest)
-        if: steps.v.outputs.prerelease == 'false'
-        run: docker/start-test.sh "${{ steps.v.outputs.image }}@${{ steps.arm.outputs.digest }}" --platform linux/arm64
 
       - uses: sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532 # v4.1.3
       - name: Sign image

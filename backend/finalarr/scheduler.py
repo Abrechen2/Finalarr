@@ -17,6 +17,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import IO, Any, Protocol
 
+from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED, JobExecutionEvent
 from apscheduler.schedulers.background import BackgroundScheduler
 from sqlalchemy import select
 
@@ -114,6 +115,7 @@ class SchedulerService:
                 replace_existing=True,
                 next_run_time=first_run,
             )
+        scheduler.add_listener(self._job_done, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
         scheduler.start()
         self._scheduler = scheduler
         self.started_at = datetime.now(UTC)
@@ -128,7 +130,8 @@ class SchedulerService:
             self._scheduler.modify_job("drain", next_run_time=datetime.now(UTC))
 
     def _watched(self, job_id: str, job: Callable[[], None]) -> Callable[[], None]:
-        """Record each run's end and error; run again if asked to while running."""
+        """Record each run's end and error. The job counts as busy until APScheduler has
+        freed its slot (``_job_done``), so a rerun asked for meanwhile is not skipped."""
 
         @functools.wraps(job)
         def run() -> None:
@@ -146,13 +149,17 @@ class SchedulerService:
                     self._last_run[job_id] = (now, error)
                     if error is None:
                         self._last_ok[job_id] = now
-                    self._busy.discard(job_id)
-                    again = job_id in self._again
-                    self._again.discard(job_id)
-                if again:
-                    self.run_soon(job_id)
 
         return run
+
+    def _job_done(self, event: JobExecutionEvent) -> None:
+        """APScheduler sends this after freeing the job's slot: run it again if asked."""
+        with self._jobs_lock:
+            self._busy.discard(event.job_id)
+            again = event.job_id in self._again
+            self._again.discard(event.job_id)
+        if again:
+            self.run_soon(event.job_id)
 
     def last_run(self, job_id: str) -> tuple[datetime | None, str | None, datetime | None]:
         """End of the last run, its error, end of the last run without one."""

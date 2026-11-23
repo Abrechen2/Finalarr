@@ -3,6 +3,7 @@ import time
 from datetime import UTC, datetime, timedelta
 
 import pytest
+from apscheduler.executors.base import BaseExecutor
 
 from finalarr.db import models as m
 from finalarr.db.session import Database
@@ -158,10 +159,19 @@ def test_jobs_run_with_memory_tracking(env, tmp_path):
         service.shutdown()
 
 
-def test_run_soon_during_a_run_runs_again_afterwards(env):
+def test_run_soon_during_a_run_runs_again_afterwards(env, monkeypatch):
     # Selecting a second media-server user while the sync for the first one runs must
     # not wait for the next interval (30 minutes).
     db, reconciler, _, tmp_path = env
+    # APScheduler frees the job's only slot after the function returned; a rerun asked
+    # for before that is skipped. Widen that gap so the test does not depend on timing.
+    release_slot = BaseExecutor._run_job_success
+
+    def slow_release(self, job_id, events):
+        time.sleep(0.3)
+        release_slot(self, job_id, events)
+
+    monkeypatch.setattr(BaseExecutor, "_run_job_success", slow_release)
     started, release, runs = threading.Event(), threading.Event(), []
 
     def job():
