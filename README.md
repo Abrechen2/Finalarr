@@ -20,7 +20,7 @@ renewals, announced sequels, postponed episodes and the next air date.
 - **Knows how long a season is.** Expected episode count from Sonarr, cross-checked with
   AniList for anime (split cours included). When the two disagree it says so instead of
   guessing; one click picks either number.
-- **Reports each thing exactly once:** new episodes on disk (as ranges, one message per
+- **Reports each thing once:** new episodes on disk (as ranges, one message per
   batch), the season finale, a finished split-cour part, a complete season, a season or
   sequel announced before Sonarr knows it, and an episode whose air date was postponed.
   Nothing is reported for what was already on disk when you started following.

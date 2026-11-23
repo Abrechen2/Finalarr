@@ -38,7 +38,10 @@ Data lives in `/config` (SQLite database, log, scheduler lock).
 ## Updates and backups
 
 Pull the new image and recreate the container (`docker compose pull && docker compose up
--d`); database migrations run on start and are not reversible, so take a backup first.
+-d`). When a new version changes the database, Finalarr copies it first to
+`/config/backups/finalarr-before-<revision>-<time>.db` (the newest five are kept) and then
+migrates it. Migrations are not reversible: to go back to an older version, restore that
+copy (below) and run the older image.
 
 Backup while Finalarr runs (a plain `cp` of `finalarr.db` can catch it mid-write):
 
@@ -50,7 +53,15 @@ Or stop the container and copy the whole `/config` folder. Keep both keys with t
 backup: without the same `FINALARR_SECRET_KEY` a restored database cannot decrypt the
 stored Sonarr keys and channel URLs. To restore, stop the container, put the backup in
 place as `/config/finalarr.db` (delete `finalarr.db-wal` and `finalarr.db-shm` next to
-it) and start again.
+it) and start again with the same keys. Then check:
+
+1. `/health` answers and the log shows no migration error.
+2. *Settings → Sonarr* shows no "cannot be decrypted" error (a wrong `FINALARR_SECRET_KEY`
+   shows up here first) and *Sync now* works.
+3. *Events* lists the old notifications, and a channel's *Test* message arrives.
+
+Restoring a backup from an older version is fine: it is migrated on start. A backup from
+a newer version does not run on an older image.
 
 ## Remote access and HTTPS
 
@@ -76,7 +87,7 @@ it asks before restarting.
 
 ## Media servers (Emby, Jellyfin, Plex)
 
-*Einstellungen → Mediaserver*: add the server address and a key, test, save, then pick the
+*Settings → Media servers*: add the server address and a key, test, save, then pick the
 users whose viewing counts. Keys:
 
 - **Emby**: Settings → Advanced → API keys → new key.
@@ -92,16 +103,22 @@ which episodes were watched and on which day.
 ## Connect Sonarr
 
 1. Open Finalarr, sign in with the API key, follow the setup.
-2. Copy the webhook URL from *Einstellungen → Sonarr* into Sonarr under
+2. Copy the webhook URL from *Settings → Sonarr* into Sonarr under
    *Settings → Connect → Webhook* (method POST; events On Import, On Upgrade,
    On Series Add, On Episode File Delete). Basic auth is optional and supported.
 3. The webhook only speeds things up; Finalarr also syncs every 30 minutes.
 
 ## Notifications
 
-Add a channel under *Einstellungen → Kanäle* (Telegram, Discord, Pushover, webhook or
+Add a channel under *Settings → Channels* (Telegram, Discord, Pushover, webhook or
 any Apprise URL) and send a test message. Channel URLs are stored encrypted and never
 shown again.
+
+Each event is created once, and each channel gets it once. A message is marked as sent
+only after the channel accepted it, so if Finalarr stops between the two, or a backup
+older than the message is restored, that message can arrive a second time. A send that
+fails is tried again after one and after five minutes; after the third failure it is
+marked failed, and *Events* shows it with the channel's error.
 
 ## Where announcements come from
 
@@ -120,11 +137,11 @@ shown again.
 | AnimeSchedule.net | English dub dates and delay notes | `FINALARR_ANIMESCHEDULE_TOKEN` |
 
 Every source reports a season or sequel under the same key, so you get one message no
-matter which one knows first. News hints can be switched off under *Einstellungen → Regeln*.
+matter which one knows first. News hints can be switched off under *Settings → Rules*.
 
 ## Calendar feed
 
-*Einstellungen → Kalender* switches on an iCal feed at `/ical/<token>.ics` (add `?lang=en`
+*Settings → Calendar* switches on an iCal feed at `/ical/<token>.ics` (add `?lang=en`
 for English titles). Subscribe to it in any calendar app. The token is the only
 protection: keep the address private, renew it to revoke old subscriptions. Google and Outlook fetch
 the feed from their own servers, so it must be reachable from the internet. Expose **only**
