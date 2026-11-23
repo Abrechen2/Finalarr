@@ -154,3 +154,25 @@ test('a rejected token is explained', async () => {
     ),
   ).toBeInTheDocument()
 })
+
+test('removing a media server asks first and shows a failure', async () => {
+  const confirm = vi.spyOn(window, 'confirm').mockReturnValueOnce(false).mockReturnValue(true)
+  const calls = mockFetch({
+    'GET /api/v1/media-servers': { body: [server] },
+    'GET /api/v1/settings': {
+      body: { auto_follow: true, auto_follow_min_episodes: 2, auto_follow_days: 30 },
+    },
+    'DELETE /api/v1/media-servers/1': {
+      status: 500,
+      body: { error: { code: 'internal', message: 'boom' } },
+    },
+  })
+  renderWithProviders(<MediaServersSettings />)
+  const remove = await screen.findByRole('button', { name: 'Entfernen' })
+  fireEvent.click(remove)
+  expect(calls.some((c) => c.init?.method === 'DELETE')).toBe(false)
+  fireEvent.click(remove)
+  expect(await screen.findByRole('alert')).toBeInTheDocument()
+  expect(confirm).toHaveBeenCalledWith(expect.stringContaining('Plex'))
+  confirm.mockRestore()
+})

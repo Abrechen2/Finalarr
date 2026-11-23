@@ -113,3 +113,17 @@ test('system errors are shown', async () => {
   renderWithProviders(<SystemSettings />)
   expect(await screen.findByRole('alert')).toBeInTheDocument()
 })
+
+test('a failed delete or sync is shown, not swallowed', async () => {
+  vi.spyOn(window, 'confirm').mockReturnValue(true)
+  mockFetch({
+    'GET /api/v1/instances': { body: [instance] },
+    'DELETE /api/v1/instances/1': {
+      status: 500,
+      body: { error: { code: 'internal', message: 'boom' } },
+    },
+  })
+  renderWithProviders(<InstancesSettings />)
+  fireEvent.click(await screen.findByRole('button', { name: 'Löschen' }))
+  expect(await screen.findByRole('alert')).toBeInTheDocument()
+})

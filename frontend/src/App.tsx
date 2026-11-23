@@ -3,6 +3,7 @@ import { AppShell } from './components/AppShell'
 import { RequireAuth } from './components/RequireAuth'
 import { AboutPage } from './pages/AboutPage'
 import { LoginPage } from './pages/LoginPage'
+import { NotFoundPage } from './pages/NotFoundPage'
 import { EventsPage } from './pages/EventsPage'
 import { CalendarPage } from './pages/CalendarPage'
 import { DashboardPage } from './pages/DashboardPage'
@@ -22,6 +23,7 @@ const PAGES = [
   { path: '/settings', element: <SettingsPage /> },
   { path: '/about', element: <AboutPage /> },
   { path: '/onboarding', element: <OnboardingPage /> },
+  { path: '*', element: <NotFoundPage /> },
 ]
 
 export default function App() {

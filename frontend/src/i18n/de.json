@@ -537,7 +537,8 @@
     "ruleOn": "Serien folgen, die jemand schaut",
     "ruleEpisodes": "ab so vielen gesehenen Folgen",
     "ruleDays": "innerhalb von so vielen Tagen",
-    "unreachable": "Mediaserver nicht erreichbar oder Schlüssel abgelehnt: {{message}}"
+    "unreachable": "Mediaserver nicht erreichbar oder Schlüssel abgelehnt: {{message}}",
+    "removeConfirm": "Medienserver „{{name}}“ entfernen? Was seine Nutzer geschaut haben, wird dabei gelöscht."
   },
   "watch": {
     "title": "Gesehen",
@@ -655,5 +656,13 @@
     "watchedLast_one": "{{count}} Folge gesehen, zuletzt {{when}}",
     "watchedLast_other": "{{count}} Folgen gesehen, zuletzt {{when}}",
     "none": "Nichts in dieser Auswahl."
+  },
+  "page": {
+    "crashTitle": "Diese Seite ist abgestürzt",
+    "crash": "Ein Fehler in der Oberfläche hat sie angehalten. Die Daten sind nicht betroffen. Lade die Seite neu oder wechsle zu einer anderen.",
+    "reload": "Neu laden",
+    "notFoundTitle": "Seite nicht gefunden",
+    "notFound": "Diese Adresse gibt es in Finalarr nicht.",
+    "home": "Zur Übersicht"
   }
 }

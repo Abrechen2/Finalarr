@@ -16,6 +16,8 @@ void i18n.use(initReactI18next).init({
   interpolation: { escapeValue: false },
 })
 
+// init has already announced the first language, so it is set here once.
+document.documentElement.lang = i18n.language
 i18n.on('languageChanged', (lng) => {
   writePref(LANGUAGE_KEY, lng)
   document.documentElement.lang = lng

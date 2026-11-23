@@ -9,8 +9,9 @@ import {
 } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, NavLink } from 'react-router'
+import { Link, NavLink, useLocation } from 'react-router'
 import { A2Credit } from './A2Credit'
+import { ErrorBoundary } from './ErrorBoundary'
 import { Logo } from './Logo'
 
 const NAV = [
@@ -44,6 +45,7 @@ function Wordmark() {
 /** Left rail from 900 px, bottom tabs below; the A2 credit sits in every footer. */
 export function AppShell({ children }: { children: ReactNode }) {
   const { t } = useTranslation()
+  const { pathname } = useLocation()
   return (
     <div className="min-h-screen min-[900px]:flex">
       <aside className="min-[900px]:flex min-[900px]:w-60 min-[900px]:shrink-0 min-[900px]:flex-col min-[900px]:border-r min-[900px]:border-line min-[900px]:p-4">
@@ -83,7 +85,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </Link>
         </header>
         <main className="w-full min-w-0 flex-1 px-4 py-8 min-[900px]:px-8 min-[1600px]:px-12">
-          {children}
+          <ErrorBoundary key={pathname}>{children}</ErrorBoundary>
         </main>
         <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-4 py-4 min-[900px]:px-8">
           <A2Credit />

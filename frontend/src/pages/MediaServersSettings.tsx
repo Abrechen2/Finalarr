@@ -170,6 +170,7 @@ function ServerCard({ server }: { server: MediaServerView }) {
     mutationFn: () => apiFetch(`/api/v1/media-servers/${server.id}`, { method: 'DELETE' }),
     onSuccess: refresh,
   })
+  const failed = select.error ?? sync.error ?? remove.error
   return (
     <li className="flex flex-col gap-3 rounded-card border border-line p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -193,7 +194,9 @@ function ServerCard({ server }: { server: MediaServerView }) {
             type="button"
             className={BUTTON}
             disabled={remove.isPending}
-            onClick={() => remove.mutate()}
+            onClick={() =>
+              window.confirm(t('media.removeConfirm', { name: server.name })) && remove.mutate()
+            }
           >
             {t('media.remove')}
           </button>
@@ -206,6 +209,11 @@ function ServerCard({ server }: { server: MediaServerView }) {
             : t('media.neverSynced'))}
         {sync.isSuccess && ` ${t('media.syncQueued')}`}
       </p>
+      {failed && (
+        <p role="alert" className="text-sm text-bad">
+          {errorText(t, failed)}
+        </p>
+      )}
       <fieldset>
         <legend className="text-xs text-muted">{t('media.users')}</legend>
         {server.users.map((user) => (

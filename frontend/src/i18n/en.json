@@ -537,7 +537,8 @@
     "ruleOn": "Follow series someone watches",
     "ruleEpisodes": "from this many watched episodes",
     "ruleDays": "within this many days",
-    "unreachable": "Media server unreachable or key rejected: {{message}}"
+    "unreachable": "Media server unreachable or key rejected: {{message}}",
+    "removeConfirm": "Remove media server \"{{name}}\"? What its users watched is deleted with it."
   },
   "watch": {
     "title": "Watched",
@@ -655,5 +656,13 @@
     "watchedLast_one": "{{count}} episode watched, last {{when}}",
     "watchedLast_other": "{{count}} episodes watched, last {{when}}",
     "none": "Nothing in this selection."
+  },
+  "page": {
+    "crashTitle": "This page crashed",
+    "crash": "An error in the interface stopped it. Your data is not affected. Reload the page or switch to another one.",
+    "reload": "Reload",
+    "notFoundTitle": "Page not found",
+    "notFound": "Finalarr has no page at this address.",
+    "home": "Go to the overview"
   }
 }

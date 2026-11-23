@@ -162,6 +162,7 @@ function InstanceRow({ instance }: { instance: InstanceView }) {
     onSuccess: refresh,
   })
   const remove = useMutation({ mutationFn: () => call('', 'DELETE'), onSuccess: refresh })
+  const failed = patch.error ?? sync.error ?? rotate.error ?? remove.error
   return (
     <li className="rounded-card border border-line p-3">
       <div className="flex flex-wrap items-start justify-between gap-2">
@@ -217,6 +218,11 @@ function InstanceRow({ instance }: { instance: InstanceView }) {
         {test.isError && <span className="text-bad">{errorText(t, test.error)}</span>}
         {sync.isSuccess && <span className="text-ok">{t('instance.syncQueued')}</span>}
       </p>
+      {failed && (
+        <p role="alert" className="mt-1 text-xs text-bad">
+          {errorText(t, failed)}
+        </p>
+      )}
     </li>
   )
 }

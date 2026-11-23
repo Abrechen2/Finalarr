@@ -19,3 +19,16 @@ test('no translation is empty', () => {
     expect(value.trim(), key).not.toBe('')
   }
 })
+
+test('German and English use the same placeholders', () => {
+  const placeholders = (text: string) => [...text.matchAll(/{{\s*(\w+)/g)].map((m) => m[1]).sort()
+  const english = flatten(en)
+  for (const [key, value] of Object.entries(flatten(de))) {
+    expect(placeholders(english[key]), key).toEqual(placeholders(value))
+  }
+})
+
+test('the page language follows the UI language from the start', async () => {
+  const { default: i18n } = await import('./index')
+  expect(document.documentElement.lang).toBe(i18n.language)
+})
