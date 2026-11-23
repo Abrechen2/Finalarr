@@ -5,6 +5,15 @@ the tagged commit, builds the image, starts it once (`/health`), pushes it to GH
 SBOM and provenance, signs it with cosign (keyless) and creates the GitHub release from
 the matching `CHANGELOG.md` section.
 
+Python libraries are pinned with hashes in `backend/requirements.txt`, so a release
+candidate and its final build ship the same versions. Dependabot updates it; to change it
+by hand after editing `pyproject.toml`:
+
+```sh
+cd backend && uv pip compile pyproject.toml --generate-hashes --python-version 3.12 \
+  --universal -o requirements.txt
+```
+
 ## Release candidate
 
 1. `backend/VERSION` holds the upcoming version (e.g. `0.4.0`); the CHANGELOG section

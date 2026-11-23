@@ -27,7 +27,8 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install
-        run: pip install --upgrade pip && pip install -e '.[dev]'
+        # The locked versions the image ships, then the dev tools.
+        run: pip install --upgrade pip && pip install --require-hashes -r requirements.txt && pip install -e '.[dev]' && pip check
       - name: Ruff
         run: ruff check . && ruff format --check .
       - name: Mypy
@@ -72,7 +73,9 @@ jobs:
           node-version: "22"
       - name: Install
         run: |
-          python -m venv backend/.venv && backend/.venv/bin/pip install -q ./backend
+          python -m venv backend/.venv
+          backend/.venv/bin/pip install -q --require-hashes -r backend/requirements.txt
+          backend/.venv/bin/pip install -q --no-deps ./backend
           (cd frontend && npm ci --no-audit --no-fund)
           (cd e2e && npm ci --no-audit --no-fund && npx playwright install --with-deps chromium)
       - run: e2e/run.sh

@@ -29,9 +29,13 @@ RUN apt-get update \
     && useradd -u 1000 -g finalarr -d /app -s /usr/sbin/nologin finalarr
 
 WORKDIR /app
+# Exact, hashed versions: the release candidate and the final build get the same
+# libraries (backend/requirements.txt, see docs/RELEASING.md).
+COPY backend/requirements.txt ./
+RUN pip install --no-cache-dir --require-hashes -r requirements.txt
 COPY backend/pyproject.toml backend/VERSION backend/gunicorn.conf.py ./
 COPY backend/finalarr ./finalarr
-RUN pip install --no-cache-dir . && rm -rf build *.egg-info
+RUN pip install --no-cache-dir --no-deps . && pip check && rm -rf build *.egg-info requirements.txt
 COPY --from=frontend /build/dist /app/static
 COPY LICENSE THIRD_PARTY_NOTICES.md /app/
 COPY docker/entrypoint.sh /entrypoint.sh
