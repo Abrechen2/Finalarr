@@ -2,7 +2,7 @@
 
 All notable changes to Finalarr are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versions follow SemVer.
 
-## [0.5.0] – unreleased
+## [0.5.0] – 2026-11-25
 
 ### Added
 - **Watched tab**: for everyone or one person, episodes and hours watched, this week and
